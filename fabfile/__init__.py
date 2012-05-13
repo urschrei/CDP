@@ -5,10 +5,11 @@ from fabric.contrib.console import confirm
 from fabric.context_managers import settings, hide, prefix
 from fabric.colors import cyan, yellow, green, red
 from time import time
+
+import sys
 import os
 
 env.basename = os.path.dirname(__file__)
-
 
 @task
 def run_app():

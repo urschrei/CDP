@@ -21,3 +21,16 @@ def run_app():
 def shell():
     "Gets a local shell"
     local('export GLYPH_CONFIGURATION=`pwd`/app/config/dev.py && ./shell.py')
+
+@task
+def build_db(rev="head"):
+    """ Run alembic migrations to specified revision, or head """
+    with cd(env.basename):
+        local("alembic upgrade %s" % rev)
+
+@task
+def downgrade_db(rev="base"):
+    """ Downgrade DB to specified revision, or base """
+    with cd(env.basename):
+        local("alembic downgrade %s" % rev)
+    

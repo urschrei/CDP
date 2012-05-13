@@ -19,3 +19,9 @@ db = SQLAlchemy(app)
 # from apps.foo.views import foo_app
 # attach any blueprints
 # app.register_blueprint(foo_app, url_prefix='/foo')
+
+
+@app.route('/')
+def index():
+    """ Glyph homepage """
+    return render_template('index.jinja')

@@ -25,3 +25,18 @@ db = SQLAlchemy(app)
 def index():
     """ Glyph homepage """
     return render_template('index.jinja')
+
+
+# Error handling
+@app.errorhandler(404)
+def page_not_found(error):
+    """ 404 handler """
+    return render_template(
+        'errors/404.jinja'), 404
+
+
+@app.errorhandler(500)
+def application_error(error):
+    """ 500 handler """
+    return render_template(
+        'errors/500.jinja'), 500

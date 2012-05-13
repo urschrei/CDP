@@ -33,8 +33,9 @@ def upgrade_db(rev="head"):
     """
     Upgrade DB to specified revision or head. Dev only
     """
+    print(cyan("Running Alembic migrations, upgrading DB to %s" % rev))
     with cd(env.basename):
-        local("alembic upgrade %s" % rev)
+        local("venv/bin/alembic upgrade %s" % rev)
 
 
 @task
@@ -42,6 +43,6 @@ def downgrade_db(rev="base"):
     """
     Downgrade DB to specified revision or base. Dev only
     """
+    print(cyan("Running Alembic migrations, downgrading DB to %s" % rev))
     with cd(env.basename):
-        local("alembic downgrade %s" % rev)
-    
+        local("venv/bin/alembic downgrade %s" % rev)

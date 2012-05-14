@@ -6,6 +6,7 @@ import os
 from flask import Flask, render_template, request, url_for, redirect
 
 from flask.ext.sqlalchemy import SQLAlchemy
+from flask.ext.assets import Environment, Bundle
 
 app = Flask(__name__)
 app.config.from_pyfile('config/common.py')
@@ -15,6 +16,12 @@ if os.getenv('GLYPH_CONFIGURATION'):
 
 # attach DB
 db = SQLAlchemy(app)
+# attach assets
+assets = Environment(app)
+js = Bundle('js/jquery-1.7.2.js', 'js/bootstrap.js',
+            filters='jsmin', output='gen/packed.js')
+assets.register('js_all', js)
+
 # import our own blueprints here if necessary
 # from apps.foo.views import foo_app
 # attach any blueprints

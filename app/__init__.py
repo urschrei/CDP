@@ -18,6 +18,7 @@ if os.getenv('GLYPH_CONFIGURATION'):
 
 # attach DB
 db = SQLAlchemy(app)
+
 # attach assets
 assets = Environment(app)
 js = Bundle(
@@ -27,6 +28,13 @@ js = Bundle(
     filters='yui_js',
     output='gen/packed.js')
 assets.register('js_all', js)
+css = Bundle(
+        'http://yui.yahooapis.com/3.5.1/build/cssreset/cssreset-min.css',
+        'css/bootstrap.css',
+        'css/bootstrap-responsive.css',
+        filters='yui_css',
+        output='gen/packed.css')
+assets.register('css_all', css)
 
 # import our own blueprints here if necessary
 # from apps.foo.views import foo_app

@@ -5,8 +5,9 @@
         <script>(function(H){H.className=H.className.replace(/\bno-js\b/,'js')})(document.documentElement)</script>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/bootstrap.css') }}">
-        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/bootstrap-responsive.css') }}">
+        {% assets "css_all" %}
+            <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}">
+        {% endassets %}
         <title>{% block title %}Glyph{% endblock %}</title>
 
     </head>
@@ -27,7 +28,7 @@
                 </div>
                 <div class="span10">
                     {% block content %}{% endblock %}
-                </div>
+                </div> 
             </div>
         </div>
         {% assets "js_all" %}

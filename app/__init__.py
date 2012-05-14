@@ -20,8 +20,12 @@ if os.getenv('GLYPH_CONFIGURATION'):
 db = SQLAlchemy(app)
 # attach assets
 assets = Environment(app)
-js = Bundle('js/jquery-1.7.2.js', 'js/bootstrap.js',
-            filters='jsmin', output='gen/packed.js')
+js = Bundle(
+    'http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js',
+    'js/bootstrap.js',
+    'js/jquery.easing.1.3.js',
+    filters='yui_js',
+    output='gen/packed.js')
 assets.register('js_all', js)
 
 # import our own blueprints here if necessary

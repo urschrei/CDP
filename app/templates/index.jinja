@@ -2,7 +2,10 @@
 
 {% block title %}Home{% endblock %}
 {% block content %}
-    <div class="row-fluid">
-        <h2>Content goes here</h2>
-    </div>
+    <h2>Content goes here</h2>
+{% endblock %}
+{% block sidebar %}
+{% for number in range(10) %}
+<p>Sidebar</p>
+{% endfor %}
 {% endblock %}

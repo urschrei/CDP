@@ -1,9 +1,11 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 """ Glyph main site """
 
 import os
 
-from flask import Flask, render_template, request, url_for, redirect
+from flask import Flask, render_template
 
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.assets import Environment, Bundle

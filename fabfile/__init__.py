@@ -32,15 +32,16 @@ def run_app():
 @task
 def shell():
     """
-    Create a local iPython shell with app imported
+    Create a local iPython shell with app imported. Dev only
     """
     local('export GLYPH_CONFIGURATION=`pwd`/app/config/dev.py && ./shell.py')
 
 
+# Alembic stuff. See http://alembic.readthedocs.org/en/latest/api.html
 @task
 def upgrade_db(rev="head"):
     """
-    Upgrade DB to specified revision or head. Dev only
+    Upgrade DB to specified revision or head
     """
     print(cyan("Running Alembic migrations, upgrading DB to %s" % rev))
     command.upgrade(alembic_cfg, rev)
@@ -49,7 +50,15 @@ def upgrade_db(rev="head"):
 @task
 def downgrade_db(rev="base"):
     """
-    Downgrade DB to specified revision or base. Dev only
+    Downgrade DB to specified revision or base
     """
     print(cyan("Running Alembic migrations, downgrading DB to %s" % rev))
     command.downgrade(alembic_cfg, rev)
+
+
+@task
+def show_migrations():
+    """
+    List all DB migrations in chronological order
+    """
+    command.history(alembic_cfg)

@@ -17,3 +17,4 @@ ssh==1.7.14
 webassets==0.7
 wsgiref==0.1.2
 yolk==0.4.3
+yuicompressor==2.4.7

@@ -1,4 +1,6 @@
+Fabric==1.4.2
 Flask==0.8
+Flask-Assets==0.7
 Flask-SQLAlchemy==0.16
 Jinja2==2.6
 Mako==0.7.0
@@ -8,5 +10,9 @@ SQLAlchemy==0.7.7
 Werkzeug==0.8.3
 alembic==0.3.2
 ipython==0.12.1
+pycrypto==2.5
+readline==6.2.1
+ssh==1.7.14
+webassets==0.7
 wsgiref==0.1.2
 yolk==0.4.3

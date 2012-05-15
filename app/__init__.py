@@ -21,19 +21,23 @@ db = SQLAlchemy(app)
 
 # attach assets
 assets = Environment(app)
+assets.versions = 'hash'
+manifest_path = os.path.realpath(os.path.join(os.path.dirname(__file__), '.static-manifest'))
+assets.manifest = 'file://%s' % manifest_path
+
 js = Bundle(
     'http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js',
     'js/bootstrap.js',
     'js/jquery.easing.1.3.js',
     filters='yui_js',
-    output='gen/packed.js')
+    output='gen/packed.%(version)s.js')
 assets.register('js_all', js)
 css = Bundle(
         'http://yui.yahooapis.com/3.5.1/build/cssreset/cssreset-min.css',
         'css/bootstrap.css',
         'css/bootstrap-responsive.css',
         filters='yui_css',
-        output='gen/packed.css')
+        output='gen/packed.%(version)s.css')
 assets.register('css_all', css)
 
 # import our own blueprints here if necessary

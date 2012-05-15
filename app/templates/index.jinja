@@ -3,6 +3,7 @@
 {% block title %}Home{% endblock %}
 {% block content %}
     <h2>Content goes here</h2>
+    <img class="thumbnail" src="{{ url_for('static', filename='img/astrocat.jpg') }}" />
 {% endblock %}
 {% block sidebar %}
 {% for number in range(10) %}

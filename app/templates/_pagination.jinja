@@ -1,0 +1,21 @@
+{% macro render_pagination(pagination, endpoint) %}
+    {%- for item in pagination.items %}
+        <p>{{ item.id }}: {{ item.text_field }}</p>
+    {%- endfor %}
+    <div class="pagination">
+        <ul>
+            {%- for page in pagination.iter_pages() %}
+                {% if page %}
+                    {% if page != pagination.page %}
+                        <li><a href="{{ url_for(endpoint, page=page) }}">{{ page }}</a></li>
+                    {% else %}
+                        <li class="active"><a href="#">{{ page }}</a></li>
+                    {% endif %}
+                    {% else %}
+                        <li><span class=ellipsis>…</span></li>
+                    {% endif %}
+            {%- endfor %}
+        </ul>
+    </div>
+{% endmacro %}
+

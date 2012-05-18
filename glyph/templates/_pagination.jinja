@@ -1,8 +1,5 @@
 {% macro render_pagination(pagination, endpoint) %}
-    {%- for item in pagination.items %}
-        <p>{{ item.id }}: {{ item.text_field }}</p>
-    {%- endfor %}
-    <div class="pagination">
+    <div class="pagination pagination-centered">
         <ul>
             {%- for page in pagination.iter_pages() %}
                 {% if page %}
@@ -12,7 +9,7 @@
                         <li class="active"><a href="#">{{ page }}</a></li>
                     {% endif %}
                     {% else %}
-                        <li><span class=ellipsis>…</span></li>
+                        <li class="disabled"><a href="#">…</a></li>
                     {% endif %}
             {%- endfor %}
         </ul>

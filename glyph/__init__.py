@@ -12,13 +12,15 @@ from flask.ext.assets import Environment
 from webassets.loaders import YAMLLoader
 
 app = Flask(__name__)
+# attach DB
+db = SQLAlchemy(app)
+import glyph.views
+import glyph.models
+
 app.config.from_pyfile('config/common.py')
 
 if os.getenv('GLYPH_CONFIGURATION'):
     app.config.from_envvar('GLYPH_CONFIGURATION')
-
-# attach DB
-db = SQLAlchemy(app)
 
 # attach assets
 assets = Environment(app)
@@ -40,12 +42,6 @@ for bundle_name, bundle in bundles.items():
 # app.register_blueprint(foo_app, url_prefix='/foo')
 
 
-@app.route('/')
-def index():
-    """ Glyph homepage """
-    return render_template('index.jinja')
-
-
 # Error handling
 @app.errorhandler(404)
 def page_not_found(error):
@@ -59,4 +55,3 @@ def application_error(error):
     """ 500 handler """
     return render_template(
         'errors/500.jinja'), 500
-

@@ -1,0 +1,31 @@
+{% extends "base.jinja" %}
+{% from "_pagination.jinja" import render_pagination %}
+{% block title %}Home{% endblock %}
+{% block content %}
+    <div class="container-fluid">
+        <table class="table table-striped table-bordered">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Text</th>
+                </tr>
+            </thead>
+            <tbody>
+                {%- for item in page.items %}
+                <tr>
+                    <td>{{ item.id }}</td><td>{{ item.text_field }}</td>
+                </tr>
+                {%- endfor %}
+            </tbody>
+        </table>
+        {{ render_pagination(page, "records") }}
+    </div>
+{% endblock %}
+{% block sidebar %}
+{% for number in range(3) %}
+    <li class="nav-header">Sidebar</li>
+    <li><a href="#">Link</a></li>
+    <li><a href="#">Link</a></li>
+    <li><a href="#">Link</a></li>
+{% endfor %}
+{% endblock %}

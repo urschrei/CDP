@@ -26,7 +26,9 @@ def run_app():
     Start app in debug mode with reloading turned on. Dev only
     """
     with cd(env.basename):
-        local('export GLYPH_CONFIGURATION=`pwd`/app/config/dev.py && venv/bin/python ./run.py')
+        # clean up any *.pyc files in our app dir
+        local('rm glyph/*.pyc')
+        local('export GLYPH_CONFIGURATION=`pwd`/glyph/config/dev.py && venv/bin/python ./run.py')
 
 
 @task
@@ -34,7 +36,7 @@ def shell():
     """
     Create a local iPython shell with app imported. Dev only
     """
-    local('export GLYPH_CONFIGURATION=`pwd`/app/config/dev.py && ./shell.py')
+    local('export GLYPH_CONFIGURATION=`pwd`/glyph/config/dev.py && ./shell.py')
 
 
 # Alembic stuff. See http://alembic.readthedocs.org/en/latest/api.html

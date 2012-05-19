@@ -4,9 +4,10 @@ from werkzeug import script
 import readline
 
 from flask import *
-from app import *
+from glyph import app
 
 os.environ['PYTHONINSPECT'] = 'True'
+
 
 def make_shell():
     return dict(app=app)

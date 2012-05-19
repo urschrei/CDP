@@ -34,9 +34,9 @@ def run_app():
 @task
 def shell():
     """
-    Create a local iPython shell with app imported. Dev only
+    Run iPython without the deprecated Werkzeug stuff
     """
-    local('export GLYPH_CONFIGURATION=`pwd`/glyph/config/dev.py && ./shell.py')
+    local('export GLYPH_CONFIGURATION=`pwd`/glyph/config/dev.py && ipython -i -c "from flask import *; from glyph import app"')
 
 
 # Alembic stuff. See http://alembic.readthedocs.org/en/latest/api.html

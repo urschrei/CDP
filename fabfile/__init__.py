@@ -36,7 +36,7 @@ def shell():
     """
     Run iPython without the deprecated Werkzeug stuff
     """
-    local('export GLYPH_CONFIGURATION=`pwd`/glyph/config/dev.py && ipython -i -c "from flask import *; from glyph import app"')
+    local('export GLYPH_CONFIGURATION=`pwd`/glyph/config/dev.py && ipython -i -c "%%run shell.py"')
 
 
 # Alembic stuff. See http://alembic.readthedocs.org/en/latest/api.html

@@ -1,16 +1,9 @@
-#!/usr/bin/env python
 import os
-from werkzeug import script
-import readline
-
+import sys
 from flask import *
-from glyph import app
+from glyph import app, db
 
-os.environ['PYTHONINSPECT'] = 'True'
-
-
-def make_shell():
-    return dict(app=app)
-
-if __name__ == "__main__":
-    script.make_shell(make_shell, use_ipython=True)()
+app.testing = True
+client = app.test_client()
+ctx = app.test_request_context()
+ctx.push()

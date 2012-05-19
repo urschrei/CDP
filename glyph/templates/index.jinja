@@ -18,8 +18,7 @@
         {% endif %}
         <form class="form-inline" action="{{ url_for('index') }}" method="post">
             {{ form.hidden_tag() }}
-            {{ form.record(class="input-small", placeholder="New Record Text") }}
-            <!-- <input type="text" name ="record" class="input-small" placeholder="Record Text" /> -->
+            {{ form.record(class="input-small", placeholder="New Record Text", required="required") }}
             <button type="submit" class="btn">Add</button>
         </form>
 {% endblock %}

@@ -27,7 +27,7 @@ assets = Environment(app)
 assets.versions = 'hash'
 
 manifest_path = os.path.realpath(
-        os.path.join(os.path.dirname(__file__), '.static-manifest'))
+    os.path.join(os.path.dirname(__file__), '.static-manifest'))
 assets.manifest = 'file://%s' % manifest_path
 
 bundles = YAMLLoader(os.path.realpath(

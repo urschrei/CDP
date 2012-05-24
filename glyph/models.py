@@ -25,8 +25,8 @@ class Tablet(db.Model, GlyphMixin):
     origin_city_id = db.Column(db.Integer(), db.ForeignKey('city.id'), nullable=True)
     publication = db.Column(db.String(200), nullable=True)
     period_id = db.Column(db.Integer(), db.ForeignKey('period.id'), nullable=False)
-    from_id = db.Column(db.Integer(), db.ForeignKey('ruler.id'), nullable=True)
-    to_id = db.Column(db.Integer(), db.ForeignKey('ruler.id'), nullable=True)
+    from_id = db.Column(db.Integer(), db.ForeignKey('correspondent.id'), nullable=True)
+    to_id = db.Column(db.Integer(), db.ForeignKey('correspondent.id'), nullable=True)
     year = db.Column(db.String(10), nullable=True)
     month = db.Column(db.String(10), nullable=True)
     day = db.Column(db.String(10), nullable=True)
@@ -41,10 +41,10 @@ class Tablet(db.Model, GlyphMixin):
     origin_city = db.relationship("City",
         primaryjoin="City.id == Tablet.origin_city_id", uselist=False, backref="origin_tablet")
     period = db.relationship("Period", uselist=False, backref="tablet")
-    sent_from = db.relationship("Ruler",
-        primaryjoin="Ruler.id == Tablet.from_id", uselist=False, backref="tablet_from")
-    sent_to = db.relationship("Ruler",
-        primaryjoin="Ruler.id == Tablet.to_id", uselist=False, backref="tablet_to")
+    sent_from = db.relationship("Correspondent",
+        primaryjoin="Correspondent.id == Tablet.from_id", uselist=False, backref="tablet_from")
+    sent_to = db.relationship("Correspondent",
+        primaryjoin="Correspondent.id == Tablet.to_id", uselist=False, backref="tablet_to")
     eponym = db.relationship("Eponym", uselist=False, backref="tablet")
     text_vehicle = db.relationship("Text_Vehicle", uselist=False, backref="tablet")
     
@@ -65,6 +65,37 @@ class Tablet(db.Model, GlyphMixin):
         self.eponym = kwargs.get("eponym")
         self.text_vehicle = kwargs.get("text_vehicle")
         self.notes = kwargs.get("notes")
+
+
+class Non_Ruler_Corresp(db.Model, GlyphMixin):
+    """
+    This holds correspondents who aren't rulers
+    """
+    name = db.Column(db.String(100), nullable=False)
+
+    def __init__(self, name):
+        self.name = name
+
+
+class Correspondent(db.Model, GlyphMixin):
+    ruler_id = db.Column(
+        db.Integer(), db.ForeignKey("ruler.id"), nullable=True)
+    non_ruler_id = db.Column(
+        db.Integer, db.ForeignKey("non_ruler_corresp.id"), nullable=True)
+    # relations
+    ruler = db.relationship("Ruler", uselist=False, backref="correspondent")
+    non_ruler = db.relationship("Non_Ruler_Corresp", uselist=False, backref="correspondent")
+
+    def __init__(self, ruler=None, non_ruler=None):
+        assert (ruler is None) ^ (non_ruler is None)
+        if ruler:
+            self.ruler = ruler
+        if non_ruler:
+            self.non_ruler = non_ruler
+
+    @property
+    def name(self):
+        return self.ruler.name if self.ruler else self.non_ruler.name
 
 
 class Locality(db.Model, GlyphMixin):

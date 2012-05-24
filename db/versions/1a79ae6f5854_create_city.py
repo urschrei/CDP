@@ -19,10 +19,10 @@ def upgrade():
         'city',
         sa.Column('id', sa.Integer, primary_key=True),
         sa.Column('name', sa.String(100), nullable=False),
-        sa.Column('locality', sa.String(100), sa.ForeignKey('locality.area'), nullable=False)
+        sa.Column('locality_id', sa.Integer(), sa.ForeignKey('locality.id'), nullable=False)
     )
     op.create_index('idx_name', 'city', ['name'])
 
 
 def downgrade():
-    sa.drop_table('city')
+    op.drop_table('city')

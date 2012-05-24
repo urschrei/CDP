@@ -19,7 +19,7 @@ def upgrade():
         'period',
         sa.Column('id', sa.Integer, primary_key=True),
         sa.Column('name', sa.String(150), nullable=False),
-        sa.Column('sub_periods', sa.Integer(), sa.ForeignKey('sub_period.id'), nullable=True),
+        sa.Column('sub_period_id', sa.Integer(), sa.ForeignKey('sub_period.id'), nullable=True),
     )
     op.create_index('idx_name', 'period', ['name'])
 

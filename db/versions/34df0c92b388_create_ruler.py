@@ -20,7 +20,7 @@ def upgrade():
         sa.Column('id', sa.Integer, primary_key=True),
         sa.Column('name', sa.String(100), nullable=False),
         sa.Column('rim_ref', sa.String(30), nullable=True),
-        sa.Column('city', sa.Integer(), sa.ForeignKey('city.id'), nullable=True),
+        sa.Column('city_id', sa.Integer(), sa.ForeignKey('city.id'), nullable=True),
         sa.Column('start_year', sa.String(4), nullable=True),
         sa.Column('end_year', sa.String(4), nullable=True)
     )

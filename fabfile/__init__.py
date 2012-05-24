@@ -19,6 +19,7 @@ import os
 env.basename = os.path.dirname(__file__)
 alembic_cfg = Config(os.path.join(os.path.dirname(env.basename), "alembic.ini"))
 
+env.hosts = ['cdpp@oracc.museum.upenn.edu']
 
 @task
 def run_app():
@@ -37,6 +38,14 @@ def shell():
     Run iPython without the deprecated Werkzeug stuff
     """
     local('export GLYPH_CONFIGURATION=`pwd`/glyph/config/dev.py && ipython -i -c "%%run shell.py"')
+
+
+@task
+def deploy():
+    with cd('CDP/glyph'):
+        run('git pull')
+        run('venv/bin/alembic upgrade head')
+        # touch run.wsgi
 
 
 # Alembic stuff. See http://alembic.readthedocs.org/en/latest/api.html

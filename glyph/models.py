@@ -128,8 +128,8 @@ class Method(db.Model, GlyphMixin):
 class Script_Type(db.Model, GlyphMixin):
     name = db.Column(db.String(50), nullable=False)
 
-    def __init__(self, name):
-        self.name = name
+    def __init__(self, script):
+        self.script = script
 
 
 class Medium(db.Model, GlyphMixin):

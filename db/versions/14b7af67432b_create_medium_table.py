@@ -24,4 +24,4 @@ def upgrade():
 
 
 def downgrade():
-    sa.drop_table('medium')
+    op.drop_table('medium')

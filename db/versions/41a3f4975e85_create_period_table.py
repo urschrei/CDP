@@ -19,10 +19,10 @@ def upgrade():
         'period',
         sa.Column('id', sa.Integer, primary_key=True),
         sa.Column('name', sa.String(150), nullable=False),
-        sa.Column('sub_periods', sa.String(100), sa.ForeignKey('sub_period.name'), nullable=True),
+        sa.Column('sub_periods', sa.Integer(), sa.ForeignKey('sub_period.id'), nullable=True),
     )
     op.create_index('idx_name', 'period', ['name'])
 
 
 def downgrade():
-    sa.drop_table('period')
+    op.drop_table('period')

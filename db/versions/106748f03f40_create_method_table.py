@@ -24,4 +24,4 @@ def upgrade():
 
 
 def downgrade():
-    sa.drop_table('method')
+    op.drop_table('method')

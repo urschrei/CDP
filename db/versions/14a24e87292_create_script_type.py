@@ -24,4 +24,4 @@ def upgrade():
 
 
 def downgrade():
-    sa.drop_table('script_type')
+    op.drop_table('script_type')

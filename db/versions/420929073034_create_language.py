@@ -24,4 +24,4 @@ def upgrade():
 
 
 def downgrade():
-    sa.drop_table('language')
+    op.drop_table('language')

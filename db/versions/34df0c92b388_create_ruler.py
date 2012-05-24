@@ -20,7 +20,7 @@ def upgrade():
         sa.Column('id', sa.Integer, primary_key=True),
         sa.Column('name', sa.String(100), nullable=False),
         sa.Column('rim_ref', sa.String(30), nullable=True),
-        sa.Column('city', sa.String(100), sa.ForeignKey('city.name'), nullable=True),
+        sa.Column('city', sa.Integer(), sa.ForeignKey('city.id'), nullable=True),
         sa.Column('start_year', sa.String(4), nullable=True),
         sa.Column('end_year', sa.String(4), nullable=True)
     )
@@ -31,4 +31,4 @@ def upgrade():
 
 
 def downgrade():
-    sa.drop_table('ruler')
+    op.drop_table('ruler')

@@ -24,4 +24,4 @@ def upgrade():
 
 
 def downgrade():
-    sa.drop_table('sub_period')
+    op.drop_table('sub_period')

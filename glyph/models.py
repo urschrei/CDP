@@ -31,7 +31,6 @@ class Tablet(db.Model, GlyphMixin):
     year_id = db.Column(db.Integer(), db.ForeignKey('year.id'), nullable=True)
     month = db.Column(db.String(10), nullable=True)
     day = db.Column(db.String(10), nullable=True)
-    eponym_id = db.Column(db.Integer(), db.ForeignKey('eponym.id'), nullable=True)
     text_vehicle_id = db.Column(db.Integer(), db.ForeignKey('text_vehicle.id'), nullable=True)
     notes = db.Column(db.String(500), nullable=True)
     method_id = db.Column(db.Integer(), db.ForeignKey('method.id'), nullable=True)
@@ -50,7 +49,6 @@ class Tablet(db.Model, GlyphMixin):
         primaryjoin="Correspondent.id == Tablet.from_id", uselist=False, backref="tablet_from")
     sent_to = db.relationship("Correspondent",
         primaryjoin="Correspondent.id == Tablet.to_id", uselist=False, backref="tablet_to")
-    eponym = db.relationship("Eponym", uselist=False, backref="tablet")
     text_vehicle = db.relationship("Text_Vehicle", uselist=False, backref="tablet")
     language = db.relationship("Language", uselist=False, backref="tablet")
     method = db.relationship("Method", uselist=False, backref="tablet")
@@ -71,7 +69,6 @@ class Tablet(db.Model, GlyphMixin):
         self.year = kwargs.get("year")
         self.month = kwargs.get("month")
         self.day = kwargs.get("day")
-        self.eponym = kwargs.get("eponym")
         self.text_vehicle = kwargs.get("text_vehicle")
         self.notes = kwargs.get("notes")
         self.language = kwargs.get("language")
@@ -130,7 +127,7 @@ class Locality(db.Model, GlyphMixin):
 
 class Sub_Locality(db.Model, GlyphMixin):
     name = db.Column(db.String(100), nullable=False, unique=True)
-    
+
     def __init__(self, name):
         self.name = name
 

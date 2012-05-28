@@ -28,13 +28,14 @@ class Tablet(db.Model, GlyphMixin):
     from_id = db.Column(db.Integer(), db.ForeignKey('correspondent.id'), nullable=True)
     to_id = db.Column(db.Integer(), db.ForeignKey('correspondent.id'), nullable=True)
     language_id = db.Column(db.Integer(), db.ForeignKey('language.id'), nullable=True)
-    year = db.Column(db.String(10), nullable=True)
+    year_id = db.Column(db.Integer(), db.ForeignKey('year.id'), nullable=True)
     month = db.Column(db.String(10), nullable=True)
     day = db.Column(db.String(10), nullable=True)
     eponym_id = db.Column(db.Integer(), db.ForeignKey('eponym.id'), nullable=True)
     text_vehicle_id = db.Column(db.Integer(), db.ForeignKey('text_vehicle.id'), nullable=True)
     notes = db.Column(db.String(500), nullable=True)
     # relations
+    year = db.relationship("Year", uselist=False, backref="tablet")
     medium = db.relationship("Medium", uselist=False, backref="tablet")
     script_type = db.relationship("Script_Type", uselist=False, backref="tablet")
     city = db.relationship("City",
@@ -135,6 +136,19 @@ class Script_Type(db.Model, GlyphMixin):
         self.script = script
 
 
+class Year(db.Model, GlyphMixin):
+    year = db.Column(db.String(14), nullable=False, unique=True)
+    eponym_id = db.Column(
+        db.Integer(), db.ForeignKey("eponym.id"), nullable=True)
+    # relations
+    eponym = db.relationship("Eponym", uselist=False, backref="year")
+
+    def __init__(self, year, eponym=None):
+        self.year = year
+        if eponym:
+            self.eponym = eponym
+
+
 class Medium(db.Model, GlyphMixin):
     name = db.Column(db.String(50), nullable=False, unique=True)
 
@@ -178,12 +192,9 @@ class Text_Vehicle(db.Model, GlyphMixin):
 
 class Eponym(db.Model, GlyphMixin):
     name = db.Column(db.String(50), nullable=False, unique=True)
-    year = db.Column(db.String(10), nullable=True)
 
     def __init__(self, name, year=None):
         self.name = name
-        if year:
-            self.year = year
 
 
 class Period(db.Model, GlyphMixin):

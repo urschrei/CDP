@@ -71,7 +71,7 @@ class Non_Ruler_Corresp(db.Model, GlyphMixin):
     """
     This holds correspondents who aren't rulers
     """
-    name = db.Column(db.String(100), nullable=False)
+    name = db.Column(db.String(100), nullable=False, unique=True)
 
     def __init__(self, name):
         self.name = name
@@ -99,7 +99,7 @@ class Correspondent(db.Model, GlyphMixin):
 
 
 class Locality(db.Model, GlyphMixin):
-    area = db.Column(db.String(100), nullable=False)
+    area = db.Column(db.String(100), nullable=False, unique=True)
     sub_locality_id = db.Column(
         db.Integer(), db.ForeignKey("sub_locality.id"), nullable=True)
     # relations
@@ -112,56 +112,69 @@ class Locality(db.Model, GlyphMixin):
 
 
 class Sub_Locality(db.Model, GlyphMixin):
-    name = db.Column(db.String(100), nullable=False)
+    name = db.Column(db.String(100), nullable=False, unique=True)
     
     def __init__(self, name):
         self.name = name
 
 
 class Method(db.Model, GlyphMixin):
-    name = db.Column(db.String(50), nullable=False)
+    name = db.Column(db.String(50), nullable=False, unique=True)
 
     def __init__(self, name):
         self.name = name
 
 
 class Script_Type(db.Model, GlyphMixin):
-    name = db.Column(db.String(50), nullable=False)
+    name = db.Column(db.String(50), nullable=False, unique=True)
 
     def __init__(self, script):
         self.script = script
 
 
 class Medium(db.Model, GlyphMixin):
-    name = db.Column(db.String(50), nullable=False)
+    name = db.Column(db.String(50), nullable=False, unique=True)
 
     def __init__(self, name):
         self.name = name
 
 
 class Genre(db.Model, GlyphMixin):
-    name = db.Column(db.String(100), nullable=False)
+    name = db.Column(db.String(100), nullable=False, unique=True)
+
+    def __init__(self, name):
+        self.name = name
+
+
+class Language(db.Model, GlyphMixin):
+    name = db.Column(db.String(100), nullable=False, unique=True)
 
     def __init__(self, name):
         self.name = name
 
 
 class Function(db.Model, GlyphMixin):
-    name = db.Column(db.String(50), nullable=False)
+    name = db.Column(db.String(50), nullable=False, unique=True)
 
     def __init__(self, name):
         self.name = name
 
 
 class Text_Vehicle(db.Model, GlyphMixin):
-    name = db.Column(db.String(100), nullable=False)
+    name = db.Column(db.String(100), nullable=False, unique=True)
+    bm_catalogue = db.Column(db.String(100), nullable=True)
+    cdli = db.Column(db.String(100), nullable=True)
 
-    def __init__(self, name):
+    def __init__(self, name, bm_catalogue=None, cdli=None):
         self.name = name
+        if bm_catalogue:
+            self.bm_catalogue = bm_catalogue
+        if cdli:
+            self.cdli = cdli
 
 
 class Eponym(db.Model, GlyphMixin):
-    name = db.Column(db.String(50), nullable=False)
+    name = db.Column(db.String(50), nullable=False, unique=True)
     year = db.Column(db.String(10), nullable=True)
 
     def __init__(self, name, year=None):
@@ -171,7 +184,9 @@ class Eponym(db.Model, GlyphMixin):
 
 
 class Period(db.Model, GlyphMixin):
-    name = db.Column(db.String(150), nullable=False)
+    name = db.Column(db.String(150), nullable=False, unique=True)
+    from_date = db.Column(db.String(50), nullable=False)
+    to_date = db.Column(db.String(50), nullable=False)
     sub_period_id = db.Column(
         db.Integer(), db.ForeignKey("sub_period.id"), nullable=True)
     # relations
@@ -184,14 +199,14 @@ class Period(db.Model, GlyphMixin):
 
 
 class Sub_Period(db.Model, GlyphMixin):
-    name = db.Column(db.String(100), nullable=False)
+    name = db.Column(db.String(100), nullable=False, unique=True)
 
     def __init__(self, name):
         self.name = name
 
 
 class City(db.Model, GlyphMixin):
-    name = db.Column(db.String(100), nullable=False)
+    name = db.Column(db.String(100), nullable=False, unique=True)
     locality_id = db.Column(
         db.Integer(), db.ForeignKey('locality.id'), nullable=True)
     city_site_id = db.Column(
@@ -208,14 +223,14 @@ class City(db.Model, GlyphMixin):
 
 
 class City_Site(db.Model, GlyphMixin):
-    name = db.Column(db.String(100), nullable=False)
+    name = db.Column(db.String(100), nullable=False, unique=True)
 
     def __init__(self, name):
         self.name = name
 
 
 class Ruler(db.Model, GlyphMixin):
-    name = db.Column(db.String(100), nullable=False)
+    name = db.Column(db.String(100), nullable=False, unique=True)
     rim_ref = db.Column(db.String(30), nullable=True)
     city_id = db.Column(db.Integer(), db.ForeignKey('city.id'), nullable=True)
     start_year = db.Column(db.String(4), nullable=True)

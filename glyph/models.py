@@ -105,10 +105,10 @@ class Locality(db.Model, GlyphMixin):
     # relations
     sub_locality = db.relationship("Sub_Locality", uselist=False, backref="locality")
 
-    def __init__(self, area, sub_locality_id=None):
+    def __init__(self, area, sub_locality=None):
         self.area = area
-        if sub_locality_id:
-            self.sub_locality_id = sub_locality_id
+        if sub_locality:
+            self.sub_locality = sub_locality
 
 
 class Sub_Locality(db.Model, GlyphMixin):
@@ -177,10 +177,10 @@ class Period(db.Model, GlyphMixin):
     # relations
     sub_period = db.relationship("Sub_Period", uselist=False, backref="period")
 
-    def __init__(self, name, sub_period_id=None):
+    def __init__(self, name, sub_period=None):
         self.name = name
-        if sub_period_id:
-            self.sub_period_id = sub_period_id
+        if sub_period:
+            self.sub_period = sub_period
 
 
 class Sub_Period(db.Model, GlyphMixin):
@@ -200,11 +200,11 @@ class City(db.Model, GlyphMixin):
     locality = db.relationship("Locality", uselist=False, backref="city")
     site = db.relationship("City_Site", uselist=False, backref="city")
 
-    def __init__(self, name, locality_id, city_site_id=None):
+    def __init__(self, name, locality, site=None):
         self.name = name
-        self.locality_id = locality_id
-        if city_site_id:
-            self.city_site_id = city_site_id
+        self.locality = locality
+        if site:
+            self.site_id = site
 
 
 class City_Site(db.Model, GlyphMixin):
@@ -223,12 +223,12 @@ class Ruler(db.Model, GlyphMixin):
     # relations
     city = db.relationship("City", uselist=False, backref="ruler")
 
-    def __init__(self, name, rim_ref=None, city_id=None, start_year=None, end_year=None):
+    def __init__(self, name, rim_ref=None, city=None, start_year=None, end_year=None):
         self.name = name
         if rim_ref:
             self.rim_ref = rim_ref
-        if city_id:
-            self.city_id = city_id
+        if city:
+            self.city = city
         if start_year:
             self.start_year = start_year
         if end_year:

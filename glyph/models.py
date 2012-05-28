@@ -27,6 +27,7 @@ class Tablet(db.Model, GlyphMixin):
     period_id = db.Column(db.Integer(), db.ForeignKey('period.id'), nullable=False)
     from_id = db.Column(db.Integer(), db.ForeignKey('correspondent.id'), nullable=True)
     to_id = db.Column(db.Integer(), db.ForeignKey('correspondent.id'), nullable=True)
+    language_id = db.Column(db.Integer(), db.ForeignKey('language.id'), nullable=True)
     year = db.Column(db.String(10), nullable=True)
     month = db.Column(db.String(10), nullable=True)
     day = db.Column(db.String(10), nullable=True)
@@ -47,6 +48,7 @@ class Tablet(db.Model, GlyphMixin):
         primaryjoin="Correspondent.id == Tablet.to_id", uselist=False, backref="tablet_to")
     eponym = db.relationship("Eponym", uselist=False, backref="tablet")
     text_vehicle = db.relationship("Text_Vehicle", uselist=False, backref="tablet")
+    language = db.relationship("Language", uselist=False, backref="tablet")
     
     def __init__(self, **kwargs):
         """ this will obviously fall over if you forget a required column """
@@ -65,6 +67,7 @@ class Tablet(db.Model, GlyphMixin):
         self.eponym = kwargs.get("eponym")
         self.text_vehicle = kwargs.get("text_vehicle")
         self.notes = kwargs.get("notes")
+        self.language = kwargs.get("language")
 
 
 class Non_Ruler_Corresp(db.Model, GlyphMixin):

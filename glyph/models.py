@@ -34,6 +34,9 @@ class Tablet(db.Model, GlyphMixin):
     eponym_id = db.Column(db.Integer(), db.ForeignKey('eponym.id'), nullable=True)
     text_vehicle_id = db.Column(db.Integer(), db.ForeignKey('text_vehicle.id'), nullable=True)
     notes = db.Column(db.String(500), nullable=True)
+    method_id = db.Column(db.Integer(), db.ForeignKey('method.id'), nullable=True)
+    genre_id = db.Column(db.Integer(), db.ForeignKey('genre.id'), nullable=True)
+    function_id = db.Column(db.Integer(), db.ForeignKey('function.id'), nullable=True)
     # relations
     year = db.relationship("Year", uselist=False, backref="tablet")
     medium = db.relationship("Medium", uselist=False, backref="tablet")
@@ -50,6 +53,9 @@ class Tablet(db.Model, GlyphMixin):
     eponym = db.relationship("Eponym", uselist=False, backref="tablet")
     text_vehicle = db.relationship("Text_Vehicle", uselist=False, backref="tablet")
     language = db.relationship("Language", uselist=False, backref="tablet")
+    method = db.relationship("Method", uselist=False, backref="tablet")
+    genre = db.relationship("Genre", uselist=False, backref="tablet")
+    function = db.relationship("Function", uselist=False, backref="tablet")
     
     def __init__(self, **kwargs):
         """ this will obviously fall over if you forget a required column """
@@ -69,6 +75,9 @@ class Tablet(db.Model, GlyphMixin):
         self.text_vehicle = kwargs.get("text_vehicle")
         self.notes = kwargs.get("notes")
         self.language = kwargs.get("language")
+        self.method = kwargs.get("method")
+        self.genre = kwargs.get("genre")
+        self.function = kwargs.get("function")
 
 
 class Non_Ruler_Corresp(db.Model, GlyphMixin):
@@ -82,6 +91,10 @@ class Non_Ruler_Corresp(db.Model, GlyphMixin):
 
 
 class Correspondent(db.Model, GlyphMixin):
+    """
+    A correspondent can be a ruler or a non-ruler
+    Note use of @property to return the correct value
+    """
     ruler_id = db.Column(
         db.Integer(), db.ForeignKey("ruler.id"), nullable=True)
     non_ruler_id = db.Column(
@@ -191,6 +204,9 @@ class Text_Vehicle(db.Model, GlyphMixin):
 
 
 class Eponym(db.Model, GlyphMixin):
+    """
+    Like 'Year of Glad', but for rulers
+    """
     name = db.Column(db.String(50), nullable=False, unique=True)
 
     def __init__(self, name, year=None):

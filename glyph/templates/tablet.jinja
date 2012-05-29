@@ -1,0 +1,61 @@
+{% extends "base.jinja" %}
+{% block title %}Individual Tablet View{% endblock %}
+{% block content %}
+<h1>
+    {{ tablet.museum_number }}
+    <small>available signs</small>
+</h1>
+<div class="row-fluid">
+    <div class="span9">
+        <table class="table-bordered table-striped">
+        {%- for chunk in chunks %}
+        <tr>
+            {%- for sign in chunk %}
+                    <td>{{ sign }}</td>
+            {%- endfor %}
+        </tr>
+        {%- endfor %}
+        </table>
+    </div>
+</div>
+<div class="row-fluid">
+    <h3>Object images:</h3>
+    <ul class="thumbnails">
+    <!-- for-each loop goes here, because we've joined to Signs on Museum Number -->
+        <li class="span4">
+        <a href="#" class="thumbnail">
+            <img src="http://placehold.it/360x268" alt="">
+        </a>
+        </li>
+        <li class="span4">
+        <a href="#" class="thumbnail">
+            <img src="http://placehold.it/360x268" alt="">
+        </a>
+        </li>
+        <li class="span4">
+        <a href="#" class="thumbnail">
+            <img src="http://placehold.it/360x268" alt="">
+        </a>
+        </li>
+    </ul>
+</div>
+{% endblock %}
+{% block sidebar %}
+    <!-- conditionally display each of these fields -->
+    <ul class="unstyled">
+        <li><strong>Medium:</strong> <a href="{{ url_for('tablets', medium=tablet.medium.name) }}">{{ tablet.medium.name }}</a></li>
+        <li><strong>Script Type:</strong> <a href="{{ url_for('tablets', script_type=tablet.script_type.script) }}">{{ tablet.script_type.script }}</a></li>
+        <li><strong>City:</strong> <a href="{{ url_for('tablets', city=tablet.city.name) }}">{{ tablet.city.name }}</a></li>
+        <li><strong>Locality:</strong> <a href="{{ url_for('tablets', locality=tablet.city.locality.area) }}">{{ tablet.city.locality.area }}</a></li>
+        <li><strong>Publication:</strong> {{ tablet.publication }}</li>
+        <li><strong>Period:</strong> <a href="{{ url_for('tablets', period=tablet.period.name) }}">{{ tablet.period.name }}</a></li>
+        <li><strong>Sent From:</strong> {{ tablet.sent_from.name }}</li>
+        <li><strong>Sent To:</strong>{{ tablet.sent_to.name }}</li>
+        <li><strong>Year:</strong> {{ tablet.year.year }} (Eponym: {{ tablet.year.eponym }})</li>
+        <li><strong>Text Vehicle:</strong> {{ tablet.text_vehicle.name }}</li>
+        <li><strong>Language:</strong> {{ tablet.language.name }}</li>
+        <li><strong>Method:</strong> {{ tablet.method.name }}</li>
+        <li><strong>Genre:</strong> {{ tablet.genre.name }}</li>
+        <li><strong>Function:</strong> {{ tablet.function.name }}</li>
+    </ul>
+{% endblock %}

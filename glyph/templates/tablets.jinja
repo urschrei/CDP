@@ -1,5 +1,5 @@
 {% extends "base.jinja" %}
-{% from "_pagination.jinja" import render_pagination %}
+{% from "_utils.jinja" import render_pagination %}
 {% block title %}Home{% endblock %}
 {% block content %}
     <div class="container-fluid">
@@ -23,12 +23,4 @@
         </table>
         {{ render_pagination(page, "records") }}
     </div>
-{% endblock %}
-{% block sidebar %}
-{% for number in range(3) %}
-    <li class="nav-header">Sidebar</li>
-    <li><a href="#">Link</a></li>
-    <li><a href="#">Link</a></li>
-    <li><a href="#">Link</a></li>
-{% endfor %}
 {% endblock %}

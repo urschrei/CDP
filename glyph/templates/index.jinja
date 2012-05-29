@@ -1,5 +1,5 @@
 {% extends "base.jinja" %}
-{% from "_pagination.jinja" import render_pagination %}
+{% from "_utils.jinja" import render_pagination %}
 {% block title %}Home{% endblock %}
 {% block content %}
     <div class="hero-unit">
@@ -21,6 +21,7 @@
             {{ form.record(class="input-small", placeholder="New Record Text", required="required") }}
             <button type="submit" class="btn">Add</button>
         </form>
+        </div>
 {% endblock %}
 {% block sidebar %}
 {% for number in range(3) %}

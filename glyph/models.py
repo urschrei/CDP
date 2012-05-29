@@ -140,7 +140,7 @@ class Method(db.Model, GlyphMixin):
 
 
 class Script_Type(db.Model, GlyphMixin):
-    name = db.Column(db.String(50), nullable=False, unique=True)
+    script = db.Column(db.String(50), nullable=False, unique=True)
 
     def __init__(self, script):
         self.script = script

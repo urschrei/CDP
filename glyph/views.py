@@ -49,9 +49,21 @@ def tablets():
             .filter(Locality.area == request.args.get("locality"))
     if request.args.get("period"):
         q = q.join(Period).filter(Period.name == request.args.get("period"))
-    
-    
-    
+    if request.args.get("year"):
+        q = q.join(Year).filter(Year.year == request.args.get("year"))
+    if request.args.get("eponym"):
+        q = q.join(Year).join(Eponym)\
+            .filter(Eponym.name == request.args.get("eponym"))
+    if request.args.get("text_vehicle"):
+        q = q.join(Text_Vehicle).filter(Text_Vehicle.name == request.args.get("text_vehicle"))
+    if request.args.get("language"):
+        q = q.join(Language).filter(Language.name == request.args.get("language"))
+    if request.args.get("method"):
+        q = q.join(Method).filter(Method.name == request.args.get("method"))
+    if request.args.get("genre"):
+        q = q.join(Genre).filter(Genre.name == request.args.get("genre"))
+    if request.args.get("function"):
+        q = q.join(Function).filter(Function.name == request.args.get("function"))
     page = q.paginate(1, per_page=20)
     return render_template('tablets.jinja', page=page)
 

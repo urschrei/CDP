@@ -31,6 +31,7 @@ class Tablet(db.Model, GlyphMixin):
     year_id = db.Column(db.Integer(), db.ForeignKey('year.id'), nullable=True)
     month = db.Column(db.String(10), nullable=True)
     day = db.Column(db.String(10), nullable=True)
+    dynasty = db.Column(db.String(100), unique=True, nullable=True)
     text_vehicle_id = db.Column(db.Integer(), db.ForeignKey('text_vehicle.id'), nullable=True)
     notes = db.Column(db.String(500), nullable=True)
     method_id = db.Column(db.Integer(), db.ForeignKey('method.id'), nullable=True)
@@ -269,10 +270,8 @@ class Ruler(db.Model, GlyphMixin):
     city_id = db.Column(db.Integer(), db.ForeignKey('city.id'), nullable=True)
     start_year = db.Column(db.String(4), nullable=True)
     end_year = db.Column(db.String(4), nullable=True)
-    dynasty_id = db.Column(db.Integer(), db.ForeignKey('dynasty.id'), nullable=True)
     # relations
     city = db.relationship("City", uselist=False, backref="ruler")
-    dynasty = db.relationship("Dynasty", uselist=False, backref="ruler")
 
     def __init__(self, name, rim_ref=None, city=None, start_year=None, end_year=None):
         self.name = name

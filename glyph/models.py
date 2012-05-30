@@ -187,6 +187,13 @@ class Function(db.Model, GlyphMixin):
         self.name = name
 
 
+class Dynasty(db.Model, GlyphMixin):
+    name = db.Column(db.String(100), nullable=False, unique=True)
+
+    def __init__(self, name):
+        self.name = name
+
+
 class Text_Vehicle(db.Model, GlyphMixin):
     name = db.Column(db.String(100), nullable=False, unique=True)
     bm_catalogue = db.Column(db.String(100), nullable=True)
@@ -262,8 +269,10 @@ class Ruler(db.Model, GlyphMixin):
     city_id = db.Column(db.Integer(), db.ForeignKey('city.id'), nullable=True)
     start_year = db.Column(db.String(4), nullable=True)
     end_year = db.Column(db.String(4), nullable=True)
+    dynasty_id = db.Column(db.Integer(), db.ForeignKey('dynasty.id'), nullable=True)
     # relations
     city = db.relationship("City", uselist=False, backref="ruler")
+    dynasty = db.relationship("Dynasty", uselist=False, backref="ruler")
 
     def __init__(self, name, rim_ref=None, city=None, start_year=None, end_year=None):
         self.name = name

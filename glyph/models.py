@@ -38,24 +38,24 @@ class Tablet(db.Model, GlyphMixin):
     genre_id = db.Column(db.Integer(), db.ForeignKey('genre.id'), nullable=True)
     function_id = db.Column(db.Integer(), db.ForeignKey('function.id'), nullable=True)
     # relations
-    year = db.relationship("Year", uselist=False, backref="tablet")
-    medium = db.relationship("Medium", uselist=False, backref="tablet")
-    script_type = db.relationship("Script_Type", uselist=False, backref="tablet")
+    year = db.relationship("Year", backref="tablets")
+    medium = db.relationship("Medium", backref="tablets")
+    script_type = db.relationship("Script_Type", backref="tablets")
     city = db.relationship("City",
-        primaryjoin="City.id == Tablet.city_id", uselist=False, backref="tablet")
+        primaryjoin="City.id == Tablet.city_id", backref="tablets")
     origin_city = db.relationship("City",
-        primaryjoin="City.id == Tablet.origin_city_id", uselist=False, backref="origin_tablet")
-    period = db.relationship("Period", uselist=False, backref="tablet")
+        primaryjoin="City.id == Tablet.origin_city_id", backref="origin_tablets")
+    period = db.relationship("Period", backref="tablets")
     sent_from = db.relationship("Correspondent",
-        primaryjoin="Correspondent.id == Tablet.from_id", uselist=False, backref="tablet_from")
+        primaryjoin="Correspondent.id == Tablet.from_id", backref="tablets_from")
     sent_to = db.relationship("Correspondent",
-        primaryjoin="Correspondent.id == Tablet.to_id", uselist=False, backref="tablet_to")
-    text_vehicle = db.relationship("Text_Vehicle", uselist=False, backref="tablet")
-    language = db.relationship("Language", uselist=False, backref="tablet")
-    method = db.relationship("Method", uselist=False, backref="tablet")
-    genre = db.relationship("Genre", uselist=False, backref="tablet")
-    function = db.relationship("Function", uselist=False, backref="tablet")
-    dynasty = db.relationship("Dynasty", uselist=False, backref="tablet")
+        primaryjoin="Correspondent.id == Tablet.to_id", backref="tablets_to")
+    text_vehicle = db.relationship("Text_Vehicle", backref="tablets")
+    language = db.relationship("Language", backref="tablets")
+    method = db.relationship("Method", backref="tablets")
+    genre = db.relationship("Genre", backref="tablets")
+    function = db.relationship("Function", backref="tablets")
+    dynasty = db.relationship("Dynasty", backref="tablets")
     
     def __init__(self, **kwargs):
         """ this will obviously fall over if you forget a required column """
@@ -226,7 +226,7 @@ class Period(db.Model, GlyphMixin):
     sub_period_id = db.Column(
         db.Integer(), db.ForeignKey("sub_period.id"), nullable=True)
     # relations
-    sub_period = db.relationship("Sub_Period", uselist=False, backref="period")
+    sub_periods = db.relationship("Sub_Period", backref="period")
 
     def __init__(self, name, sub_period=None):
         self.name = name

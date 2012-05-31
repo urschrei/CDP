@@ -49,6 +49,12 @@ def tablets():
             .filter(Locality.area == request.args.get("locality"))
     if request.args.get("period"):
         q = q.join(Period).filter(Period.name == request.args.get("period"))
+    if request.args.get("sent_from"):
+        q = q.join(Correspondent, Tablet.from_id == Correspondent.id)\
+            .filter(Correspondent.name == request.args.get("sent_from"))
+    if request.args.get("sent_to"):
+        q = q.join(Correspondent, Tablet.to_id == Correspondent.id)\
+            .filter(Correspondent.name == request.args.get("sent_to"))
     if request.args.get("year"):
         q = q.join(Year).filter(Year.year == request.args.get("year"))
     if request.args.get("eponym"):
@@ -64,6 +70,8 @@ def tablets():
         q = q.join(Genre).filter(Genre.name == request.args.get("genre"))
     if request.args.get("function"):
         q = q.join(Function).filter(Function.name == request.args.get("function"))
+    if request.args.get("dynasty"):
+        q = q.join(Dynasty).filter(Dynasty.name == request.args.get("dynasty"))
     page = q.paginate(1, per_page=20)
     return render_template('tablets.jinja', page=page)
 

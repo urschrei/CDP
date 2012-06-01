@@ -49,6 +49,7 @@ class Tablet(db.Model, GlyphMixin):
     year = db.relationship("Year", backref="tablets")
     medium = db.relationship("Medium", backref="tablets")
     script_type = db.relationship("Script_Type", backref="tablets")
+    locality = db.relationship("Locality", backref="tablets")
     city = db.relationship("City",
         primaryjoin="City.id == Tablet.city_id", backref="tablets")
     city_site = db.relationship("City_Site",
@@ -56,6 +57,7 @@ class Tablet(db.Model, GlyphMixin):
     origin_city = db.relationship("City",
         primaryjoin="City.id == Tablet.origin_city_id", backref="origin_tablets")
     period = db.relationship("Period", backref="tablets")
+    sub_period = db.relationship("Sub_Period", backref="tablets")
     sent_from = db.relationship("Correspondent",
         primaryjoin="Correspondent.id == Tablet.from_id", backref="tablets_from")
     sent_to = db.relationship("Correspondent",

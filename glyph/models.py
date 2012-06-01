@@ -51,7 +51,7 @@ class Tablet(db.Model, GlyphMixin):
     script_type = db.relationship("Script_Type", backref="tablets")
     city = db.relationship("City",
         primaryjoin="City.id == Tablet.city_id", backref="tablets")
-    city_site = db.relationship("City",
+    city_site = db.relationship("City_Site",
         primaryjoin="City_Site.id == Tablet.city_site_id", backref="tablets")
     origin_city = db.relationship("City",
         primaryjoin="City.id == Tablet.origin_city_id", backref="origin_tablets")

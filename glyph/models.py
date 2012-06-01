@@ -22,12 +22,10 @@ class Tablet(db.Model, GlyphMixin):
     medium_id = db.Column(db.Integer(), db.ForeignKey('medium.id'), nullable=False)
     script_type_id = db.Column(db.Integer(), db.ForeignKey('script_type.id'), nullable=True)
     city_id = db.Column(db.Integer(), db.ForeignKey('city.id'), nullable=True)
-    # city_site
     city_site_id = db.Column(db.Integer(), db.ForeignKey('city_site.id'), nullable=True)
     origin_city_id = db.Column(db.Integer(), db.ForeignKey('city.id'), nullable=True)
     publication = db.Column(db.String(200), nullable=True)
     period_id = db.Column(db.Integer(), db.ForeignKey('period.id'), nullable=False)
-    # sub_period
     sub_period_id = db.Column(db.Integer(), db.ForeignKey('sub_period.id'), nullable=True)
     from_id = db.Column(db.Integer(), db.ForeignKey('correspondent.id'), nullable=True)
     to_id = db.Column(db.Integer(), db.ForeignKey('correspondent.id'), nullable=True)
@@ -37,9 +35,7 @@ class Tablet(db.Model, GlyphMixin):
     day = db.Column(db.String(10), nullable=True)
     dynasty_id = db.Column(db.Integer(), db.ForeignKey('dynasty.id'), nullable=True)
     text_vehicle_id = db.Column(db.Integer(), db.ForeignKey('text_vehicle.id'), nullable=True)
-    # locality
     locality_id = db.Column(db.Integer(), db.ForeignKey('locality.id'), nullable=True)
-    # sub_locality
     sub_locality_id = db.Column(db.Integer(), db.ForeignKey('sub_locality.id'), nullable=True)
     notes = db.Column(db.String(500), nullable=True)
     method_id = db.Column(db.Integer(), db.ForeignKey('method.id'), nullable=True)
@@ -50,6 +46,7 @@ class Tablet(db.Model, GlyphMixin):
     medium = db.relationship("Medium", backref="tablets")
     script_type = db.relationship("Script_Type", backref="tablets")
     locality = db.relationship("Locality", backref="tablets")
+    sub_locality = db.relationship("Sub_Locality", backref="tablets")
     city = db.relationship("City",
         primaryjoin="City.id == Tablet.city_id", backref="tablets")
     city_site = db.relationship("City_Site",
@@ -228,13 +225,6 @@ class Function(db.Model, GlyphMixin):
         self.name = name
 
 
-class Dynasty(db.Model, GlyphMixin):
-    name = db.Column(db.String(100), nullable=False, unique=True)
-
-    def __init__(self, name):
-        self.name = name
-
-
 class Text_Vehicle(db.Model, GlyphMixin):
     name = db.Column(db.String(100), nullable=False, unique=True)
     bm_catalogue = db.Column(db.String(100), nullable=True)
@@ -284,21 +274,40 @@ class Sub_Period(db.Model, GlyphMixin):
 
 class Ruler(db.Model, GlyphMixin):
     name = db.Column(db.String(100), nullable=False, unique=True)
-    rim_ref = db.Column(db.String(30), nullable=True)
-    city_id = db.Column(db.Integer(), db.ForeignKey('city.id'), nullable=True)
-    # should these be links to year?
     start_year = db.Column(db.String(4), nullable=True)
     end_year = db.Column(db.String(4), nullable=True)
     # relations
-    city = db.relationship("City", backref="ruler")
+    dynasties = db.relationship("Ruler_Dynasty", backref="rulers")
 
-    def __init__(self, name=None, rim_ref=None, city=None, start_year=None, end_year=None):
+    def __init__(self, name=None, start_year=None, end_year=None):
         self.name = name
-        if rim_ref:
-            self.rim_ref = rim_ref
-        if city:
-            self.city = city
         if start_year:
             self.start_year = start_year
         if end_year:
             self.end_year = end_year
+
+
+class Dynasty(db.Model, GlyphMixin):
+    name = db.Column(db.String(100), nullable=False, unique=True)
+
+    def __init__(self, name):
+        self.name = name
+
+
+class Ruler_Dynasty(db.Model, GlyphMixin):
+    """
+    This is an association object linking Rulers and Dynasties
+    It also includes a rim_ref column for each ruler/dynasty combo
+    """
+    ruler_id = db.Column(
+        db.Integer(), db.ForeignKey("ruler.id"), nullable=False)
+    dynasty_id = db.Column(
+        db.Integer(), db.ForeignKey("dynasty.id"), nullable=False)
+    rim_ref = db.Column(db.String(75), nullable=False, unique=True)
+    # relations
+    dynasty = db.relationship("Dynasty", backref="ruler_dynasties")
+
+    def __init__(self, rim_ref, dynasty=None):
+        self.rim_ref = rim_ref
+        if dynasty:
+            self.dynasty = Dynasty(dynasty)

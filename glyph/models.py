@@ -75,6 +75,7 @@ class Tablet(db.Model, GlyphMixin):
         self.locality = kwargs.get("locality")
         self.sub_locality = kwargs.get("sub_locality")
         self.city = kwargs.get("city")
+        self.city_site = kwargs.get("city_site")
         self.origin_city = kwargs.get("origin_city")
         self.publication = kwargs.get("publication")
         self.period = kwargs.get("period")
@@ -90,6 +91,7 @@ class Tablet(db.Model, GlyphMixin):
         self.method = kwargs.get("method")
         self.genre = kwargs.get("genre")
         self.function = kwargs.get("function")
+        self.dynasty = kwargs.get("dynasty")
 
 
 class Non_Ruler_Corresp(db.Model, GlyphMixin):

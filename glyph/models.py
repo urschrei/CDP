@@ -300,7 +300,7 @@ class Ruler(db.Model, GlyphMixin):
     tablets = db.relationship(
         "Tablet", secondary=ruler_tablet, backref="rulers")
 
-    def __init__(self, name=None, start_year=None, end_year=None):
+    def __init__(self, name, start_year=None, end_year=None):
         self.name = name
         if start_year:
             self.start_year = start_year

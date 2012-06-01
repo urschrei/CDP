@@ -4,21 +4,27 @@ from sqlalchemy.ext.declarative import declared_attr
 
 # Ruler / Tablet many-to-many table
 ruler_tablet = db.Table("ruler_tablet",
-    db.Column("id", db.Integer(), primary_key=True),
-    db.Column("ruler_id", db.Integer(), db.ForeignKey("ruler.id"), nullable=False),
-    db.Column("tablet_id", db.Integer(), db.ForeignKey("tablet.id"), nullable=False))
+    db.Column("id",
+        db.Integer(), primary_key=True),
+    db.Column("ruler_id",
+        db.Integer(), db.ForeignKey("ruler.id"), nullable=False),
+    db.Column("tablet_id",
+        db.Integer(), db.ForeignKey("tablet.id"), nullable=False))
 
 
 # Sub-Period / Dynasty many-to-many table
 subperiod_dynasty = db.Table("subperiod_dynasty",
-    db.Column("id", db.Integer(), primary_key=True),
-    db.Column("dynasty_id", db.Integer(), db.ForeignKey("dynasty.id"), nullable=False),
-    db.Column("subperiod_id", db.Integer(), db.ForeignKey("sub_period.id"), nullable=False))
+    db.Column("id",
+        db.Integer(), primary_key=True),
+    db.Column("dynasty_id",
+        db.Integer(), db.ForeignKey("dynasty.id"), nullable=False),
+    db.Column("subperiod_id",
+        db.Integer(), db.ForeignKey("sub_period.id"), nullable=False))
 
 
 class GlyphMixin(object):
     """
-    Provides some common attributes to our tables
+    Provides some common attributes to our models
     """
 
     @declared_attr
@@ -32,53 +38,93 @@ class GlyphMixin(object):
 
 
 class Tablet(db.Model, GlyphMixin):
-    museum_number = db.Column(db.String(75), nullable=False, unique=True)
-    medium_id = db.Column(db.Integer(), db.ForeignKey('medium.id'), nullable=False)
-    script_type_id = db.Column(db.Integer(), db.ForeignKey('script_type.id'), nullable=True)
-    city_id = db.Column(db.Integer(), db.ForeignKey('city.id'), nullable=True)
-    city_site_id = db.Column(db.Integer(), db.ForeignKey('city_site.id'), nullable=True)
-    origin_city_id = db.Column(db.Integer(), db.ForeignKey('city.id'), nullable=True)
-    publication = db.Column(db.String(200), nullable=True)
-    period_id = db.Column(db.Integer(), db.ForeignKey('period.id'), nullable=False)
-    sub_period_id = db.Column(db.Integer(), db.ForeignKey('sub_period.id'), nullable=True)
-    from_id = db.Column(db.Integer(), db.ForeignKey('correspondent.id'), nullable=True)
-    to_id = db.Column(db.Integer(), db.ForeignKey('correspondent.id'), nullable=True)
-    language_id = db.Column(db.Integer(), db.ForeignKey('language.id'), nullable=True)
-    year_id = db.Column(db.Integer(), db.ForeignKey('year.id'), nullable=True)
-    month = db.Column(db.String(10), nullable=True)
-    day = db.Column(db.String(10), nullable=True)
-    dynasty_id = db.Column(db.Integer(), db.ForeignKey('dynasty.id'), nullable=True)
-    text_vehicle_id = db.Column(db.Integer(), db.ForeignKey('text_vehicle.id'), nullable=True)
-    locality_id = db.Column(db.Integer(), db.ForeignKey('locality.id'), nullable=True)
-    sub_locality_id = db.Column(db.Integer(), db.ForeignKey('sub_locality.id'), nullable=True)
-    notes = db.Column(db.String(500), nullable=True)
-    method_id = db.Column(db.Integer(), db.ForeignKey('method.id'), nullable=True)
-    genre_id = db.Column(db.Integer(), db.ForeignKey('genre.id'), nullable=True)
-    function_id = db.Column(db.Integer(), db.ForeignKey('function.id'), nullable=True)
+    museum_number = db.Column(
+        db.String(75), nullable=False, unique=True)
+    medium_id = db.Column(
+        db.Integer(), db.ForeignKey('medium.id'), nullable=False)
+    script_type_id = db.Column(
+        db.Integer(), db.ForeignKey('script_type.id'), nullable=True)
+    city_id = db.Column(
+        db.Integer(), db.ForeignKey('city.id'), nullable=True)
+    city_site_id = db.Column(
+        db.Integer(), db.ForeignKey('city_site.id'), nullable=True)
+    origin_city_id = db.Column(
+        db.Integer(), db.ForeignKey('city.id'), nullable=True)
+    publication = db.Column(
+        db.String(200), nullable=True)
+    period_id = db.Column(
+        db.Integer(), db.ForeignKey('period.id'), nullable=False)
+    sub_period_id = db.Column(
+        db.Integer(), db.ForeignKey('sub_period.id'), nullable=True)
+    from_id = db.Column(
+        db.Integer(), db.ForeignKey('correspondent.id'), nullable=True)
+    to_id = db.Column(
+        db.Integer(), db.ForeignKey('correspondent.id'), nullable=True)
+    language_id = db.Column(
+        db.Integer(), db.ForeignKey('language.id'), nullable=True)
+    year_id = db.Column(
+        db.Integer(), db.ForeignKey('year.id'), nullable=True)
+    month = db.Column(
+        db.String(10), nullable=True)
+    day = db.Column(
+        db.String(10), nullable=True)
+    dynasty_id = db.Column(
+        db.Integer(), db.ForeignKey('dynasty.id'), nullable=True)
+    text_vehicle_id = db.Column(
+        db.Integer(), db.ForeignKey('text_vehicle.id'), nullable=True)
+    locality_id = db.Column(
+        db.Integer(), db.ForeignKey('locality.id'), nullable=True)
+    sub_locality_id = db.Column(
+        db.Integer(), db.ForeignKey('sub_locality.id'), nullable=True)
+    notes = db.Column(
+        db.String(500), nullable=True)
+    method_id = db.Column(
+        db.Integer(), db.ForeignKey('method.id'), nullable=True)
+    genre_id = db.Column(
+        db.Integer(), db.ForeignKey('genre.id'), nullable=True)
+    function_id = db.Column(
+        db.Integer(), db.ForeignKey('function.id'), nullable=True)
     # relations
-    year = db.relationship("Year", backref="tablets")
-    medium = db.relationship("Medium", backref="tablets")
-    script_type = db.relationship("Script_Type", backref="tablets")
-    locality = db.relationship("Locality", backref="tablets")
-    sub_locality = db.relationship("Sub_Locality", backref="tablets")
-    city = db.relationship("City",
-        primaryjoin="City.id == Tablet.city_id", backref="tablets")
+    year = db.relationship("Year",
+        backref="tablets")
+    medium = db.relationship("Medium",
+        backref="tablets")
+    script_type = db.relationship("Script_Type",
+        backref="tablets")
+    locality = db.relationship("Locality",
+        backref="tablets")
+    sub_locality = db.relationship("Sub_Locality",
+        backref="tablets")
+    city = db.relationship("City", primaryjoin="City.id == Tablet.city_id",
+        backref="tablets")
     city_site = db.relationship("City_Site",
-        primaryjoin="City_Site.id == Tablet.city_site_id", backref="tablets")
+        primaryjoin="City_Site.id == Tablet.city_site_id",
+        backref="tablets")
     origin_city = db.relationship("City",
-        primaryjoin="City.id == Tablet.origin_city_id", backref="origin_tablets")
-    period = db.relationship("Period", backref="tablets")
-    sub_period = db.relationship("Sub_Period", backref="tablets")
+        primaryjoin="City.id == Tablet.origin_city_id",
+        backref="origin_tablets")
+    period = db.relationship("Period",
+        backref="tablets")
+    sub_period = db.relationship("Sub_Period",
+        backref="tablets")
     sent_from = db.relationship("Correspondent",
-        primaryjoin="Correspondent.id == Tablet.from_id", backref="tablets_from")
+        primaryjoin="Correspondent.id == Tablet.from_id",
+        backref="tablets_from")
     sent_to = db.relationship("Correspondent",
-        primaryjoin="Correspondent.id == Tablet.to_id", backref="tablets_to")
-    text_vehicle = db.relationship("Text_Vehicle", backref="tablets")
-    language = db.relationship("Language", backref="tablets")
-    method = db.relationship("Method", backref="tablets")
-    genre = db.relationship("Genre", backref="tablets")
-    function = db.relationship("Function", backref="tablets")
-    dynasty = db.relationship("Dynasty", backref="tablets")
+        primaryjoin="Correspondent.id == Tablet.to_id",
+        backref="tablets_to")
+    text_vehicle = db.relationship("Text_Vehicle",
+        backref="tablets")
+    language = db.relationship("Language",
+        backref="tablets")
+    method = db.relationship("Method",
+        backref="tablets")
+    genre = db.relationship("Genre",
+        backref="tablets")
+    function = db.relationship("Function",
+        backref="tablets")
+    dynasty = db.relationship("Dynasty",
+        backref="tablets")
     
     def __init__(self, **kwargs):
         """ this will obviously fall over if you forget a required column """
@@ -127,8 +173,10 @@ class Correspondent(db.Model, GlyphMixin):
     non_ruler_id = db.Column(
         db.Integer, db.ForeignKey("non_ruler_corresp.id"), nullable=True)
     # relations
-    ruler = db.relationship("Ruler", uselist=False, backref="correspondent")
-    non_ruler = db.relationship("Non_Ruler_Corresp", uselist=False, backref="correspondent")
+    ruler = db.relationship("Ruler",
+        uselist=False, backref="correspondent")
+    non_ruler = db.relationship("Non_Ruler_Corresp",
+        uselist=False, backref="correspondent")
 
     def __init__(self, ruler=None, non_ruler=None):
         assert (ruler is None) ^ (non_ruler is None)

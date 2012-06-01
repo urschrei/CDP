@@ -302,7 +302,7 @@ subperiod_dynasty = db.Table("subperiod_dynasty",
 
 class Dynasty(db.Model, GlyphMixin):
     name = db.Column(db.String(100), nullable=False, unique=True)
-    subperiods = db.relationship(
+    sub_periods = db.relationship(
         "Sub_Period", secondary=subperiod_dynasty, backref="dynasties")
 
     def __init__(self, name):

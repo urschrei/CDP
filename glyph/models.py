@@ -18,6 +18,7 @@ class GlyphMixin(object):
 
 
 class Tablet(db.Model, GlyphMixin):
+    # TODO: implement many-to-many Ruler relationship
     museum_number = db.Column(db.String(75), nullable=False, unique=True)
     medium_id = db.Column(db.Integer(), db.ForeignKey('medium.id'), nullable=False)
     script_type_id = db.Column(db.Integer(), db.ForeignKey('script_type.id'), nullable=True)
@@ -71,10 +72,13 @@ class Tablet(db.Model, GlyphMixin):
         self.museum_number = kwargs.get("museum_number")
         self.medium = kwargs.get("medium")
         self.script_type = kwargs.get("script_type")
+        self.locality = kwargs.get("locality")
+        self.sub_locality = kwargs.get("sub_locality")
         self.city = kwargs.get("city")
         self.origin_city = kwargs.get("origin_city")
         self.publication = kwargs.get("publication")
         self.period = kwargs.get("period")
+        self.sub_period = kwargs.get("sub_period")
         self.sent_from = kwargs.get("sent_from")
         self.sent_to = kwargs.get("sent_to")
         self.year = kwargs.get("year")
@@ -287,8 +291,17 @@ class Ruler(db.Model, GlyphMixin):
             self.end_year = end_year
 
 
+# this is the sub-period and dynasty many-to-many table
+subperiod_dynasty = db.Table("subperiod_dynasty",
+    db.Column("id", db.Integer(), primary_key=True),
+    db.Column("dynasty_id", db.Integer(), db.ForeignKey("dynasty.id"), nullable=False),
+    db.Column("subperiod_id", db.Integer(), db.ForeignKey("sub_period.id"), nullable=False))
+
+
 class Dynasty(db.Model, GlyphMixin):
     name = db.Column(db.String(100), nullable=False, unique=True)
+    subperiods = db.relationship(
+        "Sub_Period", secondary=subperiod_dynasty, backref="dynasties")
 
     def __init__(self, name):
         self.name = name

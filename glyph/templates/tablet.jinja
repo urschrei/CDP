@@ -42,23 +42,29 @@
 {% endblock %}
 {% block sidebar %}
     <ul class="unstyled">
-        <li><strong>Medium:</strong> <a href="{{ url_for('tablets', medium=tablet.medium.name) }}">{{ tablet.medium.name }}</a></li>
-        <li><strong>Script Type:</strong> <a href="{{ url_for('tablets', script_type=tablet.script_type.script) }}">{{ tablet.script_type.script }}</a></li>
+        {% if tablet.rulers %}
+        <li><strong>Ruler(s):</strong>
+        <ul>
+        {% for ruler in tablet.rulers %}
+            <li><a href="{{ url_for('tablets', ruler=ruler.name) }}">{{ ruler.name }}</a></li>
+        {% endfor %}
+        </ul>
+        </li>
+        {% endif %}
+        {% if tablet.medium %}
+            <li><strong>Medium:</strong> <a href="{{ url_for('tablets', medium=tablet.medium.name) }}">{{ tablet.medium.name }}</a></li>
+        {% endif %}
+        {% if tablet.script_type %}
+            <li><strong>Script Type:</strong> <a href="{{ url_for('tablets', script_type=tablet.script_type.script) }}">{{ tablet.script_type.script }}</a></li>
+        {% endif %}
+        {% if tablet.locality %}
+            <li><strong>Locality:</strong> <a href="{{ url_for('tablets', locality=tablet.locality.area) }}">{{ tablet.locality.area }}</a></li>
+        {% endif %}
         {% if tablet.city %}
             <li><strong>City:</strong> <a href="{{ url_for('tablets', city=tablet.city.name) }}">{{ tablet.city.name }}</a></li>
         {% endif %}
-        {% if tablet.city.locality %}
-            <li><strong>Locality:</strong> <a href="{{ url_for('tablets', locality=tablet.city.locality.area) }}">{{ tablet.city.locality.area }}</a></li>
-        {% endif %}
         {% if tablet.publication %}
             <li><strong>Publication:</strong> {{ tablet.publication }}</li>
-        {% endif %}
-        <li><strong>Period:</strong> <a href="{{ url_for('tablets', period=tablet.period.name) }}">{{ tablet.period.name }}</a></li>
-        {% if tablet.sent_from %}
-            <li><strong>Sent From:</strong> {{ tablet.sent_from.name }}</li>
-        {% endif %}
-        {% if tablet.sent_to %}
-            <li><strong>Sent To:</strong>{{ tablet.sent_to.name }}</li>
         {% endif %}
         {% if tablet.year %}
             <li>
@@ -67,6 +73,21 @@
                     (Eponym: <a href="{{ url_for('tablets', eponym=tablet.year.eponym.name) }}">{{ tablet.year.eponym.name }}</a>)
                 {% endif %}
             </li>
+        {% endif %}
+        {% if tablet.period %}
+            <li><strong>Period:</strong> <a href="{{ url_for('tablets', period=tablet.period.name) }}">{{ tablet.period.name }}</a></li>
+        {% endif %}
+        {% if tablet.sub_period %}
+            <li><strong>Sub-Period:</strong> <a href="{{ url_for('tablets', sub_period=tablet.sub_period.name) }}">{{ tablet.sub_period.name }}</a></li>
+        {% endif %}
+        {% if tablet.dynasty %}
+            <li><strong>Dynasty:</strong> <a href="{{ url_for('tablets', dynasty=tablet.dynasty.name) }}">{{ tablet.dynasty.name }}</a></li>
+        {% endif %}
+        {% if tablet.sent_from %}
+            <li><strong>Sent From:</strong> <a href="{{ url_for('tablets', sent_from=tablet.sent_from.name) }}">{{ tablet.sent_from.name }}</a></li>
+        {% endif %}
+        {% if tablet.sent_to %}
+            <li><strong>Sent To:</strong> <a href="{{ url_for('tablets', sent_to=tablet.sent_to.name) }}">{{ tablet.sent_to.name }}</a></li>
         {% endif %}
         {% if tablet.text_vehicle %}
             <li><strong>Text Vehicle:</strong> <a href="{{ url_for('tablets', text_vehicle=tablet.text_vehicle.name) }}">{{ tablet.text_vehicle.name }}</a></li>

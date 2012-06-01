@@ -22,9 +22,13 @@ class Tablet(db.Model, GlyphMixin):
     medium_id = db.Column(db.Integer(), db.ForeignKey('medium.id'), nullable=False)
     script_type_id = db.Column(db.Integer(), db.ForeignKey('script_type.id'), nullable=True)
     city_id = db.Column(db.Integer(), db.ForeignKey('city.id'), nullable=True)
+    # city_site
+    city_site_id = db.Column(db.Integer(), db.ForeignKey('city_site.id'), nullable=True)
     origin_city_id = db.Column(db.Integer(), db.ForeignKey('city.id'), nullable=True)
     publication = db.Column(db.String(200), nullable=True)
     period_id = db.Column(db.Integer(), db.ForeignKey('period.id'), nullable=False)
+    # sub_period
+    sub_period_id = db.Column(db.Integer(), db.ForeignKey('sub_period.id'), nullable=True)
     from_id = db.Column(db.Integer(), db.ForeignKey('correspondent.id'), nullable=True)
     to_id = db.Column(db.Integer(), db.ForeignKey('correspondent.id'), nullable=True)
     language_id = db.Column(db.Integer(), db.ForeignKey('language.id'), nullable=True)
@@ -33,6 +37,10 @@ class Tablet(db.Model, GlyphMixin):
     day = db.Column(db.String(10), nullable=True)
     dynasty_id = db.Column(db.Integer(), db.ForeignKey('dynasty.id'), nullable=True)
     text_vehicle_id = db.Column(db.Integer(), db.ForeignKey('text_vehicle.id'), nullable=True)
+    # locality
+    locality_id = db.Column(db.Integer(), db.ForeignKey('locality.id'), nullable=True)
+    # sub_locality
+    sub_locality_id = db.Column(db.Integer(), db.ForeignKey('sub_locality.id'), nullable=True)
     notes = db.Column(db.String(500), nullable=True)
     method_id = db.Column(db.Integer(), db.ForeignKey('method.id'), nullable=True)
     genre_id = db.Column(db.Integer(), db.ForeignKey('genre.id'), nullable=True)
@@ -43,6 +51,8 @@ class Tablet(db.Model, GlyphMixin):
     script_type = db.relationship("Script_Type", backref="tablets")
     city = db.relationship("City",
         primaryjoin="City.id == Tablet.city_id", backref="tablets")
+    city_site = db.relationship("City",
+        primaryjoin="City_Site.id == Tablet.city_site_id", backref="tablets")
     origin_city = db.relationship("City",
         primaryjoin="City.id == Tablet.origin_city_id", backref="origin_tablets")
     period = db.relationship("Period", backref="tablets")
@@ -116,22 +126,49 @@ class Correspondent(db.Model, GlyphMixin):
 
 class Locality(db.Model, GlyphMixin):
     area = db.Column(db.String(100), nullable=False, unique=True)
-    sub_locality_id = db.Column(
-        db.Integer(), db.ForeignKey("sub_locality.id"), nullable=True)
     # relations
-    sub_locality = db.relationship("Sub_Locality", uselist=False, backref="locality")
+    sub_localities = db.relationship("Sub_Locality", backref="locality")
+    cities = db.relationship("City", backref="locality")
 
-    def __init__(self, area, sub_locality=None):
+    def __init__(self, area, sub_localities=None):
         self.area = area
-        if sub_locality:
-            self.sub_locality = sub_locality
+        if sub_localities:
+            self.sub_localities = sub_localities
 
 
 class Sub_Locality(db.Model, GlyphMixin):
     name = db.Column(db.String(100), nullable=False, unique=True)
+    locality_id = db.Column(
+        db.Integer(), db.ForeignKey("locality.id"), nullable=True)
 
-    def __init__(self, name):
+    def __init__(self, name, locality):
         self.name = name
+        self.locality = locality
+
+
+class City(db.Model, GlyphMixin):
+    name = db.Column(db.String(100), nullable=False, unique=True)
+    locality_id = db.Column(
+        db.Integer(), db.ForeignKey('locality.id'), nullable=True)
+    # relations
+    sites = db.relationship("City_Site", backref="city")
+
+    def __init__(self, name, locality=None, sites=None):
+        self.name = name
+        if locality:
+            self.locality = locality
+        if sites:
+            self.sites = sites
+
+
+class City_Site(db.Model, GlyphMixin):
+    name = db.Column(db.String(100), nullable=False, unique=True)
+    city_id = db.Column(
+        db.Integer(), db.ForeignKey("city.id"), nullable=False)
+
+    def __init__(self, name, city):
+        self.name = name
+        self.city = city
 
 
 class Method(db.Model, GlyphMixin):
@@ -221,10 +258,9 @@ class Eponym(db.Model, GlyphMixin):
 
 class Period(db.Model, GlyphMixin):
     name = db.Column(db.String(150), nullable=False, unique=True)
+    # should these be links to year?
     from_date = db.Column(db.String(50), nullable=False)
     to_date = db.Column(db.String(50), nullable=False)
-    sub_period_id = db.Column(
-        db.Integer(), db.ForeignKey("sub_period.id"), nullable=True)
     # relations
     sub_periods = db.relationship("Sub_Period", backref="period")
 
@@ -236,43 +272,23 @@ class Period(db.Model, GlyphMixin):
 
 class Sub_Period(db.Model, GlyphMixin):
     name = db.Column(db.String(100), nullable=False, unique=True)
+    period_id = db.Column(
+        db.Integer(), db.ForeignKey("period.id"), nullable=False)
 
-    def __init__(self, name):
+    def __init__(self, name, period):
         self.name = name
-
-
-class City(db.Model, GlyphMixin):
-    name = db.Column(db.String(100), nullable=False, unique=True)
-    locality_id = db.Column(
-        db.Integer(), db.ForeignKey('locality.id'), nullable=True)
-    city_site_id = db.Column(
-        db.Integer(), db.ForeignKey('city_site.id'), nullable=True)
-    # relations
-    locality = db.relationship("Locality", uselist=False, backref="city")
-    site = db.relationship("City_Site", uselist=False, backref="city")
-
-    def __init__(self, name, locality, site=None):
-        self.name = name
-        self.locality = locality
-        if site:
-            self.site_id = site
-
-
-class City_Site(db.Model, GlyphMixin):
-    name = db.Column(db.String(100), nullable=False, unique=True)
-
-    def __init__(self, name):
-        self.name = name
+        self.period = period
 
 
 class Ruler(db.Model, GlyphMixin):
     name = db.Column(db.String(100), nullable=False, unique=True)
     rim_ref = db.Column(db.String(30), nullable=True)
     city_id = db.Column(db.Integer(), db.ForeignKey('city.id'), nullable=True)
+    # should these be links to year?
     start_year = db.Column(db.String(4), nullable=True)
     end_year = db.Column(db.String(4), nullable=True)
     # relations
-    city = db.relationship("City", uselist=False, backref="ruler")
+    city = db.relationship("City", backref="ruler")
 
     def __init__(self, name=None, rim_ref=None, city=None, start_year=None, end_year=None):
         self.name = name

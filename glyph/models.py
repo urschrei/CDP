@@ -2,6 +2,20 @@ from glyph import db
 from sqlalchemy.ext.declarative import declared_attr
 
 
+# Ruler / Tablet many-to-many table
+ruler_tablet = db.Table("ruler_tablet",
+    db.Column("id", db.Integer(), primary_key=True),
+    db.Column("ruler_id", db.Integer(), db.ForeignKey("ruler.id"), nullable=False),
+    db.Column("tablet_id", db.Integer(), db.ForeignKey("tablet.id"), nullable=False))
+
+
+# Sub-Period / Dynasty many-to-many table
+subperiod_dynasty = db.Table("subperiod_dynasty",
+    db.Column("id", db.Integer(), primary_key=True),
+    db.Column("dynasty_id", db.Integer(), db.ForeignKey("dynasty.id"), nullable=False),
+    db.Column("subperiod_id", db.Integer(), db.ForeignKey("sub_period.id"), nullable=False))
+
+
 class GlyphMixin(object):
     """
     Provides some common attributes to our tables
@@ -18,7 +32,6 @@ class GlyphMixin(object):
 
 
 class Tablet(db.Model, GlyphMixin):
-    # TODO: implement many-to-many Ruler relationship
     museum_number = db.Column(db.String(75), nullable=False, unique=True)
     medium_id = db.Column(db.Integer(), db.ForeignKey('medium.id'), nullable=False)
     script_type_id = db.Column(db.Integer(), db.ForeignKey('script_type.id'), nullable=True)
@@ -284,6 +297,8 @@ class Ruler(db.Model, GlyphMixin):
     end_year = db.Column(db.String(4), nullable=True)
     # relations
     dynasties = db.relationship("Ruler_Dynasty", backref="rulers")
+    tablets = db.relationship(
+        "Tablet", secondary=ruler_tablet, backref="rulers")
 
     def __init__(self, name=None, start_year=None, end_year=None):
         self.name = name
@@ -291,13 +306,6 @@ class Ruler(db.Model, GlyphMixin):
             self.start_year = start_year
         if end_year:
             self.end_year = end_year
-
-
-# this is the sub-period and dynasty many-to-many table
-subperiod_dynasty = db.Table("subperiod_dynasty",
-    db.Column("id", db.Integer(), primary_key=True),
-    db.Column("dynasty_id", db.Integer(), db.ForeignKey("dynasty.id"), nullable=False),
-    db.Column("subperiod_id", db.Integer(), db.ForeignKey("sub_period.id"), nullable=False))
 
 
 class Dynasty(db.Model, GlyphMixin):

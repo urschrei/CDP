@@ -1,7 +1,12 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 import os
 import sys
 from flask import *
 from glyph import app, db
+
+from glyph.models import *
 
 app.testing = True
 client = app.test_client()

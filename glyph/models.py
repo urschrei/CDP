@@ -326,6 +326,7 @@ class Period(db.Model, GlyphMixin):
     to_date = db.Column(db.String(50), nullable=False)
     # relations
     sub_periods = db.relationship("Sub_Period", backref="period")
+    rulers = db.relationship("Ruler", backref="period")
 
     def __init__(self, name, sub_period=None):
         self.name = name
@@ -337,6 +338,8 @@ class Sub_Period(db.Model, GlyphMixin):
     name = db.Column(db.String(100), nullable=False, unique=True)
     period_id = db.Column(
         db.Integer(), db.ForeignKey("period.id"), nullable=False)
+    # relations
+    rulers = db.relationship("Ruler", backref="sub_period")
 
     def __init__(self, name, period):
         self.name = name
@@ -347,12 +350,19 @@ class Ruler(db.Model, GlyphMixin):
     name = db.Column(db.String(100), nullable=False, unique=True)
     start_year = db.Column(db.String(4), nullable=True)
     end_year = db.Column(db.String(4), nullable=True)
+    period_id = db.Column(
+        db.Integer(), db.ForeignKey("period.id"), nullable=False)
+    sub_period_id = db.Column(
+        db.Integer(), db.ForeignKey("sub_period.id"), nullable=True)
     # relations
     dynasties = db.relationship("Ruler_Dynasty", backref="rulers")
     tablets = db.relationship(
         "Tablet", secondary=ruler_tablet, backref="rulers")
 
-    def __init__(self, name, start_year=None, end_year=None, tablets=None):
+    def __init__(self,
+        name, start_year=None, end_year=None,
+        tablets=None, period=None, sub_period=None):
+
         self.name = name
         if start_year:
             self.start_year = start_year
@@ -360,6 +370,10 @@ class Ruler(db.Model, GlyphMixin):
             self.end_year = end_year
         if tablets:
             self.tablets = tablets
+        if period:
+            self.period = period
+        if sub_period:
+            self.sub_period = sub_period
 
 
 class Dynasty(db.Model, GlyphMixin):

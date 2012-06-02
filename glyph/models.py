@@ -127,7 +127,10 @@ class Tablet(db.Model, GlyphMixin):
         backref="tablets")
     
     def __init__(self, **kwargs):
-        """ this will obviously fall over if you forget a required column """
+        """
+        this will obviously fall over if you forget a required column:
+        medium and period are both required
+        """
         self.museum_number = kwargs.get("museum_number")
         self.medium = kwargs.get("medium")
         self.script_type = kwargs.get("script_type")
@@ -151,6 +154,7 @@ class Tablet(db.Model, GlyphMixin):
         self.genre = kwargs.get("genre")
         self.function = kwargs.get("function")
         self.dynasty = kwargs.get("dynasty")
+        self.rulers = kwargs.get("rulers")
 
 
 class Non_Ruler_Corresp(db.Model, GlyphMixin):
@@ -348,12 +352,14 @@ class Ruler(db.Model, GlyphMixin):
     tablets = db.relationship(
         "Tablet", secondary=ruler_tablet, backref="rulers")
 
-    def __init__(self, name, start_year=None, end_year=None):
+    def __init__(self, name, start_year=None, end_year=None, tablets=None):
         self.name = name
         if start_year:
             self.start_year = start_year
         if end_year:
             self.end_year = end_year
+        if tablets:
+            self.tablets = tablets
 
 
 class Dynasty(db.Model, GlyphMixin):

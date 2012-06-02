@@ -1,6 +1,6 @@
 {% extends "base.jinja" %}
 {% from "_utils.jinja" import render_pagination %}
-{% block title %}Home{% endblock %}
+{% block title %}CDP: Tablets By Category{% endblock %}
 {% block content %}
     <div class="container-fluid">
         <table class="table table-striped table-bordered">
@@ -14,7 +14,7 @@
             <tbody>
                 {%- for item in page.items %}
                 <tr>
-                    <td>{{ item.museum_number }}</td>
+                    <td><a href="{{ url_for("tablet", tablet_id=item.id) }}"><h4>{{ item.museum_number }}</h4></a></td>
                     <td>{{ item.medium.name }}</td>
                     <td>{{ item.period.name }}</td>
                 </tr>

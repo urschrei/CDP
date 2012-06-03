@@ -1,5 +1,6 @@
 from glyph import db
 from sqlalchemy.ext.declarative import declared_attr
+from sqlalchemy.ext.associationproxy import association_proxy
 
 
 # Ruler / Tablet many-to-many table
@@ -95,7 +96,8 @@ class Tablet(db.Model, GlyphMixin):
         backref="tablets")
     sub_locality = db.relationship("Sub_Locality",
         backref="tablets")
-    city = db.relationship("City", primaryjoin="City.id == Tablet.city_id",
+    city = db.relationship("City",
+        primaryjoin="City.id == Tablet.city_id",
         backref="tablets")
     city_site = db.relationship("City_Site",
         primaryjoin="City_Site.id == Tablet.city_site_id",
@@ -125,7 +127,7 @@ class Tablet(db.Model, GlyphMixin):
         backref="tablets")
     dynasty = db.relationship("Dynasty",
         backref="tablets")
-    
+
     def __init__(self, **kwargs):
         """
         this will obviously fall over if you forget a required column:
@@ -356,6 +358,10 @@ class Ruler(db.Model, GlyphMixin):
     dynasties = db.relationship("Ruler_Dynasty", backref="rulers")
     tablets = db.relationship(
         "Tablet", secondary=ruler_tablet, backref="rulers")
+    # association proxy which gives us all rim references for a ruler
+    rim_refs = association_proxy('dynasties', 'rim_ref')
+    # association proxy which gives us all dynasty names for a ruler
+    dynasty_names = association_proxy('dynasties', 'dynasty.name')
 
     def __init__(self,
         name, start_year=None, end_year=None,
@@ -378,6 +384,9 @@ class Dynasty(db.Model, GlyphMixin):
     name = db.Column(db.String(100), nullable=False, unique=True)
     sub_periods = db.relationship(
         "Sub_Period", secondary=subperiod_dynasty, backref="dynasties")
+
+    # association proxy which gives us all ruler names for a dynasty
+    ruler_names = association_proxy('ruler_dynasties', 'rulers.name')
 
     def __init__(self, name):
         self.name = name

@@ -348,8 +348,6 @@ class Sub_Period(db.Model, GlyphMixin):
 
 class Ruler(db.Model, GlyphMixin):
     name = db.Column(db.String(100), nullable=False, unique=True)
-    start_year = db.Column(db.String(4), nullable=True)
-    end_year = db.Column(db.String(4), nullable=True)
     period_id = db.Column(
         db.Integer(), db.ForeignKey("period.id"), nullable=False)
     sub_period_id = db.Column(
@@ -389,14 +387,26 @@ class Ruler_Dynasty(db.Model, GlyphMixin):
     """
     This is an association object linking Rulers and Dynasties
     It also includes a rim_ref column for each ruler/dynasty combo
+    and start and end years
     """
     ruler_id = db.Column(
         db.Integer(), db.ForeignKey("ruler.id"), nullable=False)
     dynasty_id = db.Column(
         db.Integer(), db.ForeignKey("dynasty.id"), nullable=False)
     rim_ref = db.Column(db.String(75), nullable=False, unique=True)
+    start_year_id = db.Column(
+        db.Integer(), db.ForeignKey("year.id"), nullable=True)
+    end_year_id = db.Column(
+        db.Integer(), db.ForeignKey("year.id"), nullable=True)
+    end_year_id
     # relations
     dynasty = db.relationship("Dynasty", backref="ruler_dynasties")
+    start_year = db.relationship("Year",
+        primaryjoin="Year.id == Ruler_Dynasty.start_year_id",
+        backref="dynasty_start_years")
+    end_year = db.relationship("Year",
+        primaryjoin="Year.id == Ruler_Dynasty.end_year_id",
+        backref="dynasty_end_years")
 
     def __init__(self, rim_ref, dynasty=None):
         self.rim_ref = rim_ref

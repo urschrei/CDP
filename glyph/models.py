@@ -4,6 +4,8 @@ from sqlalchemy.ext.associationproxy import association_proxy
 
 
 # Ruler / Tablet many-to-many table
+# TODO: remove ID column, make the FKs PKs
+# TODO: consider making this an association object
 ruler_tablet = db.Table("ruler_tablet",
     db.Column("id",
         db.Integer(), primary_key=True),
@@ -14,6 +16,8 @@ ruler_tablet = db.Table("ruler_tablet",
 
 
 # Sub-Period / Dynasty many-to-many table
+# TODO: remove ID column, make the FKs PKs
+# TODO: consider making this an association object
 subperiod_dynasty = db.Table("subperiod_dynasty",
     db.Column("id",
         db.Integer(), primary_key=True),
@@ -224,6 +228,8 @@ class City(db.Model, GlyphMixin):
         db.Integer(), db.ForeignKey('locality.id'), nullable=True)
     # relations
     sites = db.relationship("City_Site", backref="city")
+    # association proxy for ruler / city
+    rulers = association_proxy('city_ruler', 'ruler')
 
     def __init__(self, name, locality=None, sites=None):
         self.name = name
@@ -361,6 +367,8 @@ class Ruler(db.Model, GlyphMixin):
     rim_refs = association_proxy('ruler_dynasty', 'rim_ref')
     # association proxy which gives us all dynasty names for a ruler
     dynasties = association_proxy('ruler_dynasty', 'dynasty')
+    # association proxy for cities
+    cities = association_proxy('ruler_city', 'city')
 
     def __init__(self,
         name, start_year=None, end_year=None,
@@ -399,6 +407,7 @@ class Ruler_Dynasty(db.Model, GlyphMixin):
     We can create new mappings like so:
     Ruler_Dynasty(rim_ref="foo", ruler=Ruler(), dynasty=Dynasty())
     """
+    # TODO: remove mixin, ID column from Table, make FKs PK
     ruler_id = db.Column(
         db.Integer(), db.ForeignKey("ruler.id"), nullable=False)
     dynasty_id = db.Column(
@@ -420,8 +429,29 @@ class Ruler_Dynasty(db.Model, GlyphMixin):
     ruler = db.relationship("Ruler", backref="ruler_dynasty")
     dynasty = db.relationship("Dynasty", backref="dynasty_ruler")
 
-
     def __init__(self, rim_ref, ruler=None, dynasty=None):
         self.ruler = ruler
         self.dynasty = dynasty
         self.rim_ref = rim_ref
+
+
+class Ruler_City(db.Model):
+    """
+    This is an association object that holds ruler-city many-to-many relations
+    """
+    __tablename__ = "ruler_city"
+    ruler_id = db.Column(
+        db.Integer(), db.ForeignKey("ruler.id"), primary_key=True)
+    city_id = db.Column(
+        db.Integer(), db.ForeignKey("city.id"), primary_key=True)
+    # association object relations
+    ruler = db.relationship(
+        "Ruler",
+        backref="ruler_city")
+    city = db.relationship(
+        "City",
+        backref="city_ruler")
+
+    def __init__(self, city=None, ruler=None):
+        self.ruler = ruler
+        self.city = city

@@ -355,13 +355,13 @@ class Ruler(db.Model, GlyphMixin):
     sub_period_id = db.Column(
         db.Integer(), db.ForeignKey("sub_period.id"), nullable=True)
     # relations
-    dynasties = db.relationship("Ruler_Dynasty", backref="rulers")
+    dynasty_assoc = db.relationship("Ruler_Dynasty", backref="rulers")
     tablets = db.relationship(
         "Tablet", secondary=ruler_tablet, backref="rulers")
     # association proxy which gives us all rim references for a ruler
-    rim_refs = association_proxy('dynasties', 'rim_ref')
+    rim_refs = association_proxy('dynasty_assoc', 'rim_ref')
     # association proxy which gives us all dynasty names for a ruler
-    dynasty_names = association_proxy('dynasties', 'dynasty.name')
+    dynasties = association_proxy('dynasty_assoc', 'dynasty')
 
     def __init__(self,
         name, start_year=None, end_year=None,
@@ -386,7 +386,7 @@ class Dynasty(db.Model, GlyphMixin):
         "Sub_Period", secondary=subperiod_dynasty, backref="dynasties")
 
     # association proxy which gives us all ruler names for a dynasty
-    ruler_names = association_proxy('ruler_dynasties', 'rulers.name')
+    rulers = association_proxy('ruler_dynasties', 'rulers')
 
     def __init__(self, name):
         self.name = name

@@ -355,13 +355,12 @@ class Ruler(db.Model, GlyphMixin):
     sub_period_id = db.Column(
         db.Integer(), db.ForeignKey("sub_period.id"), nullable=True)
     # relations
-    dynasty_assoc = db.relationship("Ruler_Dynasty", backref="rulers")
     tablets = db.relationship(
         "Tablet", secondary=ruler_tablet, backref="rulers")
     # association proxy which gives us all rim references for a ruler
-    rim_refs = association_proxy('dynasty_assoc', 'rim_ref')
+    rim_refs = association_proxy('ruler_dynasty', 'rim_ref')
     # association proxy which gives us all dynasty names for a ruler
-    dynasties = association_proxy('dynasty_assoc', 'dynasty')
+    dynasties = association_proxy('ruler_dynasty', 'dynasty')
 
     def __init__(self,
         name, start_year=None, end_year=None,
@@ -386,7 +385,7 @@ class Dynasty(db.Model, GlyphMixin):
         "Sub_Period", secondary=subperiod_dynasty, backref="dynasties")
 
     # association proxy which gives us all ruler names for a dynasty
-    rulers = association_proxy('ruler_dynasties', 'rulers')
+    rulers = association_proxy('dynasty_ruler', 'ruler')
 
     def __init__(self, name):
         self.name = name
@@ -397,6 +396,8 @@ class Ruler_Dynasty(db.Model, GlyphMixin):
     This is an association object linking Rulers and Dynasties
     It also includes a rim_ref column for each ruler/dynasty combo
     and start and end years
+    We can create new mappings like so:
+    Ruler_Dynasty(rim_ref="foo", ruler=Ruler(), dynasty=Dynasty())
     """
     ruler_id = db.Column(
         db.Integer(), db.ForeignKey("ruler.id"), nullable=False)
@@ -409,15 +410,18 @@ class Ruler_Dynasty(db.Model, GlyphMixin):
         db.Integer(), db.ForeignKey("year.id"), nullable=True)
     end_year_id
     # relations
-    dynasty = db.relationship("Dynasty", backref="ruler_dynasties")
     start_year = db.relationship("Year",
         primaryjoin="Year.id == Ruler_Dynasty.start_year_id",
         backref="dynasty_start_years")
     end_year = db.relationship("Year",
         primaryjoin="Year.id == Ruler_Dynasty.end_year_id",
         backref="dynasty_end_years")
+    # association object relations
+    ruler = db.relationship("Ruler", backref="ruler_dynasty")
+    dynasty = db.relationship("Dynasty", backref="dynasty_ruler")
 
-    def __init__(self, rim_ref, dynasty=None):
+
+    def __init__(self, rim_ref, ruler=None, dynasty=None):
+        self.ruler = ruler
+        self.dynasty = dynasty
         self.rim_ref = rim_ref
-        if dynasty:
-            self.dynasty = Dynasty(dynasty)

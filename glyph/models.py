@@ -3,30 +3,6 @@ from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.ext.associationproxy import association_proxy
 
 
-# Ruler / Tablet many-to-many table
-# TODO: remove ID column, make the FKs PKs
-# TODO: consider making this an association object
-ruler_tablet = db.Table("ruler_tablet",
-    db.Column("id",
-        db.Integer(), primary_key=True),
-    db.Column("ruler_id",
-        db.Integer(), db.ForeignKey("ruler.id"), nullable=False),
-    db.Column("tablet_id",
-        db.Integer(), db.ForeignKey("tablet.id"), nullable=False))
-
-
-# Sub-Period / Dynasty many-to-many table
-# TODO: remove ID column, make the FKs PKs
-# TODO: consider making this an association object
-subperiod_dynasty = db.Table("subperiod_dynasty",
-    db.Column("id",
-        db.Integer(), primary_key=True),
-    db.Column("dynasty_id",
-        db.Integer(), db.ForeignKey("dynasty.id"), nullable=False),
-    db.Column("subperiod_id",
-        db.Integer(), db.ForeignKey("sub_period.id"), nullable=False))
-
-
 class GlyphMixin(object):
     """
     Provides some common attributes to our models
@@ -131,6 +107,8 @@ class Tablet(db.Model, GlyphMixin):
         backref="tablets")
     dynasty = db.relationship("Dynasty",
         backref="tablets")
+    # association proxy for ruler_tablet
+    rulers = association_proxy('tablet_ruler', 'ruler')
 
     def __init__(self, **kwargs):
         """
@@ -160,7 +138,6 @@ class Tablet(db.Model, GlyphMixin):
         self.genre = kwargs.get("genre")
         self.function = kwargs.get("function")
         self.dynasty = kwargs.get("dynasty")
-        self.rulers = kwargs.get("rulers")
 
 
 class Non_Ruler_Corresp(db.Model, GlyphMixin):
@@ -348,6 +325,8 @@ class Sub_Period(db.Model, GlyphMixin):
         db.Integer(), db.ForeignKey("period.id"), nullable=False)
     # relations
     rulers = db.relationship("Ruler", backref="sub_period")
+    # AP which gives us all dynasties
+    dynasties = association_proxy('subperiod_dynasty', 'dynasty')
 
     def __init__(self, name, period):
         self.name = name
@@ -360,40 +339,29 @@ class Ruler(db.Model, GlyphMixin):
         db.Integer(), db.ForeignKey("period.id"), nullable=False)
     sub_period_id = db.Column(
         db.Integer(), db.ForeignKey("sub_period.id"), nullable=True)
-    # relations
-    tablets = db.relationship(
-        "Tablet", secondary=ruler_tablet, backref="rulers")
     # association proxy which gives us all rim references for a ruler
     rim_refs = association_proxy('ruler_dynasty', 'rim_ref')
     # association proxy which gives us all dynasty names for a ruler
     dynasties = association_proxy('ruler_dynasty', 'dynasty')
     # association proxy for cities
     cities = association_proxy('ruler_city', 'city')
+    # association proxy for tablets
+    tablets = association_proxy('ruler_tablet', 'tablet')
 
-    def __init__(self,
-        name, start_year=None, end_year=None,
-        tablets=None, period=None, sub_period=None):
-
+    def __init__(self, name, period, sub_period=None):
         self.name = name
-        if start_year:
-            self.start_year = start_year
-        if end_year:
-            self.end_year = end_year
-        if tablets:
-            self.tablets = tablets
-        if period:
-            self.period = period
+        self.period = period
         if sub_period:
             self.sub_period = sub_period
 
 
 class Dynasty(db.Model, GlyphMixin):
     name = db.Column(db.String(100), nullable=False, unique=True)
-    sub_periods = db.relationship(
-        "Sub_Period", secondary=subperiod_dynasty, backref="dynasties")
 
     # association proxy which gives us all ruler names for a dynasty
     rulers = association_proxy('dynasty_ruler', 'ruler')
+    # AP which gives us all sub-periods
+    sub_periods = association_proxy('dynasty_subperiod', 'subperiod')
 
     def __init__(self, name):
         self.name = name
@@ -408,6 +376,7 @@ class Ruler_Dynasty(db.Model, GlyphMixin):
     Ruler_Dynasty(rim_ref="foo", ruler=Ruler(), dynasty=Dynasty())
     """
     # TODO: remove mixin, ID column from Table, make FKs PK
+    # TODO: start / end year must be a separate ruler many-to-many. Sorry!
     ruler_id = db.Column(
         db.Integer(), db.ForeignKey("ruler.id"), nullable=False)
     dynasty_id = db.Column(
@@ -429,10 +398,12 @@ class Ruler_Dynasty(db.Model, GlyphMixin):
     ruler = db.relationship("Ruler", backref="ruler_dynasty")
     dynasty = db.relationship("Dynasty", backref="dynasty_ruler")
 
-    def __init__(self, rim_ref, ruler=None, dynasty=None):
+    def __init__(self, rim_ref, ruler=None, dynasty=None, start_year=None, end_year=None):
         self.ruler = ruler
         self.dynasty = dynasty
         self.rim_ref = rim_ref
+        self.start_year = start_year
+        self.end_year = end_year
 
 
 class Ruler_City(db.Model):
@@ -455,3 +426,55 @@ class Ruler_City(db.Model):
     def __init__(self, city=None, ruler=None):
         self.ruler = ruler
         self.city = city
+
+
+class Ruler_Tablet(db.Model):
+    """
+    Association object for rulers and tablets
+    """
+    __tablename__ = "ruler_tablet"
+    ruler_id = db.Column("ruler_id",
+        db.Integer(), db.ForeignKey("ruler.id"), primary_key=True)
+    tablet_id = db.Column("tablet_id",
+        db.Integer(), db.ForeignKey("tablet.id"), primary_key=True)
+    # relations
+    ruler = db.relationship(
+        "Ruler",
+        backref="ruler_tablet",
+        cascade="all, delete-orphan",
+        single_parent=True)
+    tablet = db.relationship(
+        "Tablet",
+        backref="tablet_ruler",
+        cascade="all, delete-orphan",
+        single_parent=True)
+
+    def __init__(self, ruler=None, tablet=None):
+        self.ruler = ruler
+        self.tablet = tablet
+
+
+class Subperiod_Dynasty(db.Model):
+    """
+    Association object for subperiod and dynasty
+    """
+    __tablename__ = "subperiod_dynasty"
+    subperiod_id = db.Column("subperiod_id",
+        db.Integer(), db.ForeignKey("sub_period.id"), primary_key=True)
+    dynasty_id = db.Column("dynasty_id",
+        db.Integer(), db.ForeignKey("dynasty.id"), primary_key=True)
+    # relations
+    sub_period = db.relationship(
+        "Sub_Period",
+        backref="subperiod_dynasty",
+        cascade="all, delete-orphan",
+        single_parent=True)
+    dynasty = db.relationship(
+        "Dynasty",
+        backref="dynasty_subperiod",
+        cascade="all, delete-orphan",
+        single_parent=True)
+
+    def __init__(self, sub_period=None, dynasty=None):
+        self.sub_period = sub_period
+        self.dynasty = dynasty

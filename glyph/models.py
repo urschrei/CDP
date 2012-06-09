@@ -388,7 +388,14 @@ class Reign(db.Model, GlyphMixin):
     def __init__(
         self, rim_ref, period, city=None, start_year=None,
         end_year=None, sub_period=None, dynasty=None):
-        pass
+
+        self.rim_ref = rim_ref
+        self.period = period
+        self.start_year = start_year
+        self.end_year = end_year
+        self.sub_period = sub_period
+        self.city = city
+        self.dynasty = dynasty
 
 
 class Subperiod_Dynasty(db.Model):

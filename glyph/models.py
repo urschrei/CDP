@@ -206,7 +206,7 @@ class City(db.Model, GlyphMixin):
     # relations
     sites = db.relationship("City_Site", backref="city")
     # association proxy for ruler / city
-    rulers = association_proxy('city_ruler', 'ruler')
+    # rulers = association_proxy('city_ruler', 'ruler')
 
     def __init__(self, name, locality=None, sites=None):
         self.name = name
@@ -311,7 +311,6 @@ class Period(db.Model, GlyphMixin):
     to_date = db.Column(db.String(50), nullable=False)
     # relations
     sub_periods = db.relationship("Sub_Period", backref="period")
-    rulers = db.relationship("Ruler", backref="period")
 
     def __init__(self, name, sub_period=None):
         self.name = name
@@ -324,7 +323,6 @@ class Sub_Period(db.Model, GlyphMixin):
     period_id = db.Column(
         db.Integer(), db.ForeignKey("period.id"), nullable=False)
     # relations
-    rulers = db.relationship("Ruler", backref="sub_period")
     # AP which gives us all dynasties
     dynasties = association_proxy('subperiod_dynasty', 'dynasty')
 
@@ -335,35 +333,19 @@ class Sub_Period(db.Model, GlyphMixin):
 
 class Ruler(db.Model, GlyphMixin):
     name = db.Column(db.String(100), nullable=False, unique=True)
-    # TODO: I don't think we need these
-    period_id = db.Column(
-        db.Integer(), db.ForeignKey("period.id"), nullable=False)
-    sub_period_id = db.Column(
-        db.Integer(), db.ForeignKey("sub_period.id"), nullable=True)
     # relations
     reigns = db.relationship("Reign", backref="ruler")
     # association proxy for tablets
     tablets = association_proxy('ruler_tablet', 'tablet')
-    # TODO: these association proxies can go
-    # association proxy which gives us all rim references for a ruler
-    rim_refs = association_proxy('ruler_dynasty', 'rim_ref')
-    # association proxy which gives us all dynasty names for a ruler
-    dynasties = association_proxy('ruler_dynasty', 'dynasty')
-    # association proxy for cities
-    cities = association_proxy('ruler_city', 'city')
 
-    def __init__(self, name, period, sub_period=None):
+    def __init__(self, name, reigns=None):
         self.name = name
-        self.period = period
-        if sub_period:
-            self.sub_period = sub_period
-
+        if reigns:
+            self.reigns = reigns
 
 class Dynasty(db.Model, GlyphMixin):
     name = db.Column(db.String(100), nullable=False, unique=True)
 
-    # association proxy which gives us all ruler names for a dynasty
-    rulers = association_proxy('dynasty_ruler', 'ruler')
     # AP which gives us all sub-periods
     sub_periods = association_proxy('dynasty_subperiod', 'subperiod')
 
@@ -372,14 +354,23 @@ class Dynasty(db.Model, GlyphMixin):
 
 
 class Reign(db.Model, GlyphMixin):
-    rim_ref = db.Column("rim_ref", db.String(50), nullable=False)
-    ruler_id = db.Column("ruler_id", db.Integer(), db.ForeignKey("ruler.id"), nullable=False)
-    city_id = db.Column("city_id", db.Integer(), db.ForeignKey("city.id"), nullable=True)
-    start_date = db.Column("start_date", db.Integer(), db.ForeignKey("year.id"), nullable=True)
-    end_date = db.Column("end_date", db.Integer(), db.ForeignKey("year.id"), nullable=True)
-    dynasty_id = db.Column("dynasty_id", db.Integer(), db.ForeignKey("dynasty.id"), nullable=True)
-    period_id = db.Column("period_id", db.Integer(), db.ForeignKey("period.id"), nullable=False)
-    sub_period_id = db.Column("sub_period_id", db.Integer, db.ForeignKey("sub_period.id"), nullable=True)
+    ruler_id = db.Column("ruler_id",
+        db.Integer(), db.ForeignKey("ruler.id"), nullable=False)
+    rim_ref = db.Column("rim_ref",
+        db.String(50), nullable=False)
+    city_id = db.Column("city_id",
+        db.Integer(), db.ForeignKey("city.id"), nullable=True)
+    start_date = db.Column("start_date",
+        db.Integer(), db.ForeignKey("year.id"), nullable=True)
+    end_date = db.Column("end_date",
+        db.Integer(), db.ForeignKey("year.id"), nullable=True)
+    dynasty_id = db.Column("dynasty_id",
+        db.Integer(), db.ForeignKey("dynasty.id"), nullable=True)
+    period_id = db.Column("period_id",
+        db.Integer(), db.ForeignKey("period.id"),
+            nullable=False)
+    sub_period_id = db.Column("sub_period_id",
+        db.Integer, db.ForeignKey("sub_period.id"), nullable=True)
 
     # relations
     city = db.relationship("City", backref="reigns")
@@ -398,67 +389,7 @@ class Reign(db.Model, GlyphMixin):
         end_year=None, sub_period=None, dynasty=None):
         pass
 
-class Ruler_Dynasty(db.Model, GlyphMixin):
-    """
-    This is an association object linking Rulers and Dynasties
-    It also includes a rim_ref column for each ruler/dynasty combo
-    and start and end years
-    We can create new mappings like so:
-    Ruler_Dynasty(rim_ref="foo", ruler=Ruler(), dynasty=Dynasty())
-    """
-    # TODO: remove mixin, ID column from Table, make FKs PK
-    # TODO: start / end year must be a separate ruler many-to-many. Sorry!
-    ruler_id = db.Column(
-        db.Integer(), db.ForeignKey("ruler.id"), nullable=False)
-    dynasty_id = db.Column(
-        db.Integer(), db.ForeignKey("dynasty.id"), nullable=False)
-    rim_ref = db.Column(db.String(75), nullable=False, unique=True)
-    start_year_id = db.Column(
-        db.Integer(), db.ForeignKey("year.id"), nullable=True)
-    end_year_id = db.Column(
-        db.Integer(), db.ForeignKey("year.id"), nullable=True)
-    end_year_id
-    # relations
-    start_year = db.relationship("Year",
-        primaryjoin="Year.id == Ruler_Dynasty.start_year_id",
-        backref="dynasty_start_years")
-    end_year = db.relationship("Year",
-        primaryjoin="Year.id == Ruler_Dynasty.end_year_id",
-        backref="dynasty_end_years")
-    # association object relations
-    ruler = db.relationship("Ruler", backref="ruler_dynasty")
-    dynasty = db.relationship("Dynasty", backref="dynasty_ruler")
-
-    def __init__(self, rim_ref, ruler=None, dynasty=None, start_year=None, end_year=None):
-        self.ruler = ruler
-        self.dynasty = dynasty
-        self.rim_ref = rim_ref
-        self.start_year = start_year
-        self.end_year = end_year
-
-
-class Ruler_City(db.Model):
-    """
-    This is an association object that holds ruler-city many-to-many relations
-    """
-    __tablename__ = "ruler_city"
-    ruler_id = db.Column(
-        db.Integer(), db.ForeignKey("ruler.id"), primary_key=True)
-    city_id = db.Column(
-        db.Integer(), db.ForeignKey("city.id"), primary_key=True)
-    # association object relations
-    ruler = db.relationship(
-        "Ruler",
-        backref="ruler_city")
-    city = db.relationship(
-        "City",
-        backref="city_ruler")
-
-    def __init__(self, city=None, ruler=None):
-        self.ruler = ruler
-        self.city = city
-
-
+# TODO: can we remove this? Replace w/"tablets" relationship in Reign instead
 class Ruler_Tablet(db.Model):
     """
     Association object for rulers and tablets

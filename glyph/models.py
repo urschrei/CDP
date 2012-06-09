@@ -335,18 +335,22 @@ class Sub_Period(db.Model, GlyphMixin):
 
 class Ruler(db.Model, GlyphMixin):
     name = db.Column(db.String(100), nullable=False, unique=True)
+    # TODO: I don't think we need these
     period_id = db.Column(
         db.Integer(), db.ForeignKey("period.id"), nullable=False)
     sub_period_id = db.Column(
         db.Integer(), db.ForeignKey("sub_period.id"), nullable=True)
+    # relations
+    reigns = db.relationship("Reign", backref="ruler")
+    # association proxy for tablets
+    tablets = association_proxy('ruler_tablet', 'tablet')
+    # TODO: these association proxies can go
     # association proxy which gives us all rim references for a ruler
     rim_refs = association_proxy('ruler_dynasty', 'rim_ref')
     # association proxy which gives us all dynasty names for a ruler
     dynasties = association_proxy('ruler_dynasty', 'dynasty')
     # association proxy for cities
     cities = association_proxy('ruler_city', 'city')
-    # association proxy for tablets
-    tablets = association_proxy('ruler_tablet', 'tablet')
 
     def __init__(self, name, period, sub_period=None):
         self.name = name
@@ -366,6 +370,33 @@ class Dynasty(db.Model, GlyphMixin):
     def __init__(self, name):
         self.name = name
 
+
+class Reign(db.Model, GlyphMixin):
+    rim_ref = db.Column("rim_ref", db.String(50), nullable=False)
+    ruler_id = db.Column("ruler_id", db.Integer(), db.ForeignKey("ruler.id"), nullable=False)
+    city_id = db.Column("city_id", db.Integer(), db.ForeignKey("city.id"), nullable=True)
+    start_date = db.Column("start_date", db.Integer(), db.ForeignKey("year.id"), nullable=True)
+    end_date = db.Column("end_date", db.Integer(), db.ForeignKey("year.id"), nullable=True)
+    dynasty_id = db.Column("dynasty_id", db.Integer(), db.ForeignKey("dynasty.id"), nullable=True)
+    period_id = db.Column("period_id", db.Integer(), db.ForeignKey("period.id"), nullable=False)
+    sub_period_id = db.Column("sub_period_id", db.Integer, db.ForeignKey("sub_period.id"), nullable=True)
+
+    # relations
+    city = db.relationship("City", backref="reigns")
+    start_year = db.relationship("Year",
+        primaryjoin="Year.id == Reign.start_date",
+        backref="reign_start_years")
+    end_year = db.relationship("Year",
+        primaryjoin="Year.id == Reign.end_date",
+        backref="reign_end_years")
+    dynasty = db.relationship("Dynasty", backref="reigns")
+    period = db.relationship("Period", backref="reigns")
+    sub_period = db.relationship("Sub_Period", backref="reigns")
+
+    def __init__(
+        self, rim_ref, period, city=None, start_year=None,
+        end_year=None, sub_period=None, dynasty=None):
+        pass
 
 class Ruler_Dynasty(db.Model, GlyphMixin):
     """

@@ -65,6 +65,8 @@ class Tablet(db.Model, GlyphMixin):
         db.Integer(), db.ForeignKey('genre.id'), nullable=True)
     function_id = db.Column(
         db.Integer(), db.ForeignKey('function.id'), nullable=True)
+    reign_id = db.Column(
+        db.Integer(), db.ForeignKey("reign.id"), nullable=True)
     # relations
     year = db.relationship("Year",
         backref="tablets")
@@ -107,8 +109,8 @@ class Tablet(db.Model, GlyphMixin):
         backref="tablets")
     dynasty = db.relationship("Dynasty",
         backref="tablets")
-    # association proxy for ruler_tablet
-    rulers = association_proxy('tablet_ruler', 'ruler')
+    reign = db.relationship("Reign",
+        backref="tablets")
 
     def __init__(self, **kwargs):
         """
@@ -138,6 +140,7 @@ class Tablet(db.Model, GlyphMixin):
         self.genre = kwargs.get("genre")
         self.function = kwargs.get("function")
         self.dynasty = kwargs.get("dynasty")
+        self.reign = kwargs.get("reign")
 
 
 class Non_Ruler_Corresp(db.Model, GlyphMixin):
@@ -335,8 +338,6 @@ class Ruler(db.Model, GlyphMixin):
     name = db.Column(db.String(100), nullable=False, unique=True)
     # relations
     reigns = db.relationship("Reign", backref="ruler")
-    # association proxy for tablets
-    tablets = association_proxy('ruler_tablet', 'tablet')
 
     def __init__(self, name, reigns=None):
         self.name = name
@@ -388,32 +389,6 @@ class Reign(db.Model, GlyphMixin):
         self, rim_ref, period, city=None, start_year=None,
         end_year=None, sub_period=None, dynasty=None):
         pass
-
-# TODO: can we remove this? Replace w/"tablets" relationship in Reign instead
-class Ruler_Tablet(db.Model):
-    """
-    Association object for rulers and tablets
-    """
-    __tablename__ = "ruler_tablet"
-    ruler_id = db.Column("ruler_id",
-        db.Integer(), db.ForeignKey("ruler.id"), primary_key=True)
-    tablet_id = db.Column("tablet_id",
-        db.Integer(), db.ForeignKey("tablet.id"), primary_key=True)
-    # relations
-    ruler = db.relationship(
-        "Ruler",
-        backref="ruler_tablet",
-        cascade="all, delete-orphan",
-        single_parent=True)
-    tablet = db.relationship(
-        "Tablet",
-        backref="tablet_ruler",
-        cascade="all, delete-orphan",
-        single_parent=True)
-
-    def __init__(self, ruler=None, tablet=None):
-        self.ruler = ruler
-        self.tablet = tablet
 
 
 class Subperiod_Dynasty(db.Model):

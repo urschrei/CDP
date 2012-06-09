@@ -344,6 +344,15 @@ class Ruler(db.Model, GlyphMixin):
         if reigns:
             self.reigns = reigns
 
+    @property
+    def tablets(self):
+        """ Gives us all tablets for a ruler """
+        tbls = []
+        for reign in self.reigns:
+            tbls.extend(reign.tablets)
+        return tbls
+
+
 class Dynasty(db.Model, GlyphMixin):
     name = db.Column(db.String(100), nullable=False, unique=True)
 

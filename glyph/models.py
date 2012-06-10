@@ -346,11 +346,11 @@ class Ruler(db.Model, GlyphMixin):
 
     @property
     def tablets(self):
-        """ Gives us all tablets for a ruler """
-        tbls = []
+        """ return all tablets for a given ruler """
+        tblts = []
         for reign in self.reigns:
-            tbls.extend(reign.tablets)
-        return tbls
+            tblts.extend(reign.tablets)
+        return tblts
 
 
 class Dynasty(db.Model, GlyphMixin):
@@ -361,6 +361,19 @@ class Dynasty(db.Model, GlyphMixin):
 
     def __init__(self, name):
         self.name = name
+
+    @property
+    def rulers(self):
+        """ return all rulers for a given dyansty """
+        return [reign.ruler for reign in self.reigns]
+
+    @property
+    def tablets(self):
+        """ return all tablets for a given dynasty """
+        tblts = []
+        for reign in self.reigns:
+            tblts.extend(reign.tablets)
+        return tblts
 
 
 class Reign(db.Model, GlyphMixin):

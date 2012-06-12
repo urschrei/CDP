@@ -19,6 +19,8 @@ class GlyphMixin(object):
 
 
 class Tablet(db.Model, GlyphMixin):
+    timestamp = db.Column(
+        db.DateTime(timezone=True), default=db.func.now(), nullable=False)
     museum_number = db.Column(
         db.String(75), nullable=False, unique=True)
     medium_id = db.Column(
@@ -377,6 +379,9 @@ class Dynasty(db.Model, GlyphMixin):
 
 
 class Reign(db.Model, GlyphMixin):
+    """
+    Rulers have reigns. Sometimes, more than one
+    """
     ruler_id = db.Column("ruler_id",
         db.Integer(), db.ForeignKey("ruler.id"), nullable=False)
     rim_ref = db.Column("rim_ref",

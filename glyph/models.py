@@ -45,6 +45,8 @@ class Tablet(db.Model, GlyphMixin):
         db.Integer(), db.ForeignKey('correspondent.id'), nullable=True)
     language_id = db.Column(
         db.Integer(), db.ForeignKey('language.id'), nullable=True)
+    eponym_id = db.Column(
+        db.Integer(), db.ForeignKey("eponym.id"), nullable=True)
     # absolute year / month / day
     year_id = db.Column(
         db.Integer(), db.ForeignKey('year.id'), nullable=True)
@@ -80,6 +82,8 @@ class Tablet(db.Model, GlyphMixin):
     # association proxy for rulers
     rulers = association_proxy('tablet_ruler', 'ruler')
     # relations
+    eponym = db.relationship("Eponym",
+        backref="tablets")
     year = db.relationship("Year",
         backref="tablets")
     medium = db.relationship("Medium",
@@ -106,6 +110,7 @@ class Tablet(db.Model, GlyphMixin):
     sent_from = db.relationship("Correspondent",
         primaryjoin="Correspondent.id == Tablet.from_id",
         backref="tablets_from")
+    # TODO: need to make this a many-to-one
     sent_to = db.relationship("Correspondent",
         primaryjoin="Correspondent.id == Tablet.to_id",
         backref="tablets_to")
@@ -157,6 +162,7 @@ class Tablet(db.Model, GlyphMixin):
         self.function = kwargs.get("function")
         self.dynasty = kwargs.get("dynasty")
         self.reign = kwargs.get("reign")
+        self.eponym = kwargs.get("eponym")
 
     @property
     def absolute_year(self):

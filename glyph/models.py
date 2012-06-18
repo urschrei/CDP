@@ -45,11 +45,19 @@ class Tablet(db.Model, GlyphMixin):
         db.Integer(), db.ForeignKey('correspondent.id'), nullable=True)
     language_id = db.Column(
         db.Integer(), db.ForeignKey('language.id'), nullable=True)
+    # absolute year / month / day
     year_id = db.Column(
         db.Integer(), db.ForeignKey('year.id'), nullable=True)
-    month = db.Column(
+    absolute_month = db.Column(
         db.String(10), nullable=True)
-    day = db.Column(
+    absolute_day = db.Column(
+        db.String(10), nullable=True)
+    # ancient year / month / day
+    ancient_year = db.Column(
+        db.String(10), nullable=True)
+    ancient_month = db.Column(
+        db.String(10), nullable=True)
+    ancient_day = db.Column(
         db.String(10), nullable=True)
     dynasty_id = db.Column(
         db.Integer(), db.ForeignKey('dynasty.id'), nullable=True)
@@ -134,9 +142,13 @@ class Tablet(db.Model, GlyphMixin):
         self.sub_period = kwargs.get("sub_period")
         self.sent_from = kwargs.get("sent_from")
         self.sent_to = kwargs.get("sent_to")
+        # absolute year
         self.year = kwargs.get("year")
-        self.month = kwargs.get("month")
-        self.day = kwargs.get("day")
+        self.absolute_month = kwargs.get("absolute_month")
+        self.absolute_day = kwargs.get("absolute_day")
+        self.ancient_year = kwargs.get("ancient_year")
+        self.ancient_month = kwargs.get("ancient_month")
+        self.ancient_day = kwargs.get("ancient_day")
         self.text_vehicle = kwargs.get("text_vehicle")
         self.notes = kwargs.get("notes")
         self.language = kwargs.get("language")
@@ -146,6 +158,9 @@ class Tablet(db.Model, GlyphMixin):
         self.dynasty = kwargs.get("dynasty")
         self.reign = kwargs.get("reign")
 
+    @property
+    def absolute_year(self):
+        return self.year.year
 
 class Non_Ruler_Corresp(db.Model, GlyphMixin):
     """

@@ -366,7 +366,7 @@ class Dynasty(db.Model, GlyphMixin):
 
     @property
     def rulers(self):
-        """ return all rulers for a given dyansty """
+        """ return all rulers for a given dynasty """
         return [reign.ruler for reign in self.reigns]
 
     @property

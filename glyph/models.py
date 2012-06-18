@@ -69,6 +69,8 @@ class Tablet(db.Model, GlyphMixin):
         db.Integer(), db.ForeignKey('function.id'), nullable=True)
     reign_id = db.Column(
         db.Integer(), db.ForeignKey("reign.id"), nullable=True)
+    # association proxy for rulers
+    rulers = association_proxy('tablet_ruler', 'ruler')
     # relations
     year = db.relationship("Year",
         backref="tablets")
@@ -340,19 +342,13 @@ class Ruler(db.Model, GlyphMixin):
     name = db.Column(db.String(100), nullable=False, unique=True)
     # relations
     reigns = db.relationship("Reign", backref="ruler")
+    # association proxy for tablets
+    tablets = association_proxy('ruler_tablet', 'tablet')
 
     def __init__(self, name, reigns=None):
         self.name = name
         if reigns:
             self.reigns = reigns
-
-    @property
-    def tablets(self):
-        """ return all tablets for a given ruler """
-        tblts = []
-        for reign in self.reigns:
-            tblts.extend(reign.tablets)
-        return tblts
 
 
 class Dynasty(db.Model, GlyphMixin):
@@ -423,6 +419,32 @@ class Reign(db.Model, GlyphMixin):
         self.sub_period = sub_period
         self.city = city
         self.dynasty = dynasty
+
+
+class Ruler_Tablet(db.Model):
+    """
+    Association object for rulers and tablets
+    """
+    __tablename__ = "ruler_tablet"
+    ruler_id = db.Column("ruler_id",
+        db.Integer(), db.ForeignKey("ruler.id"), primary_key=True)
+    tablet_id = db.Column("tablet_id",
+        db.Integer(), db.ForeignKey("tablet.id"), primary_key=True)
+    # relations
+    ruler = db.relationship(
+        "Ruler",
+        backref="ruler_tablet",
+        cascade="all, delete-orphan",
+        single_parent=True)
+    tablet = db.relationship(
+        "Tablet",
+        backref="tablet_ruler",
+        cascade="all, delete-orphan",
+        single_parent=True)
+
+    def __init__(self, ruler=None, tablet=None):
+        self.ruler = ruler
+        self.tablet = tablet
 
 
 class Subperiod_Dynasty(db.Model):

@@ -104,5 +104,8 @@
         {% if tablet.function %}
             <li><strong>Function:</strong> <a href="{{ url_for('tablets', function=tablet.function.name) }}">{{ tablet.function.name }}</a></li>
         {% endif %}
+        {% if tablet.notes %}
+            <li><strong>Notes:</strong> {{ tablet.notes }}</li>
+        {% endif %}
     </ul>
 {% endblock %}

@@ -4,23 +4,7 @@
 {% block content %}
     <div class="hero-unit">
         <h2>Hi!</h2>
-        <h2>Click <a href="{{ url_for('records', page=1) }}">here</a> to see the records</h2>
-        <h2>Or add a new record here:</h2>
-        {% if form.errors %}
-            <span class="label label-important">There were some problems with your form:</span>
-            <ul>
-            {% for field_name, field_errors in form.errors|dictsort if field_errors %}
-                {% for error in field_errors %}
-                    <li>{{ form[field_name].label }} {{ error }}</li>
-                {% endfor %}
-            {% endfor %}
-            </ul>
-        {% endif %}
-        <form class="form-inline" action="{{ url_for('index') }}" method="post">
-            {{ form.hidden_tag() }}
-            {{ form.record(class="input-small", placeholder="New Record Text", required="required") }}
-            <button type="submit" class="btn">Add</button>
-        </form>
+            <h2>Click <a href="{{ url_for('tablets') }}">here</a> to see the tablets</h2>
         </div>
 {% endblock %}
 {% block sidebar %}

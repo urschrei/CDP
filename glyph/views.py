@@ -29,9 +29,9 @@ def tablet(tablet_id):
     chunked = list(chunks(range(36), 12))
     return render_template('tablet.jinja', tablet=tablet, chunks=chunked)
 
-
-@app.route('/tablets')
-def tablets():
+@app.route('/tablets/', defaults={'page': 1})
+@app.route('/tablets/<int:page>')
+def tablets(page):
     """
     Show result of restricting records using various criteria
     """
@@ -87,7 +87,7 @@ def tablets():
     if request.args.get("dynasty"):
         q = q.join(Dynasty).filter(
             Dynasty.name == request.args.get("dynasty"))
-    page = q.paginate(1, per_page=20)
+    page = q.paginate(page, per_page=20)
     return render_template('tablets.jinja', page=page)
 
 

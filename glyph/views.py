@@ -37,8 +37,8 @@ def tablets(page):
     """
     q = Tablet.query
     if request.args.get("ruler"):
-        q = q.join(ruler_tablet).filter(
-            Ruler.name == request.args.get("ruler"))
+        q = Tablet.query.filter(
+            Tablet.rulers.any(Ruler.name==request.args.get("ruler")))
     if request.args.get("medium"):
         q = q.join(Medium).filter(
             Medium.name == request.args.get("medium"))

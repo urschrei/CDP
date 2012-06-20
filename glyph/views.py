@@ -87,7 +87,7 @@ def tablets(page):
     if request.args.get("dynasty"):
         q = q.join(Dynasty).filter(
             Dynasty.name == request.args.get("dynasty"))
-    page = q.paginate(page, per_page=20)
+    page = q.paginate(page, per_page=25)
     return render_template('tablets.jinja', page=page)
 
 

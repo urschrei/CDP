@@ -1,6 +1,7 @@
 from glyph import db
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.ext.associationproxy import association_proxy
+from sqlalchemy.ext.hybrid import hybrid_property, hybrid_method
 
 
 class GlyphMixin(object):
@@ -79,9 +80,17 @@ class Tablet(db.Model, GlyphMixin):
         db.Integer(), db.ForeignKey('function.id'), nullable=True)
     reign_id = db.Column(
         db.Integer(), db.ForeignKey("reign.id"), nullable=True)
+    author_id = db.Column(
+        db.Integer(), db.ForeignKey('author.id'), nullable=True)
     # association proxy for rulers
-    rulers = association_proxy('tablet_ruler', 'ruler')
+    rulers = association_proxy('tablet_ruler', 'ruler',
+        creator=lambda rul: Ruler_Tablet(ruler=rul))
+    # association proxy for sent_to correspondents
+    sent_to = association_proxy('tablet_correspondents', 'correspondent',
+        creator=lambda cor: Tablet_Correspondent(correspondent=cor))
     # relations
+    author = db.relationship("Author",
+        backref="tablets")
     eponym = db.relationship("Eponym",
         backref="tablets")
     year = db.relationship("Year",
@@ -110,10 +119,6 @@ class Tablet(db.Model, GlyphMixin):
     sent_from = db.relationship("Correspondent",
         primaryjoin="Correspondent.id == Tablet.from_id",
         backref="tablets_from")
-    # TODO: need to make this a many-to-one
-    sent_to = db.relationship("Correspondent",
-        primaryjoin="Correspondent.id == Tablet.to_id",
-        backref="tablets_to")
     text_vehicle = db.relationship("Text_Vehicle",
         backref="tablets")
     language = db.relationship("Language",
@@ -146,7 +151,7 @@ class Tablet(db.Model, GlyphMixin):
         self.period = kwargs.get("period")
         self.sub_period = kwargs.get("sub_period")
         self.sent_from = kwargs.get("sent_from")
-        self.sent_to = kwargs.get("sent_to")
+        # self.sent_to = kwargs.get("sent_to")
         # absolute year
         self.year = kwargs.get("year")
         self.absolute_month = kwargs.get("absolute_month")
@@ -163,6 +168,7 @@ class Tablet(db.Model, GlyphMixin):
         self.dynasty = kwargs.get("dynasty")
         self.reign = kwargs.get("reign")
         self.eponym = kwargs.get("eponym")
+        self.author = kwargs.get("author")
 
     @property
     def absolute_year(self):
@@ -173,6 +179,16 @@ class Non_Ruler_Corresp(db.Model, GlyphMixin):
     This holds correspondents who aren't rulers
     """
     name = db.Column(db.String(100), nullable=False, unique=True)
+
+    def __init__(self, name):
+        self.name = name
+
+
+class Author(db.Model, GlyphMixin):
+    """
+    Tablet authors
+    """
+    name = db.Column(db.String(75), nullable=False, unique=True)
 
     def __init__(self, name):
         self.name = name
@@ -192,13 +208,17 @@ class Correspondent(db.Model, GlyphMixin):
         uselist=False, backref="correspondent")
     non_ruler = db.relationship("Non_Ruler_Corresp",
         uselist=False, backref="correspondent")
+    # association proxy for tablets
+    tablets = association_proxy('correspondent_tablets', 'tablet',
+        creator=lambda tab: Tablet_Correspondent(tablet=tab))
 
-    def __init__(self, ruler=None, non_ruler=None):
+    def __init__(self, ruler=None, non_ruler=None, tablets=None):
         assert (ruler is None) ^ (non_ruler is None)
         if ruler:
             self.ruler = ruler
         if non_ruler:
             self.non_ruler = non_ruler
+        self.tablets = tablets
 
     @property
     def name(self):
@@ -352,7 +372,8 @@ class Sub_Period(db.Model, GlyphMixin):
         db.Integer(), db.ForeignKey("period.id"), nullable=False)
     # relations
     # AP which gives us all dynasties
-    dynasties = association_proxy('subperiod_dynasty', 'dynasty')
+    dynasties = association_proxy('subperiod_dynasty', 'dynasty',
+        creator=lambda dyn: Subperiod_Dynasty(dynasty=dyn))
 
     def __init__(self, name, period):
         self.name = name
@@ -364,7 +385,8 @@ class Ruler(db.Model, GlyphMixin):
     # relations
     reigns = db.relationship("Reign", backref="ruler")
     # association proxy for tablets
-    tablets = association_proxy('ruler_tablet', 'tablet')
+    tablets = association_proxy('ruler_tablet', 'tablet',
+        creator=lambda tab: Ruler_Tablet(tablet=tab))
 
     def __init__(self, name, reigns=None):
         self.name = name
@@ -376,7 +398,8 @@ class Dynasty(db.Model, GlyphMixin):
     name = db.Column(db.String(100), nullable=False, unique=True)
 
     # AP which gives us all sub-periods
-    sub_periods = association_proxy('dynasty_subperiod', 'subperiod')
+    sub_periods = association_proxy('dynasty_subperiod', 'sub_period',
+        creator=lambda sub: Subperiod_Dynasty(sub_period=sub))
 
     def __init__(self, name):
         self.name = name
@@ -455,17 +478,42 @@ class Ruler_Tablet(db.Model):
     ruler = db.relationship(
         "Ruler",
         backref="ruler_tablet",
-        cascade="all, delete-orphan",
-        single_parent=True)
+        cascade="all")
     tablet = db.relationship(
         "Tablet",
         backref="tablet_ruler",
-        cascade="all, delete-orphan",
-        single_parent=True)
+        cascade="all")
 
     def __init__(self, ruler=None, tablet=None):
         self.ruler = ruler
         self.tablet = tablet
+
+
+class Tablet_Correspondent(db.Model):
+    """
+    Association object for Tablets and correspondents
+    This allows many tablets to have many correspondents in the SENT_TO field
+    """
+    __tablename__ = "tablet_correspondent"
+    tablet_id = db.Column("tablet_id",
+        db.Integer(), db.ForeignKey("tablet.id"), primary_key=True)
+    correspondent_id = db.Column("correspondent_id",
+        db.Integer(), db.ForeignKey("correspondent.id"), primary_key=True)
+    # relations
+    tablet = db.relationship(
+        "Tablet",
+        backref="tablet_correspondents",
+        cascade="all, delete-orphan",
+        single_parent=True)
+    correspondent = db.relationship(
+        "Correspondent",
+        backref="correspondent_tablets",
+        cascade="all, delete-orphan",
+        single_parent=True)
+
+    def __init__(self, tablet=None, correspondent=None):
+        self.tablet = tablet
+        self.correspondent = correspondent
 
 
 class Subperiod_Dynasty(db.Model):

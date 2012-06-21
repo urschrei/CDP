@@ -205,8 +205,10 @@ class Correspondent(db.Model, GlyphMixin):
         db.Integer, db.ForeignKey("non_ruler_corresp.id"), nullable=True)
     # relations
     ruler = db.relationship("Ruler",
+        primaryjoin="Ruler.id == Correspondent.ruler_id",
         uselist=False, backref="correspondent")
     non_ruler = db.relationship("Non_Ruler_Corresp",
+        primaryjoin="Non_Ruler_Corresp.id == Correspondent.non_ruler_id",
         uselist=False, backref="correspondent")
     # association proxy for tablets
     tablets = association_proxy('correspondent_tablets', 'tablet',
@@ -317,13 +319,6 @@ class Genre(db.Model, GlyphMixin):
 
 class Language(db.Model, GlyphMixin):
     name = db.Column(db.String(100), nullable=False, unique=True)
-
-    def __init__(self, name):
-        self.name = name
-
-
-class Function(db.Model, GlyphMixin):
-    name = db.Column(db.String(50), nullable=False, unique=True)
 
     def __init__(self, name):
         self.name = name
@@ -540,3 +535,106 @@ class Subperiod_Dynasty(db.Model):
     def __init__(self, sub_period=None, dynasty=None):
         self.sub_period = sub_period
         self.dynasty = dynasty
+
+
+# these are sign-related tables
+
+
+class Sign(db.Model, GlyphMixin):
+    """
+    Sign identification
+    """
+    name = db.Column(db.String(50), nullable=False, unique=True)
+    number = db.Column(db.String(10), nullable=True, unique=True)
+
+    def __init__(self, name, number=None):
+        self.name = name
+        if number:
+            self.number = number
+
+
+class Function(db.Model, GlyphMixin):
+    """
+    Instance surface
+    """
+    name = db.Column(db.String(50), nullable=False, unique=True)
+
+    def __init__(self, name):
+        self.name = name
+
+
+class Surface(db.Model, GlyphMixin):
+    """
+    Instance surface
+    """
+    name = db.Column(db.String(50), nullable=False, unique=True)
+
+    def __init__(self, name):
+        self.name = name
+
+
+class Column(db.Model, GlyphMixin):
+    """
+    Instance column
+    """
+    number = db.Column(db.String(5), nullable=False, unique=True)
+
+    def __init__(self, name):
+        self.number = number
+
+
+class Line(db.Model, GlyphMixin):
+    """
+    Instance line
+    """
+    number = db.Column(db.String(5), nullable=False, unique=True)
+
+    def __init__(self, name):
+        self.number = number
+
+
+class Iteration(db.Model, GlyphMixin):
+    """
+    Instance iterations
+    """
+    number = db.Column(db.String(5), nullable=False, unique=True)
+
+    def __init__(self, name):
+        self.number = number
+
+
+class Instance(db.Model, GlyphMixin):
+    """
+    Instances of signs
+    """
+    sign_id = db.Column("sign_id",
+        db.Integer(), db.ForeignKey("sign.id"), nullable=False)
+    surface_id = db.Column("surface_id",
+        db.Integer(), db.ForeignKey("surface.id"), nullable=True)
+    column_id = db.Column("column_id",
+        db.Integer(), db.ForeignKey("column.id"), nullable=True)
+    line_id = db.Column("line_id",
+        db.Integer(), db.ForeignKey("line.id"), nullable=True)
+    function_id = db.Column("function_id",
+        db.Integer(), db.ForeignKey("function.id"), nullable=True)
+    iteration_id = db.Column("iteration_id",
+        db.Integer(), db.ForeignKey("iteration.id"), nullable=True)
+
+    # relations
+    sign = db.relationship("Sign", backref="instances")
+    surface = db.relationship("Surface", backref="instances")
+    column = db.relationship("Column", backref="instances")
+    line = db.relationship("Line", backref="instances")
+    function = db.relationship("Function", backref="instances")
+    iteration = db.relationship("Iteration", backref="instances")
+
+    def __init__(
+        self, sign, surface=None, column=None, line=None,
+        function=None, iteration=None):
+
+        self.sign = sign
+        self.surface = surface
+        self.column = column
+        self.line = line
+        self.function = function
+        self.iteration = iteration

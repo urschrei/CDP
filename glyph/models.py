@@ -607,6 +607,8 @@ class Instance(db.Model, GlyphMixin):
     """
     Instances of signs
     """
+    tablet_id = db.Column("tablet_id",
+        db.Integer(), db.ForeignKey("tablet.id"), nullable=False)
     sign_id = db.Column("sign_id",
         db.Integer(), db.ForeignKey("sign.id"), nullable=False)
     surface_id = db.Column("surface_id",
@@ -621,6 +623,7 @@ class Instance(db.Model, GlyphMixin):
         db.Integer(), db.ForeignKey("iteration.id"), nullable=True)
 
     # relations
+    tablet = db.relationship("Tablet", backref="instances")
     sign = db.relationship("Sign", backref="instances")
     surface = db.relationship("Surface", backref="instances")
     column = db.relationship("Column", backref="instances")

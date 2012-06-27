@@ -607,6 +607,8 @@ class Instance(db.Model, GlyphMixin):
         db.Integer(), db.ForeignKey("function.id"), nullable=True)
     iteration_id = db.Column("iteration_id",
         db.Integer(), db.ForeignKey("iteration.id"), nullable=True)
+    notes = db.Column("notes",
+        db.String(250), nullable=True, unique=False)
 
     # relations
     tablet = db.relationship("Tablet", backref="instances")
@@ -619,7 +621,7 @@ class Instance(db.Model, GlyphMixin):
 
     def __init__(
         self, sign, surface=None, column=None, line=None,
-        function=None, iteration=None):
+        function=None, iteration=None, notes=None):
 
         self.sign = sign
         self.surface = surface

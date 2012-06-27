@@ -1,7 +1,6 @@
 from glyph import db
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.ext.associationproxy import association_proxy
-from sqlalchemy.ext.hybrid import hybrid_property, hybrid_method
 
 
 class GlyphMixin(object):
@@ -14,9 +13,9 @@ class GlyphMixin(object):
         return cls.__name__.lower()
 
     __table_args__ = {'mysql_engine': 'InnoDB'}
-    __mapper_args__= {'always_refresh': True}
+    __mapper_args__ = {'always_refresh': True}
 
-    id =  db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
 
 
 class Tablet(db.Model, GlyphMixin):
@@ -151,7 +150,7 @@ class Tablet(db.Model, GlyphMixin):
         self.period = kwargs.get("period")
         self.sub_period = kwargs.get("sub_period")
         self.sent_from = kwargs.get("sent_from")
-        # self.sent_to = kwargs.get("sent_to")
+        self.sent_to = kwargs.get("sent_to")
         # absolute year
         self.year = kwargs.get("year")
         self.absolute_month = kwargs.get("absolute_month")
@@ -173,6 +172,7 @@ class Tablet(db.Model, GlyphMixin):
     @property
     def absolute_year(self):
         return self.year.year
+
 
 class Non_Ruler_Corresp(db.Model, GlyphMixin):
     """
@@ -391,26 +391,12 @@ class Ruler(db.Model, GlyphMixin):
 
 class Dynasty(db.Model, GlyphMixin):
     name = db.Column(db.String(100), nullable=False, unique=True)
-
     # AP which gives us all sub-periods
     sub_periods = association_proxy('dynasty_subperiod', 'sub_period',
         creator=lambda sub: Subperiod_Dynasty(sub_period=sub))
 
     def __init__(self, name):
         self.name = name
-
-    @property
-    def rulers(self):
-        """ return all rulers for a given dynasty """
-        return [reign.ruler for reign in self.reigns]
-
-    @property
-    def tablets(self):
-        """ return all tablets for a given dynasty """
-        tblts = []
-        for reign in self.reigns:
-            tblts.extend(reign.tablets)
-        return tblts
 
 
 class Reign(db.Model, GlyphMixin):
@@ -579,7 +565,7 @@ class Column(db.Model, GlyphMixin):
     """
     number = db.Column(db.String(5), nullable=False, unique=True)
 
-    def __init__(self, name):
+    def __init__(self, number):
         self.number = number
 
 
@@ -589,7 +575,7 @@ class Line(db.Model, GlyphMixin):
     """
     number = db.Column(db.String(5), nullable=False, unique=True)
 
-    def __init__(self, name):
+    def __init__(self, number):
         self.number = number
 
 
@@ -599,7 +585,7 @@ class Iteration(db.Model, GlyphMixin):
     """
     number = db.Column(db.String(5), nullable=False, unique=True)
 
-    def __init__(self, name):
+    def __init__(self, number):
         self.number = number
 
 

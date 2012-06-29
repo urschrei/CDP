@@ -609,6 +609,8 @@ class Instance(db.Model, GlyphMixin):
         db.Integer(), db.ForeignKey("iteration.id"), nullable=True)
     notes = db.Column("notes",
         db.String(250), nullable=True, unique=False)
+    filename = db.Column("filename",
+        db.String(50), nullable=False, unique=True)
 
     # relations
     tablet = db.relationship("Tablet", backref="instances")

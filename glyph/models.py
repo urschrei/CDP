@@ -320,7 +320,11 @@ class Genre(db.Model, GlyphMixin):
 class Language(db.Model, GlyphMixin):
     name = db.Column(db.String(100), nullable=False, unique=True)
 
-    def __init__(self, name):
+    # association proxies
+    instances = association_proxy('language_instances', 'instance',
+        creator=lambda inst: Instance_Language(instance=inst))
+
+    def __init__(self, name, instances=None):
         self.name = name
 
 
@@ -621,9 +625,14 @@ class Instance(db.Model, GlyphMixin):
     function = db.relationship("Function", backref="instances")
     iteration = db.relationship("Iteration", backref="instances")
 
+    # association proxies
+    languages = association_proxy('instance_languages', 'language',
+        creator=lambda lang: Instance_Language(language=lang))
+
     def __init__(
         self, sign, surface=None, column=None, line=None,
-        function=None, iteration=None, notes=None):
+        function=None, iteration=None, notes=None, filename=None,
+        languages=None):
 
         self.sign = sign
         self.surface = surface
@@ -631,3 +640,28 @@ class Instance(db.Model, GlyphMixin):
         self.line = line
         self.function = function
         self.iteration = iteration
+
+
+class Instance_Language(db.Model):
+    """
+    Association object for Instances and Languages
+    """
+    __tablename__ = "instance_language"
+    instance_id = db.Column("instance_id",
+        db.Integer(), db.ForeignKey("instance.id"), primary_key=True)
+    language_id = db.Column("language_id",
+        db.Integer(), db.ForeignKey("language.id"), primary_key=True)
+    # relations
+    instance = db.relationship(
+        "Instance",
+        backref="instance_languages",
+        cascade="all")
+    language = db.relationship(
+        "Language",
+        backref="language_instances",
+        cascade="all")
+
+    def __init__(self, instance=None, language=None):
+        self.instance = instance
+        self.language = language
+

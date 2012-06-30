@@ -535,7 +535,7 @@ class Sign(db.Model, GlyphMixin):
     Sign identification
     """
     name = db.Column(db.String(50), nullable=False, unique=True)
-    number = db.Column(db.String(10), nullable=True, unique=True)
+    # TODO: add additional sign-listing columns
 
     def __init__(self, name, number=None):
         self.name = name

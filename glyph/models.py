@@ -597,23 +597,23 @@ class Instance(db.Model, GlyphMixin):
     """
     Instances of signs
     """
-    tablet_id = db.Column("tablet_id",
+    tablet_id = db.Column(
         db.Integer(), db.ForeignKey("tablet.id"), nullable=False)
-    sign_id = db.Column("sign_id",
+    sign_id = db.Column(
         db.Integer(), db.ForeignKey("sign.id"), nullable=False)
-    surface_id = db.Column("surface_id",
+    surface_id = db.Column(
         db.Integer(), db.ForeignKey("surface.id"), nullable=True)
-    column_id = db.Column("column_id",
+    column_id = db.Column(
         db.Integer(), db.ForeignKey("column.id"), nullable=True)
-    line_id = db.Column("line_id",
+    line_id = db.Column(
         db.Integer(), db.ForeignKey("line.id"), nullable=True)
-    function_id = db.Column("function_id",
+    function_id = db.Column(
         db.Integer(), db.ForeignKey("function.id"), nullable=True)
-    iteration_id = db.Column("iteration_id",
+    iteration_id = db.Column(
         db.Integer(), db.ForeignKey("iteration.id"), nullable=True)
-    notes = db.Column("notes",
+    notes = db.Column(
         db.String(250), nullable=True, unique=False)
-    filename = db.Column("filename",
+    filename = db.Column(
         db.String(50), nullable=False, unique=True)
 
     # relations

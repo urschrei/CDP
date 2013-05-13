@@ -15,12 +15,8 @@ import sqlalchemy as sa
 
 
 def upgrade():
-    op.create_table(
-        "dynasty",
-        sa.Column("id", sa.Integer(), primary_key=True),
-        sa.Column("name", sa.String(100), unique=True, nullable=False))
     op.add_column(
-        "Tablet", sa.Column("dynasty_id", sa.Integer(), sa.ForeignKey("dynasty.id"), nullable=True))
+        "Instance", sa.Column("tablet_id", sa.Integer(), sa.ForeignKey("tablet.id"), nullable=False))
 
 
 def downgrade():

@@ -15,12 +15,6 @@ def index():
     return render_template('index.jinja', form=form)
 
 
-@app.route('/records/<int:page>')
-def records(page=1):
-    page = Tablet.query.paginate(page, per_page=5)
-    return render_template('records.jinja', page=page)
-
-
 @app.route('/tablet/<int:tablet_id>')
 def tablet(tablet_id):
     tablet = Tablet.query.get(tablet_id)
@@ -28,6 +22,7 @@ def tablet(tablet_id):
     # chunked = list(chunks(tablet.signs, 12))
     chunked = list(chunks(range(36), 12))
     return render_template('tablet.jinja', tablet=tablet, chunks=chunked)
+
 
 @app.route('/tablets/', defaults={'page': 1})
 @app.route('/tablets/<int:page>')
@@ -38,7 +33,7 @@ def tablets(page):
     q = Tablet.query
     if request.args.get("ruler"):
         q = Tablet.query.filter(
-            Tablet.rulers.any(Ruler.name==request.args.get("ruler")))
+            Tablet.rulers.any(Ruler.name == request.args.get("ruler")))
     if request.args.get("medium"):
         q = q.join(Medium).filter(
             Medium.name == request.args.get("medium"))
@@ -96,4 +91,4 @@ def chunks(l, n):
     """ Yield successive n-sized chunks from l.
     """
     for i in xrange(0, len(l), n):
-        yield l[i:i+n]
+        yield l[i:i + n]

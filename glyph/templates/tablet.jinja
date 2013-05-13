@@ -3,7 +3,7 @@
 {% block content %}
 <h1>
     {{ tablet.museum_number }}
-    <small>available signs</small>
+    <small>available sign instances:</small>
 </h1>
 <div class="row-fluid">
     <div class="span9">
@@ -108,7 +108,7 @@
             <li><strong>Notes:</strong> {{ tablet.notes }}</li>
         {% endif %}
         {% if tablet.author %}
-            <li><strong>Scribe:</strong> {{ tablet.author }}</li>
+            <li><strong>Scribe:</strong> {{ tablet.author.name }}</li>
         {% endif %}
     </ul>
 {% endblock %}

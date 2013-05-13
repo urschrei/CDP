@@ -1,4 +1,4 @@
-from flaskext.wtf import Form, Required, TextAreaField, RadioField, HiddenField, validators
+from flask.ext.wtf import Form, Required, TextAreaField, RadioField, HiddenField, validators
 
 
 class RecordForm(Form):

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
+# n0k …
 
 from fabric.api import env, run, local, require, cd, put
 from fabric.decorators import task
@@ -44,7 +44,7 @@ def shell():
 def deploy():
     with cd('CDP/glyph'):
         run('git pull')
-        run('venv/bin/alembic upgrade head')
+        # run('venv/bin/alembic upgrade head')
         # touch run.wsgi
 
 

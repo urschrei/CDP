@@ -36,7 +36,7 @@ for bundle_name, bundle in bundles.items():
     assets.register(bundle_name, bundle)
 
 from apps.glyph.views import glyph
-app.register_blueprint(glyph, url_prefix='/')
+app.register_blueprint(glyph)
 
 
 # Error handling

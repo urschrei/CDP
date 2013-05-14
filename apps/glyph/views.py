@@ -21,7 +21,7 @@ def index():
     return render_template('index.jinja', form=form)
 
 
-@glyph.route('tablet/<int:tablet_id>')
+@glyph.route('/tablet/<int:tablet_id>')
 def tablet(tablet_id):
     tablet = Tablet.query.get(tablet_id)
     # split Signs into 12-item chunks
@@ -30,8 +30,8 @@ def tablet(tablet_id):
     return render_template('tablet.jinja', tablet=tablet, chunks=chunked)
 
 
-@glyph.route('tablets', methods=['GET'], defaults={'page': 1})
-@glyph.route('tablets/<int:page>', methods=['GET'])
+@glyph.route('/tablets', methods=['GET'], defaults={'page': 1})
+@glyph.route('/tablets/<int:page>', methods=['GET'])
 def tablets(page):
     """
     Show result of restricting records using various criteria

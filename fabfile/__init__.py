@@ -28,8 +28,8 @@ def run_app():
     """
     with cd(env.basename):
         # clean up any *.pyc files in our app dir
-        local('rm glyph/*.pyc')
-        local('export GLYPH_CONFIGURATION=`pwd`/glyph/config/dev.py && venv/bin/python ./run.py')
+        # local('rm glyph/*.pyc')
+        local('export GLYPH_CONFIGURATION=`pwd`/config/dev.py && venv/bin/python ./run.py')
 
 
 @task
@@ -37,7 +37,7 @@ def shell():
     """
     Run iPython without the deprecated Werkzeug stuff
     """
-    local('export GLYPH_CONFIGURATION=`pwd`/glyph/config/dev.py && ipython -i -c "%%run shell.py"')
+    local('export GLYPH_CONFIGURATION=`pwd`/config/dev.py && ipython -i -c "%%run shell.py"')
 
 
 @task

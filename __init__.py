@@ -7,15 +7,14 @@ import os
 
 from flask import Flask, render_template
 
-from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.assets import Environment
 from webassets.loaders import YAMLLoader
 
 app = Flask(__name__)
-# attach DB
-db = SQLAlchemy(app)
-import glyph.views
-import glyph.models
+
+# attach DB. This assumes a Blueprint model
+from apps.shared.models import db
+db.init_app(app)
 
 app.config.from_pyfile('config/common.py')
 
@@ -36,10 +35,8 @@ bundles = YAMLLoader(os.path.realpath(
 for bundle_name, bundle in bundles.items():
     assets.register(bundle_name, bundle)
 
-## import our own blueprints here if necessary
-# from apps.foo.views import foo_app
-# attach any blueprints
-# app.register_blueprint(foo_app, url_prefix='/foo')
+from apps.glyph.views import glyph
+app.register_blueprint(glyph, url_prefix='/')
 
 
 # Error handling

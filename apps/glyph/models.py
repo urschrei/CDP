@@ -1,21 +1,7 @@
-from glyph import db
-from sqlalchemy.ext.declarative import declared_attr
+from flask import current_app
+from apps.shared.models import db, GlyphMixin
+
 from sqlalchemy.ext.associationproxy import association_proxy
-
-
-class GlyphMixin(object):
-    """
-    Provides some common attributes to our models
-    """
-
-    @declared_attr
-    def __tablename__(cls):
-        return cls.__name__.lower()
-
-    __table_args__ = {'mysql_engine': 'InnoDB'}
-    __mapper_args__ = {'always_refresh': True}
-
-    id = db.Column(db.Integer, primary_key=True)
 
 
 class Tablet(db.Model, GlyphMixin):

@@ -20,117 +20,194 @@ class GlyphMixin(object):
 
 class Tablet(db.Model, GlyphMixin):
     timestamp = db.Column(
-        db.DateTime(timezone=True), default=db.func.now(), nullable=False)
+        db.DateTime(timezone=True),
+        default=db.func.now(),
+        nullable=False)
     museum_number = db.Column(
-        db.String(75), nullable=False, unique=True)
+        db.String(75),
+        nullable=False,
+        unique=True)
     medium_id = db.Column(
-        db.Integer(), db.ForeignKey('medium.id'), nullable=False)
+        db.Integer(),
+        db.ForeignKey('medium.id'),
+        nullable=False)
     script_type_id = db.Column(
-        db.Integer(), db.ForeignKey('script_type.id'), nullable=True)
+        db.Integer(),
+        db.ForeignKey('script_type.id'),
+        nullable=True)
     city_id = db.Column(
-        db.Integer(), db.ForeignKey('city.id'), nullable=True)
+        db.Integer(),
+        db.ForeignKey('city.id'),
+        nullable=True)
     city_site_id = db.Column(
-        db.Integer(), db.ForeignKey('city_site.id'), nullable=True)
+        db.Integer(),
+        db.ForeignKey('city_site.id'),
+        nullable=True)
     origin_city_id = db.Column(
-        db.Integer(), db.ForeignKey('city.id'), nullable=True)
+        db.Integer(),
+        db.ForeignKey('city.id'),
+        nullable=True)
     publication = db.Column(
-        db.String(200), nullable=True)
+        db.String(200),
+        nullable=True)
     period_id = db.Column(
-        db.Integer(), db.ForeignKey('period.id'), nullable=False)
+        db.Integer(),
+        db.ForeignKey('period.id'),
+        nullable=False)
     sub_period_id = db.Column(
-        db.Integer(), db.ForeignKey('sub_period.id'), nullable=True)
+        db.Integer(),
+        db.ForeignKey('sub_period.id'),
+        nullable=True)
     from_id = db.Column(
-        db.Integer(), db.ForeignKey('correspondent.id'), nullable=True)
+        db.Integer(),
+        db.ForeignKey('correspondent.id'),
+        nullable=True)
     to_id = db.Column(
-        db.Integer(), db.ForeignKey('correspondent.id'), nullable=True)
+        db.Integer(),
+        db.ForeignKey('correspondent.id'),
+        nullable=True)
     language_id = db.Column(
-        db.Integer(), db.ForeignKey('language.id'), nullable=True)
+        db.Integer(),
+        db.ForeignKey('language.id'),
+        nullable=True)
     eponym_id = db.Column(
-        db.Integer(), db.ForeignKey("eponym.id"), nullable=True)
+        db.Integer(),
+        db.ForeignKey("eponym.id"),
+        nullable=True)
     # absolute year / month / day
     year_id = db.Column(
-        db.Integer(), db.ForeignKey('year.id'), nullable=True)
+        db.Integer(),
+        db.ForeignKey('year.id'),
+        nullable=True)
     absolute_month = db.Column(
-        db.String(10), nullable=True)
+        db.String(10),
+        nullable=True)
     absolute_day = db.Column(
-        db.String(10), nullable=True)
+        db.String(10),
+        nullable=True)
     # ancient year / month / day
     ancient_year = db.Column(
-        db.String(10), nullable=True)
+        db.String(10),
+        nullable=True)
     ancient_month = db.Column(
-        db.String(10), nullable=True)
+        db.String(10),
+        nullable=True)
     ancient_day = db.Column(
-        db.String(10), nullable=True)
+        db.String(10),
+        nullable=True)
     dynasty_id = db.Column(
-        db.Integer(), db.ForeignKey('dynasty.id'), nullable=True)
+        db.Integer(),
+        db.ForeignKey('dynasty.id'),
+        nullable=True)
     text_vehicle_id = db.Column(
-        db.Integer(), db.ForeignKey('text_vehicle.id'), nullable=True)
+        db.Integer(),
+        db.ForeignKey('text_vehicle.id'),
+        nullable=True)
     locality_id = db.Column(
-        db.Integer(), db.ForeignKey('locality.id'), nullable=True)
+        db.Integer(),
+        db.ForeignKey('locality.id'),
+        nullable=True)
     sub_locality_id = db.Column(
-        db.Integer(), db.ForeignKey('sub_locality.id'), nullable=True)
+        db.Integer(),
+        db.ForeignKey('sub_locality.id'),
+        nullable=True)
     notes = db.Column(
-        db.String(500), nullable=True)
+        db.String(500),
+        nullable=True)
     method_id = db.Column(
-        db.Integer(), db.ForeignKey('method.id'), nullable=True)
+        db.Integer(),
+        db.ForeignKey('method.id'),
+        nullable=True)
     genre_id = db.Column(
-        db.Integer(), db.ForeignKey('genre.id'), nullable=True)
+        db.Integer(),
+        db.ForeignKey('genre.id'),
+        nullable=True)
     function_id = db.Column(
-        db.Integer(), db.ForeignKey('function.id'), nullable=True)
+        db.Integer(),
+        db.ForeignKey('function.id'),
+        nullable=True)
     reign_id = db.Column(
-        db.Integer(), db.ForeignKey("reign.id"), nullable=True)
+        db.Integer(),
+        db.ForeignKey("reign.id"),
+        nullable=True)
     author_id = db.Column(
-        db.Integer(), db.ForeignKey('author.id'), nullable=True)
+        db.Integer(),
+        db.ForeignKey('author.id'),
+        nullable=True)
     # association proxy for rulers
-    rulers = association_proxy('tablet_ruler', 'ruler',
+    rulers = association_proxy(
+        'tablet_ruler',
+        'ruler',
         creator=lambda rul: Ruler_Tablet(ruler=rul))
     # association proxy for sent_to correspondents
-    sent_to = association_proxy('tablet_correspondents', 'correspondent',
+    sent_to = association_proxy(
+        'tablet_correspondents',
+        'correspondent',
         creator=lambda cor: Tablet_Correspondent(correspondent=cor))
     # relations
-    author = db.relationship("Author",
+    author = db.relationship(
+        "Author",
         backref="tablets")
-    eponym = db.relationship("Eponym",
+    eponym = db.relationship(
+        "Eponym",
         backref="tablets")
-    year = db.relationship("Year",
+    year = db.relationship(
+        "Year",
         backref="tablets")
-    medium = db.relationship("Medium",
+    medium = db.relationship(
+        "Medium",
         backref="tablets")
-    script_type = db.relationship("Script_Type",
+    script_type = db.relationship(
+        "Script_Type",
         backref="tablets")
-    locality = db.relationship("Locality",
+    locality = db.relationship(
+        "Locality",
         backref="tablets")
-    sub_locality = db.relationship("Sub_Locality",
+    sub_locality = db.relationship(
+        "Sub_Locality",
         backref="tablets")
-    city = db.relationship("City",
+    city = db.relationship(
+        "City",
         primaryjoin="City.id == Tablet.city_id",
         backref="tablets")
-    city_site = db.relationship("City_Site",
+    city_site = db.relationship(
+        "City_Site",
         primaryjoin="City_Site.id == Tablet.city_site_id",
         backref="tablets")
-    origin_city = db.relationship("City",
+    origin_city = db.relationship(
+        "City",
         primaryjoin="City.id == Tablet.origin_city_id",
         backref="origin_tablets")
-    period = db.relationship("Period",
+    period = db.relationship(
+        "Period",
         backref="tablets")
-    sub_period = db.relationship("Sub_Period",
+    sub_period = db.relationship(
+        "Sub_Period",
         backref="tablets")
-    sent_from = db.relationship("Correspondent",
+    sent_from = db.relationship(
+        "Correspondent",
         primaryjoin="Correspondent.id == Tablet.from_id",
         backref="tablets_from")
-    text_vehicle = db.relationship("Text_Vehicle",
+    text_vehicle = db.relationship(
+        "Text_Vehicle",
         backref="tablets")
-    language = db.relationship("Language",
+    language = db.relationship(
+        "Language",
         backref="tablets")
-    method = db.relationship("Method",
+    method = db.relationship(
+        "Method",
         backref="tablets")
-    genre = db.relationship("Genre",
+    genre = db.relationship(
+        "Genre",
         backref="tablets")
-    function = db.relationship("Function",
+    function = db.relationship(
+        "Function",
         backref="tablets")
-    dynasty = db.relationship("Dynasty",
+    dynasty = db.relationship(
+        "Dynasty",
         backref="tablets")
-    reign = db.relationship("Reign",
+    reign = db.relationship(
+        "Reign",
         backref="tablets")
 
     def __init__(self, **kwargs):
@@ -204,14 +281,18 @@ class Correspondent(db.Model, GlyphMixin):
     non_ruler_id = db.Column(
         db.Integer, db.ForeignKey("non_ruler_corresp.id"), nullable=True)
     # relations
-    ruler = db.relationship("Ruler",
+    ruler = db.relationship(
+        "Ruler",
         primaryjoin="Ruler.id == Correspondent.ruler_id",
         uselist=False, backref="correspondent")
-    non_ruler = db.relationship("Non_Ruler_Corresp",
+    non_ruler = db.relationship(
+        "Non_Ruler_Corresp",
         primaryjoin="Non_Ruler_Corresp.id == Correspondent.non_ruler_id",
         uselist=False, backref="correspondent")
     # association proxy for tablets
-    tablets = association_proxy('correspondent_tablets', 'tablet',
+    tablets = association_proxy(
+        'correspondent_tablets',
+        'tablet',
         creator=lambda tab: Tablet_Correspondent(tablet=tab))
 
     def __init__(self, ruler=None, non_ruler=None, tablets=None):
@@ -321,7 +402,9 @@ class Language(db.Model, GlyphMixin):
     name = db.Column(db.String(100), nullable=False, unique=True)
 
     # association proxies
-    instances = association_proxy('language_instances', 'instance',
+    instances = association_proxy(
+        'language_instances',
+        'instance',
         creator=lambda inst: Instance_Language(instance=inst))
 
     def __init__(self, name, instances=None):
@@ -371,7 +454,9 @@ class Sub_Period(db.Model, GlyphMixin):
         db.Integer(), db.ForeignKey("period.id"), nullable=False)
     # relations
     # AP which gives us all dynasties
-    dynasties = association_proxy('subperiod_dynasty', 'dynasty',
+    dynasties = association_proxy(
+        'subperiod_dynasty',
+        'dynasty',
         creator=lambda dyn: Subperiod_Dynasty(dynasty=dyn))
 
     def __init__(self, name, period):
@@ -384,7 +469,9 @@ class Ruler(db.Model, GlyphMixin):
     # relations
     reigns = db.relationship("Reign", backref="ruler")
     # association proxy for tablets
-    tablets = association_proxy('ruler_tablet', 'tablet',
+    tablets = association_proxy(
+        'ruler_tablet',
+        'tablet',
         creator=lambda tab: Ruler_Tablet(tablet=tab))
 
     def __init__(self, name, reigns=None):
@@ -396,7 +483,9 @@ class Ruler(db.Model, GlyphMixin):
 class Dynasty(db.Model, GlyphMixin):
     name = db.Column(db.String(100), nullable=False, unique=True)
     # AP which gives us all sub-periods
-    sub_periods = association_proxy('dynasty_subperiod', 'sub_period',
+    sub_periods = association_proxy(
+        'dynasty_subperiod',
+        'sub_period',
         creator=lambda sub: Subperiod_Dynasty(sub_period=sub))
 
     def __init__(self, name):
@@ -407,35 +496,67 @@ class Reign(db.Model, GlyphMixin):
     """
     Rulers have reigns. Sometimes, more than one
     """
-    ruler_id = db.Column("ruler_id",
-        db.Integer(), db.ForeignKey("ruler.id"), nullable=False)
-    rim_ref = db.Column("rim_ref",
-        db.String(50), nullable=False)
-    city_id = db.Column("city_id",
-        db.Integer(), db.ForeignKey("city.id"), nullable=True)
-    start_date = db.Column("start_date",
-        db.Integer(), db.ForeignKey("year.id"), nullable=True)
-    end_date = db.Column("end_date",
-        db.Integer(), db.ForeignKey("year.id"), nullable=True)
-    dynasty_id = db.Column("dynasty_id",
-        db.Integer(), db.ForeignKey("dynasty.id"), nullable=True)
-    period_id = db.Column("period_id",
-        db.Integer(), db.ForeignKey("period.id"),
-            nullable=False)
-    sub_period_id = db.Column("sub_period_id",
-        db.Integer, db.ForeignKey("sub_period.id"), nullable=True)
+    ruler_id = db.Column(
+        "ruler_id",
+        db.Integer(),
+        db.ForeignKey("ruler.id"),
+        nullable=False)
+    rim_ref = db.Column(
+        "rim_ref",
+        db.String(50),
+        nullable=False)
+    city_id = db.Column(
+        "city_id",
+        db.Integer(),
+        db.ForeignKey("city.id"),
+        nullable=True)
+    start_date = db.Column(
+        "start_date",
+        db.Integer(),
+        db.ForeignKey("year.id"),
+        nullable=True)
+    end_date = db.Column(
+        "end_date",
+        db.Integer(),
+        db.ForeignKey("year.id"),
+        nullable=True)
+    dynasty_id = db.Column(
+        "dynasty_id",
+        db.Integer(),
+        db.ForeignKey("dynasty.id"),
+        nullable=True)
+    period_id = db.Column(
+        "period_id",
+        db.Integer(),
+        db.ForeignKey("period.id"),
+        nullable=False)
+    sub_period_id = db.Column(
+        "sub_period_id",
+        db.Integer,
+        db.ForeignKey("sub_period.id"),
+        nullable=True)
 
     # relations
-    city = db.relationship("City", backref="reigns")
-    start_year = db.relationship("Year",
+    city = db.relationship(
+        "City",
+        backref="reigns")
+    start_year = db.relationship(
+        "Year",
         primaryjoin="Year.id == Reign.start_date",
         backref="reign_start_years")
-    end_year = db.relationship("Year",
+    end_year = db.relationship(
+        "Year",
         primaryjoin="Year.id == Reign.end_date",
         backref="reign_end_years")
-    dynasty = db.relationship("Dynasty", backref="reigns")
-    period = db.relationship("Period", backref="reigns")
-    sub_period = db.relationship("Sub_Period", backref="reigns")
+    dynasty = db.relationship(
+        "Dynasty",
+        backref="reigns")
+    period = db.relationship(
+        "Period",
+        backref="reigns")
+    sub_period = db.relationship(
+        "Sub_Period",
+        backref="reigns")
 
     def __init__(
         self, rim_ref, period, city=None, start_year=None,
@@ -455,10 +576,16 @@ class Ruler_Tablet(db.Model):
     Association object for rulers and tablets
     """
     __tablename__ = "ruler_tablet"
-    ruler_id = db.Column("ruler_id",
-        db.Integer(), db.ForeignKey("ruler.id"), primary_key=True)
-    tablet_id = db.Column("tablet_id",
-        db.Integer(), db.ForeignKey("tablet.id"), primary_key=True)
+    ruler_id = db.Column(
+        "ruler_id",
+        db.Integer(),
+        db.ForeignKey("ruler.id"),
+        primary_key=True)
+    tablet_id = db.Column(
+        "tablet_id",
+        db.Integer(),
+        db.ForeignKey("tablet.id"),
+        primary_key=True)
     # relations
     ruler = db.relationship(
         "Ruler",
@@ -480,10 +607,16 @@ class Tablet_Correspondent(db.Model):
     This allows many tablets to have many correspondents in the SENT_TO field
     """
     __tablename__ = "tablet_correspondent"
-    tablet_id = db.Column("tablet_id",
-        db.Integer(), db.ForeignKey("tablet.id"), primary_key=True)
-    correspondent_id = db.Column("correspondent_id",
-        db.Integer(), db.ForeignKey("correspondent.id"), primary_key=True)
+    tablet_id = db.Column(
+        "tablet_id",
+        db.Integer(),
+        db.ForeignKey("tablet.id"),
+        primary_key=True)
+    correspondent_id = db.Column(
+        "correspondent_id",
+        db.Integer(),
+        db.ForeignKey("correspondent.id"),
+        primary_key=True)
     # relations
     tablet = db.relationship(
         "Tablet",
@@ -506,10 +639,16 @@ class Subperiod_Dynasty(db.Model):
     Association object for subperiod and dynasty
     """
     __tablename__ = "subperiod_dynasty"
-    subperiod_id = db.Column("subperiod_id",
-        db.Integer(), db.ForeignKey("sub_period.id"), primary_key=True)
-    dynasty_id = db.Column("dynasty_id",
-        db.Integer(), db.ForeignKey("dynasty.id"), primary_key=True)
+    subperiod_id = db.Column(
+        "subperiod_id",
+        db.Integer(),
+        db.ForeignKey("sub_period.id"),
+        primary_key=True)
+    dynasty_id = db.Column(
+        "dynasty_id",
+        db.Integer(),
+        db.ForeignKey("dynasty.id"),
+        primary_key=True)
     # relations
     sub_period = db.relationship(
         "Sub_Period",
@@ -534,7 +673,10 @@ class Sign(db.Model, GlyphMixin):
     """
     Sign identification
     """
-    name = db.Column(db.String(50), nullable=False, unique=True)
+    name = db.Column(
+        db.String(50),
+        nullable=False,
+        unique=True)
     # TODO: add additional sign-listing columns
 
     def __init__(self, name, number=None):
@@ -547,7 +689,10 @@ class Function(db.Model, GlyphMixin):
     """
     Instance surface
     """
-    name = db.Column(db.String(50), nullable=False, unique=True)
+    name = db.Column(
+        db.String(50),
+        nullable=False,
+        unique=True)
 
     def __init__(self, name):
         self.name = name
@@ -557,7 +702,10 @@ class Surface(db.Model, GlyphMixin):
     """
     Instance surface
     """
-    name = db.Column(db.String(50), nullable=False, unique=True)
+    name = db.Column(
+        db.String(50),
+        nullable=False,
+        unique=True)
 
     def __init__(self, name):
         self.name = name
@@ -567,7 +715,10 @@ class Column(db.Model, GlyphMixin):
     """
     Instance column
     """
-    number = db.Column(db.String(5), nullable=False, unique=True)
+    number = db.Column(
+        db.String(5),
+        nullable=False,
+        unique=True)
 
     def __init__(self, number):
         self.number = number
@@ -577,7 +728,10 @@ class Line(db.Model, GlyphMixin):
     """
     Instance line
     """
-    number = db.Column(db.String(5), nullable=False, unique=True)
+    number = db.Column(
+        db.String(5),
+        nullable=False,
+        unique=True)
 
     def __init__(self, number):
         self.number = number
@@ -587,7 +741,10 @@ class Iteration(db.Model, GlyphMixin):
     """
     Instance iterations
     """
-    number = db.Column(db.String(5), nullable=False, unique=True)
+    number = db.Column(
+        db.String(5),
+        nullable=False,
+        unique=True)
 
     def __init__(self, number):
         self.number = number
@@ -598,23 +755,41 @@ class Instance(db.Model, GlyphMixin):
     Instances of signs
     """
     tablet_id = db.Column(
-        db.Integer(), db.ForeignKey("tablet.id"), nullable=False)
+        db.Integer(),
+        db.ForeignKey("tablet.id"),
+        nullable=False)
     sign_id = db.Column(
-        db.Integer(), db.ForeignKey("sign.id"), nullable=False)
+        db.Integer(),
+        db.ForeignKey("sign.id"),
+        nullable=False)
     surface_id = db.Column(
-        db.Integer(), db.ForeignKey("surface.id"), nullable=True)
+        db.Integer(),
+        db.ForeignKey("surface.id"),
+        nullable=True)
     column_id = db.Column(
-        db.Integer(), db.ForeignKey("column.id"), nullable=True)
+        db.Integer(),
+        db.ForeignKey("column.id"),
+        nullable=True)
     line_id = db.Column(
-        db.Integer(), db.ForeignKey("line.id"), nullable=True)
+        db.Integer(),
+        db.ForeignKey("line.id"),
+        nullable=True)
     function_id = db.Column(
-        db.Integer(), db.ForeignKey("function.id"), nullable=True)
+        db.Integer(),
+        db.ForeignKey("function.id"),
+        nullable=True)
     iteration_id = db.Column(
-        db.Integer(), db.ForeignKey("iteration.id"), nullable=True)
+        db.Integer(),
+        db.ForeignKey("iteration.id"),
+        nullable=True)
     notes = db.Column(
-        db.String(250), nullable=True, unique=False)
+        db.String(250),
+        nullable=True,
+        unique=False)
     filename = db.Column(
-        db.String(50), nullable=False, unique=True)
+        db.String(50),
+        nullable=False,
+        unique=True)
 
     # relations
     tablet = db.relationship("Tablet", backref="instances")
@@ -626,7 +801,9 @@ class Instance(db.Model, GlyphMixin):
     iteration = db.relationship("Iteration", backref="instances")
 
     # association proxies
-    languages = association_proxy('instance_languages', 'language',
+    languages = association_proxy(
+        'instance_languages',
+        'language',
         creator=lambda lang: Instance_Language(language=lang))
 
     def __init__(
@@ -647,10 +824,16 @@ class Instance_Language(db.Model):
     Association object for Instances and Languages
     """
     __tablename__ = "instance_language"
-    instance_id = db.Column("instance_id",
-        db.Integer(), db.ForeignKey("instance.id"), primary_key=True)
-    language_id = db.Column("language_id",
-        db.Integer(), db.ForeignKey("language.id"), primary_key=True)
+    instance_id = db.Column(
+        "instance_id",
+        db.Integer(),
+        db.ForeignKey("instance.id"),
+        primary_key=True)
+    language_id = db.Column(
+        "language_id",
+        db.Integer(),
+        db.ForeignKey("language.id"),
+        primary_key=True)
     # relations
     instance = db.relationship(
         "Instance",
@@ -664,4 +847,3 @@ class Instance_Language(db.Model):
     def __init__(self, instance=None, language=None):
         self.instance = instance
         self.language = language
-

@@ -23,7 +23,7 @@ def index():
 
 @glyph.route('/tablet/<int:tablet_id>')
 def tablet(tablet_id):
-    tablet = Tablet.query.get(tablet_id)
+    tablet = Tablet.query.get_or_404(tablet_id)
     # split Signs into 12-item chunks
     # chunked = list(chunks(tablet.signs, 12))
     chunked = list(chunks(range(36), 12))

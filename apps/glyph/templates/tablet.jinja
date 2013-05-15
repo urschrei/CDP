@@ -46,63 +46,63 @@
         <li><strong>Ruler(s):</strong>
         <ul>
         {% for ruler in tablet.rulers %}
-            <li><a href="{{ url_for('tablets', ruler=ruler.name, page=1) }}">{{ ruler.name }}</a></li>
+            <li><a href="{{ url_for('.tablets', ruler=ruler.name, page=1) }}">{{ ruler.name }}</a></li>
         {% endfor %}
         </ul>
         </li>
         {% endif %}
         {% if tablet.medium %}
-            <li><strong>Medium:</strong> <a href="{{ url_for('tablets', medium=tablet.medium.name) }}">{{ tablet.medium.name }}</a></li>
+            <li><strong>Medium:</strong> <a href="{{ url_for('.tablets', medium=tablet.medium.name) }}">{{ tablet.medium.name }}</a></li>
         {% endif %}
         {% if tablet.script_type %}
-            <li><strong>Script Type:</strong> <a href="{{ url_for('tablets', script_type=tablet.script_type.script) }}">{{ tablet.script_type.script }}</a></li>
+            <li><strong>Script Type:</strong> <a href="{{ url_for('.tablets', script_type=tablet.script_type.script) }}">{{ tablet.script_type.script }}</a></li>
         {% endif %}
         {% if tablet.locality %}
-            <li><strong>Locality:</strong> <a href="{{ url_for('tablets', locality=tablet.locality.area) }}">{{ tablet.locality.area }}</a></li>
+            <li><strong>Locality:</strong> <a href="{{ url_for('.tablets', locality=tablet.locality.area) }}">{{ tablet.locality.area }}</a></li>
         {% endif %}
         {% if tablet.city %}
-            <li><strong>City:</strong> <a href="{{ url_for('tablets', city=tablet.city.name) }}">{{ tablet.city.name }}</a></li>
+            <li><strong>City:</strong> <a href="{{ url_for('.tablets', city=tablet.city.name) }}">{{ tablet.city.name }}</a></li>
         {% endif %}
         {% if tablet.publication %}
             <li><strong>Publication:</strong> {{ tablet.publication }}</li>
         {% endif %}
         {% if tablet.year %}
             <li>
-                <strong>Year:</strong> <a href="{{ url_for('tablets', year=tablet.year.year) }}">{{ tablet.year.year }}</a>
+                <strong>Year:</strong> <a href="{{ url_for('.tablets', year=tablet.year.year) }}">{{ tablet.year.year }}</a>
                 {% if tablet.year.eponym %}
-                    (Eponym: <a href="{{ url_for('tablets', eponym=tablet.year.eponym.name) }}">{{ tablet.year.eponym.name }}</a>)
+                    (Eponym: <a href="{{ url_for('.tablets', eponym=tablet.year.eponym.name) }}">{{ tablet.year.eponym.name }}</a>)
                 {% endif %}
             </li>
         {% endif %}
         {% if tablet.period %}
-            <li><strong>Period:</strong> <a href="{{ url_for('tablets', period=tablet.period.name) }}">{{ tablet.period.name }}</a></li>
+            <li><strong>Period:</strong> <a href="{{ url_for('.tablets', period=tablet.period.name) }}">{{ tablet.period.name }}</a></li>
         {% endif %}
         {% if tablet.sub_period %}
-            <li><strong>Sub-Period:</strong> <a href="{{ url_for('tablets', sub_period=tablet.sub_period.name) }}">{{ tablet.sub_period.name }}</a></li>
+            <li><strong>Sub-Period:</strong> <a href="{{ url_for('.tablets', sub_period=tablet.sub_period.name) }}">{{ tablet.sub_period.name }}</a></li>
         {% endif %}
         {% if tablet.dynasty %}
-            <li><strong>Dynasty:</strong> <a href="{{ url_for('tablets', dynasty=tablet.dynasty.name) }}">{{ tablet.dynasty.name }}</a></li>
+            <li><strong>Dynasty:</strong> <a href="{{ url_for('.tablets', dynasty=tablet.dynasty.name) }}">{{ tablet.dynasty.name }}</a></li>
         {% endif %}
         {% if tablet.sent_from %}
-            <li><strong>Sent From:</strong> <a href="{{ url_for('tablets', sent_from=tablet.sent_from.name) }}">{{ tablet.sent_from.name }}</a></li>
+            <li><strong>Sent From:</strong> <a href="{{ url_for('.tablets', sent_from=tablet.sent_from.name) }}">{{ tablet.sent_from.name }}</a></li>
         {% endif %}
         {% if tablet.sent_to %}
-            <li><strong>Sent To:</strong> <a href="{{ url_for('tablets', sent_to=tablet.sent_to.name) }}">{{ tablet.sent_to.name }}</a></li>
+            <li><strong>Sent To:</strong> <a href="{{ url_for('.tablets', sent_to=tablet.sent_to.name) }}">{{ tablet.sent_to.name }}</a></li>
         {% endif %}
         {% if tablet.text_vehicle %}
-            <li><strong>Text Vehicle:</strong> <a href="{{ url_for('tablets', text_vehicle=tablet.text_vehicle.name) }}">{{ tablet.text_vehicle.name }}</a></li>
+            <li><strong>Text Vehicle:</strong> <a href="{{ url_for('.tablets', text_vehicle=tablet.text_vehicle.name) }}">{{ tablet.text_vehicle.name }}</a></li>
         {% endif %}
         {% if tablet.language %}
-            <li><strong>Language:</strong> <a href="{{ url_for('tablets', language=tablet.language.name) }}">{{ tablet.language.name }}</a></li>
+            <li><strong>Language:</strong> <a href="{{ url_for('.tablets', language=tablet.language.name) }}">{{ tablet.language.name }}</a></li>
         {% endif %}
         {% if tablet.method %}
-            <li><strong>Method:</strong> <a href="{{ url_for('tablets', method=tablet.method.name) }}">{{ tablet.method.name }}</a></li>
+            <li><strong>Method:</strong> <a href="{{ url_for('.tablets', method=tablet.method.name) }}">{{ tablet.method.name }}</a></li>
         {% endif %}
         {% if tablet.genre %}
-            <li><strong>Genre:</strong> <a href="{{ url_for('tablets', genre=tablet.genre.name) }}">{{ tablet.genre.name }}</a></li>
+            <li><strong>Genre:</strong> <a href="{{ url_for('.tablets', genre=tablet.genre.name) }}">{{ tablet.genre.name }}</a></li>
         {% endif %}
         {% if tablet.function %}
-            <li><strong>Function:</strong> <a href="{{ url_for('tablets', function=tablet.function.name) }}">{{ tablet.function.name }}</a></li>
+            <li><strong>Function:</strong> <a href="{{ url_for('.tablets', function=tablet.function.name) }}">{{ tablet.function.name }}</a></li>
         {% endif %}
         {% if tablet.notes %}
             <li><strong>Notes:</strong> {{ tablet.notes }}</li>

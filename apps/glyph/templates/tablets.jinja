@@ -14,13 +14,13 @@
             <tbody>
                 {%- for item in page.items %}
                 <tr>
-                    <td><a href="{{ url_for("tablet", tablet_id=item.id) }}"><h4>{{ item.museum_number }}</h4></a></td>
+                    <td><a href="{{ url_for(".tablet", tablet_id=item.id) }}"><h4>{{ item.museum_number }}</h4></a></td>
                     <td>{{ item.medium.name }}</td>
                     <td>{{ item.period.name }}</td>
                 </tr>
                 {%- endfor %}
             </tbody>
         </table>
-        {{ render_pagination(page, "tablets", request) }}
+        {{ render_pagination(page, ".tablets", request) }}
     </div>
 {% endblock %}

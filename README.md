@@ -10,4 +10,4 @@
 9. Activate it: `source venv/bin/activate`
 10. Install required packages: `pip install -r requirements.txt`
 11. If all goes well, run the app in debug mode: `fab run_app`
-12. Access the site on 0.0.0.0:5000
+12. Access the site on [http://0.0.0.0:5000](http://0.0.0.0:5000)

@@ -37,7 +37,7 @@ def shell():
     """
     Run iPython without the deprecated Werkzeug stuff
     """
-    local('export GLYPH_CONFIGURATION=`pwd`/config/dev.py && ipython -i -c "%%run shell.py"')
+    local('export GLYPH_CONFIGURATION=`pwd`/config/dev.py && ipython -i -c "%run shell.py"')
 
 
 @task

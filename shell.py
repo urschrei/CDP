@@ -4,9 +4,10 @@
 import os
 import sys
 from flask import *
-from glyph import app, db
+from __init__ import app
 
-from glyph.models import *
+from flask.ext.sqlalchemy import SQLAlchemy
+from apps.glyph.models import *
 
 app.testing = True
 client = app.test_client()

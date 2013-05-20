@@ -663,12 +663,123 @@ class Sign(db.Model, GlyphMixin):
         db.String(50),
         nullable=False,
         unique=True)
-    # TODO: add additional sign-listing columns
-
-    def __init__(self, name, number=None):
-        self.name = name
-        if number:
-            self.number = number
+    description = db.Column(
+        db.String(50),
+        nullable=True,
+        unique=False)
+    oracc_sign = db.Column(
+        db.String(50),
+        nullable=True,
+        unique=False)
+    form_name = db.Column(
+        db.String(5),
+        nullable=True,
+        unique=False)
+    variant_name = db.Column(
+        db.String(5),
+        nullable=True,
+        unique=False)
+    form_description = db.Column(
+        db.String(50),
+        nullable=True,
+        unique=False)
+    notes = db.Column(
+        db.String(50),
+        nullable=True,
+        unique=False)
+    # signlist columns
+    MesZL = db.Column(
+        db.String(50),
+        nullable=True,
+        unique=False)
+    ELLes = db.Column(
+        db.String(50),
+        nullable=True,
+        unique=False)
+    ZATU = db.Column(
+        db.String(50),
+        nullable=True,
+        unique=False)
+    LAK = db.Column(
+        db.String(50),
+        nullable=True,
+        unique=False)
+    CDLI_archaic = db.Column(
+        db.String(50),
+        nullable=True,
+        unique=False)
+    UET_2 = db.Column(
+        db.String(50),
+        nullable=True,
+        unique=False)
+    ARM_XV = db.Column(
+        db.String(50),
+        nullable=True,
+        unique=False)
+    Hinke = db.Column(
+        db.String(50),
+        nullable=True,
+        unique=False)
+    Clay_BE_A_14 = db.Column(
+        db.String(50),
+        nullable=True,
+        unique=False)
+    Koenig_AfO_Bei_16 = db.Column(
+        db.String(50),
+        nullable=True,
+        unique=False)
+    Ranke_BE_A_61 = db.Column(
+        db.String(50),
+        nullable=True,
+        unique=False)
+    Schroeder_VS_12 = db.Column(
+        db.String(50),
+        nullable=True,
+        unique=False)
+    Clay_BE_A_10 = db.Column(
+        db.String(50),
+        nullable=True,
+        unique=False)
+    RSP = db.Column(
+        db.String(50),
+        nullable=True,
+        unique=False)
+    Emar = db.Column(
+        db.String(50),
+        nullable=True,
+        unique=False)
+    Schroder_VS_15 = db.Column(
+        db.String(50),
+        nullable=True,
+        unique=False)
+    HZL = db.Column(
+        db.String(50),
+        nullable=True,
+        unique=False)
+    HA = db.Column(
+        db.String(50),
+        nullable=True,
+        unique=False)
+    aBZL = db.Column(
+        db.String(50),
+        nullable=True,
+        unique=False)
+    REC = db.Column(
+        db.String(50),
+        nullable=True,
+        unique=False)
+    Labat = db.Column(
+        db.String(50),
+        nullable=True,
+        unique=False)
+    KWU = db.Column(
+        db.String(50),
+        nullable=True,
+        unique=False)
+    Fossey_pp = db.Column(
+        db.String(50),
+        nullable=True,
+        unique=False)
 
 
 class Function(db.Model, GlyphMixin):

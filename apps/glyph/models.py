@@ -664,6 +664,24 @@ class Cdp(db.Model, GlyphMixin):
         index=True)
 
 
+class Description(db.Model, GlyphMixin):
+    """ CDP Sign descriptions """
+    sign_ref = db.Column(
+        db.String(150),
+        nullable=False,
+        unique=True,
+        index=True)
+
+
+class Oracc(db.Model, GlyphMixin):
+    """ CDP Oracc references """
+    sign_ref = db.Column(
+        db.String(150),
+        nullable=False,
+        unique=True,
+        index=True)
+
+
 class Sign(db.Model, GlyphMixin):
     """
     Sign identification
@@ -677,14 +695,24 @@ class Sign(db.Model, GlyphMixin):
         db.Integer(),
         db.ForeignKey("cdp.id"),
         nullable=False)
-    description = db.Column(
-        db.String(50),
-        nullable=True,
-        unique=False)
-    oracc_sign = db.Column(
-        db.String(50),
-        nullable=True,
-        unique=False)
+    description_id = db.Column(
+        "description_id",
+        db.Integer(),
+        db.ForeignKey("description.id"),
+        nullable=False)
+    oracc_id = db.Column(
+        "oracc_id",
+        db.Integer(),
+        db.ForeignKey("oracc.id"),
+        nullable=False)
+    # description = db.Column(
+    #     db.String(50),
+    #     nullable=True,
+    #     unique=False)
+    # oracc_sign = db.Column(
+    #     db.String(50),
+    #     nullable=True,
+    #     unique=False)
     form_name = db.Column(
         db.String(5),
         nullable=True,
@@ -800,7 +828,16 @@ class Sign(db.Model, GlyphMixin):
         backref="cdp_signs",
         cascade="all, delete-orphan",
         single_parent=True)
-
+    description_sign = db.relationship(
+        "Description",
+        backref="cdp_signs",
+        cascade="all, delete-orphan",
+        single_parent=True)
+    oracc_sign = db.relationship(
+        "Oracc",
+        backref="cdp_signs",
+        cascade="all, delete-orphan",
+        single_parent=True)
 
 class Function(db.Model, GlyphMixin):
     """

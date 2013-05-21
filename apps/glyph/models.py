@@ -840,27 +840,23 @@ class Sign(db.Model, GlyphMixin):
     cdp_sign_ref = db.relationship(
         "Cdp",
         backref="cdp_signs",
-        cascade="all, delete-orphan",
-        primaryjoin="Cdp.id == Sign.cdp_id",
-        single_parent=True)
+        cascade="all",
+        primaryjoin="Cdp.id == Sign.cdp_id")
     description_sign = db.relationship(
         "Description",
         backref="cdp_signs",
-        cascade="all, delete-orphan",
-        primaryjoin="Description.id == Sign.description_id",
-        single_parent=True)
+        cascade="all",
+        primaryjoin="Description.id == Sign.description_id")
     oracc_sign = db.relationship(
         "Oracc",
         backref="cdp_signs",
-        cascade="all, delete-orphan",
-        primaryjoin="Oracc.id == Sign.oracc_id",
-        single_parent=True)
+        cascade="all",
+        primaryjoin="Oracc.id == Sign.oracc_id")
     cdli_sign = db.relationship(
         "Cdli",
         backref="cdp_signs",
-        cascade="all, delete-orphan",
-        primaryjoin="Cdli.id == Sign.cdli_id",
-        single_parent=True)
+        cascade="all",
+        primaryjoin="Cdli.id == Sign.cdli_id")
 
 
 class Function(db.Model, GlyphMixin):

@@ -695,10 +695,6 @@ class Sign(db.Model, GlyphMixin):
     """
     Sign identification
     """
-    # name = db.Column(
-    #     db.String(50),
-    #     nullable=False,
-    #     unique=True)
     cdp_id = db.Column(
         "cdp_id",
         db.Integer(),
@@ -719,14 +715,6 @@ class Sign(db.Model, GlyphMixin):
         db.Integer(),
         db.ForeignKey("cdli.id"),
         nullable=False)
-    # description = db.Column(
-    #     db.String(50),
-    #     nullable=True,
-    #     unique=False)
-    # oracc_sign = db.Column(
-    #     db.String(50),
-    #     nullable=True,
-    #     unique=False)
     form_name = db.Column(
         db.String(5),
         nullable=True,
@@ -760,10 +748,6 @@ class Sign(db.Model, GlyphMixin):
         db.String(50),
         nullable=True,
         unique=False)
-    # CDLI_archaic = db.Column(
-    #     db.String(50),
-    #     nullable=True,
-    #     unique=False)
     UET_2 = db.Column(
         db.String(50),
         nullable=True,

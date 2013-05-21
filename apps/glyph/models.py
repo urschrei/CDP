@@ -682,6 +682,15 @@ class Oracc(db.Model, GlyphMixin):
         index=True)
 
 
+class Cdli(db.Model, GlyphMixin):
+    """ CDP CDLI Archaic references """
+    sign_ref = db.Column(
+        db.String(150),
+        nullable=False,
+        unique=True,
+        index=True)
+
+
 class Sign(db.Model, GlyphMixin):
     """
     Sign identification
@@ -704,6 +713,11 @@ class Sign(db.Model, GlyphMixin):
         "oracc_id",
         db.Integer(),
         db.ForeignKey("oracc.id"),
+        nullable=False)
+    cdli_id = db.Column(
+        "cdli_id",
+        db.Integer(),
+        db.ForeignKey("cdli.id"),
         nullable=False)
     # description = db.Column(
     #     db.String(50),
@@ -746,10 +760,10 @@ class Sign(db.Model, GlyphMixin):
         db.String(50),
         nullable=True,
         unique=False)
-    CDLI_archaic = db.Column(
-        db.String(50),
-        nullable=True,
-        unique=False)
+    # CDLI_archaic = db.Column(
+    #     db.String(50),
+    #     nullable=True,
+    #     unique=False)
     UET_2 = db.Column(
         db.String(50),
         nullable=True,
@@ -827,17 +841,27 @@ class Sign(db.Model, GlyphMixin):
         "Cdp",
         backref="cdp_signs",
         cascade="all, delete-orphan",
+        primaryjoin="Cdp.id == Sign.cdp_id",
         single_parent=True)
     description_sign = db.relationship(
         "Description",
         backref="cdp_signs",
         cascade="all, delete-orphan",
+        primaryjoin="Description.id == Sign.description_id",
         single_parent=True)
     oracc_sign = db.relationship(
         "Oracc",
         backref="cdp_signs",
         cascade="all, delete-orphan",
+        primaryjoin="Oracc.id == Sign.oracc_id",
         single_parent=True)
+    cdli_sign = db.relationship(
+        "Cdli",
+        backref="cdp_signs",
+        cascade="all, delete-orphan",
+        primaryjoin="Cdli.id == Sign.cdli_id",
+        single_parent=True)
+
 
 class Function(db.Model, GlyphMixin):
     """

@@ -655,14 +655,28 @@ class Subperiod_Dynasty(db.Model):
 # these are sign-related tables
 
 
+class Cdp(db.Model, GlyphMixin):
+    """ CDP Sign references """
+    sign_ref = db.Column(
+        db.String(150),
+        nullable=False,
+        unique=True,
+        index=True)
+
+
 class Sign(db.Model, GlyphMixin):
     """
     Sign identification
     """
-    name = db.Column(
-        db.String(50),
-        nullable=False,
-        unique=True)
+    # name = db.Column(
+    #     db.String(50),
+    #     nullable=False,
+    #     unique=True)
+    cdp_id = db.Column(
+        "cdp_id",
+        db.Integer(),
+        db.ForeignKey("cdp.id"),
+        nullable=False)
     description = db.Column(
         db.String(50),
         nullable=True,
@@ -780,6 +794,12 @@ class Sign(db.Model, GlyphMixin):
         db.String(50),
         nullable=True,
         unique=False)
+    # relations
+    cdp_sign_ref = db.relationship(
+        "Cdp",
+        backref="cdp_signs",
+        cascade="all, delete-orphan",
+        single_parent=True)
 
 
 class Function(db.Model, GlyphMixin):

@@ -22,6 +22,27 @@ def index():
 
 
 @glyph.route(
+    '/signs',
+    methods=['GET'],
+    defaults={'page': 1})
+@glyph.route(
+    '/tablets/<int:page>',
+    methods=['GET'])
+def signs(page):
+    q = Cdp.query.order_by("sign_ref")
+    page = q.paginate(page, per_page=25)
+    return render_template('signs.jinja', page=page)
+
+
+@glyph.route(
+    '/sign/<int:cdp_id>',
+    methods=['GET'])
+def sign(cdp_id):
+    signs = Sign.query.filter_by(cdp_id=cdp_id)
+    return render_template('sign.jinja', signs=signs)
+
+
+@glyph.route(
     '/tablet/<int:tablet_id>',
     methods=['GET'])
 def tablet(tablet_id):

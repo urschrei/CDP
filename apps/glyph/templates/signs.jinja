@@ -12,11 +12,11 @@
             <tbody>
                 {%- for item in page.items %}
                 <tr>
-                    <td><a href="{{ url_for(".sign", cdp_id=item.id) }}"><h4>{{ item.sign_ref }}</h4></a></td>
+                    <td><a href="{{ url_for(".cdp", sign_id=item.id) }}"><h4>CDP Records for sign "{{ item.sign_ref }}"</h4></a></td>
                 </tr>
                 {%- endfor %}
             </tbody>
         </table>
-        {{ render_pagination(page, ".tablets", request) }}
+        {{ render_pagination(page, ".signs", request) }}
     </div>
 {% endblock %}

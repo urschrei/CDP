@@ -1,0 +1,83 @@
+{% extends "base.jinja" %}
+{% block title %}CDP records for sign {{ cdp_records[0].sign_refs.sign_ref }}{% endblock %}
+{% block side_container %}{% endblock %}
+{% block content %}
+    <div class="container-fluid">
+        <table class="table table-striped table-bordered table-condensed">
+            <thead>
+                <tr>
+                    {% for heading in [
+                        "Sign",
+                        "Description",
+                        "ORACC",
+                        "CDLI Archaic",
+                        "Form name",
+                        "Variant name",
+                        "Form description",
+                        "Notes",
+                        "MesZL",
+                        "ELLes",
+                        "ZATU",
+                        "LAK",
+                        "UET_2",
+                        "ARM_XV",
+                        "Hinke",
+                        "Clay BE A 14",
+                        "Koenig AfO Bei 16",
+                        "Ranke BE A 6/1",
+                        "Schroeder VS 12",
+                        "Clay BE A 10",
+                        "RSP",
+                        "Emar",
+                        "Schroder VS 15",
+                        "HZL",
+                        "HA",
+                        "aBZL",
+                        "REC",
+                        "Labat",
+                        "KWU",
+                        "Fossey pp"
+                    ] %}
+                       <th>{{ heading }}</th> 
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {%- for item in cdp_records %}
+                <tr>
+                    <td>{{ item.sign_refs.sign_ref }}</td>
+                    <td>{{ item.description_refs.sign_ref }}</td>
+                    <td>{{ item.oracc_refs.sign_ref }}</td>
+                    <td>{{ item.cdli_refs.sign_ref }}</td>
+                    <td>{{ item.form_name }}</td>
+                    <td>{{ item.variant_name }}</td>
+                    <td>{{ item.form_description }}</td>
+                    <td>{{ item.notes }}</td>
+                    <td>{{ item.MesZL }}</td>
+                    <td>{{ item.ELLes }}</td>
+                    <td>{{ item.ZATU }}</td>
+                    <td>{{ item.LAK }}</td>
+                    <td>{{ item.UET_2 }}</td>
+                    <td>{{ item.ARM_XV }}</td>
+                    <td>{{ item.Hinke }}</td>
+                    <td>{{ item.Clay_BE_A_14 }}</td>
+                    <td>{{ item.Koenig_AfO_Bei_16 }}</td>
+                    <td>{{ item.Ranke_BE_A_61 }}</td>
+                    <td>{{ item.Schroeder_VS_12 }}</td>
+                    <td>{{ item.Clay_BE_A_10 }}</td>
+                    <td>{{ item.RSP }}</td>
+                    <td>{{ item.Emar }}</td>
+                    <td>{{ item.Schroder_VS_15 }}</td>
+                    <td>{{ item.HZL }}</td>
+                    <td>{{ item.HA }}</td>
+                    <td>{{ item.aBZL }}</td>
+                    <td>{{ item.REC }}</td>
+                    <td>{{ item.Labat }}</td>
+                    <td>{{ item.KWU }}</td>
+                    <td>{{ item.Fossey_pp }}</td>
+                </tr>
+                {%- endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

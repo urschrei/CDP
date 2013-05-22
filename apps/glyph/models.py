@@ -2,6 +2,7 @@ from flask import current_app
 from apps.shared.models import db, GlyphMixin
 
 from sqlalchemy.ext.associationproxy import association_proxy
+from sqlalchemy.orm import backref
 
 
 class Tablet(db.Model, GlyphMixin):
@@ -823,7 +824,7 @@ class Sign(db.Model, GlyphMixin):
     # relations
     cdp_sign_ref = db.relationship(
         "Cdp",
-        backref="cdp_signs",
+        backref=backref("cdp_signs", lazy="dynamic"),
         cascade="all",
         primaryjoin="Cdp.id == Sign.cdp_id")
     description_sign = db.relationship(
@@ -833,7 +834,7 @@ class Sign(db.Model, GlyphMixin):
         primaryjoin="Description.id == Sign.description_id")
     oracc_sign = db.relationship(
         "Oracc",
-        backref="cdp_signs",
+        backref=backref("cdp_signs", lazy="dynamic"),
         cascade="all",
         primaryjoin="Oracc.id == Sign.oracc_id")
     cdli_sign = db.relationship(

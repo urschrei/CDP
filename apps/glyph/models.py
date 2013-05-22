@@ -656,7 +656,7 @@ class Subperiod_Dynasty(db.Model):
 # these are sign-related tables
 
 
-class Cdp(db.Model, GlyphMixin):
+class Sign(db.Model, GlyphMixin):
     """ CDP Sign references """
     sign_ref = db.Column(
         db.String(150),
@@ -704,14 +704,14 @@ class Cdli(db.Model, GlyphMixin):
         return "<CDLI Archaic: %s>" % self.sign_ref
 
 
-class Sign(db.Model, GlyphMixin):
+class Cdp(db.Model, GlyphMixin):
     """
     Sign identification
     """
-    cdp_id = db.Column(
-        "cdp_id",
+    sign_id = db.Column(
+        "sign_id",
         db.Integer(),
-        db.ForeignKey("cdp.id"),
+        db.ForeignKey("sign.id"),
         nullable=False)
     description_id = db.Column(
         "description_id",
@@ -834,26 +834,26 @@ class Sign(db.Model, GlyphMixin):
         nullable=True,
         unique=False)
     # relations
-    cdp_sign_ref = db.relationship(
-        "Cdp",
+    sign_refs = db.relationship(
+        "Sign",
         backref=backref("cdp_signs", lazy="dynamic"),
         cascade="all",
-        primaryjoin="Cdp.id == Sign.cdp_id")
-    description_sign = db.relationship(
+        primaryjoin="Sign.id == Cdp.sign_id")
+    description_refs = db.relationship(
         "Description",
         backref="cdp_signs",
         cascade="all",
-        primaryjoin="Description.id == Sign.description_id")
-    oracc_sign = db.relationship(
+        primaryjoin="Description.id == Cdp.description_id")
+    oracc_refs = db.relationship(
         "Oracc",
         backref=backref("cdp_signs", lazy="dynamic"),
         cascade="all",
-        primaryjoin="Oracc.id == Sign.oracc_id")
-    cdli_sign = db.relationship(
+        primaryjoin="Oracc.id == Cdp.oracc_id")
+    cdli_refs = db.relationship(
         "Cdli",
         backref="cdp_signs",
         cascade="all",
-        primaryjoin="Cdli.id == Sign.cdli_id")
+        primaryjoin="Cdli.id == Cdp.cdli_id")
 
     def __repr__(self):
         return "Record (CDP: %s, id: %s) (ORACC: %s id: %s) id: %s" % (

@@ -664,6 +664,9 @@ class Cdp(db.Model, GlyphMixin):
         unique=True,
         index=True)
 
+    def __repr__(self):
+        return "<Sign: %s>" % self.sign_ref
+
 
 class Description(db.Model, GlyphMixin):
     """ CDP Sign descriptions """
@@ -672,6 +675,9 @@ class Description(db.Model, GlyphMixin):
         nullable=False,
         unique=True,
         index=True)
+
+    def __repr__(self):
+        return "<Description: %s>" % self.sign_ref
 
 
 class Oracc(db.Model, GlyphMixin):
@@ -682,6 +688,9 @@ class Oracc(db.Model, GlyphMixin):
         unique=True,
         index=True)
 
+    def __repr__(self):
+        return "<Oracc: %s>" % self.sign_ref
+
 
 class Cdli(db.Model, GlyphMixin):
     """ CDP CDLI Archaic references """
@@ -690,6 +699,9 @@ class Cdli(db.Model, GlyphMixin):
         nullable=False,
         unique=True,
         index=True)
+
+    def __repr__(self):
+        return "<CDLI Archaic: %s>" % self.sign_ref
 
 
 class Sign(db.Model, GlyphMixin):
@@ -842,6 +854,14 @@ class Sign(db.Model, GlyphMixin):
         backref="cdp_signs",
         cascade="all",
         primaryjoin="Cdli.id == Sign.cdli_id")
+
+    def __repr__(self):
+        return "Record (CDP: %s, id: %s) (ORACC: %s id: %s) id: %s" % (
+            self.cdp_sign_ref.sign_ref,
+            self.cdp_sign_ref.id,
+            self.oracc_sign.sign_ref,
+            self.oracc_sign.id,
+            self.id)
 
 
 class Function(db.Model, GlyphMixin):

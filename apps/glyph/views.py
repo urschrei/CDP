@@ -33,6 +33,7 @@ def signs(page):
     page = q.paginate(page, per_page=25)
     return render_template('signs.jinja', page=page)
 
+
 @glyph.route(
     '/cdp',
     methods=['GET'],

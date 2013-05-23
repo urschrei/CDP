@@ -834,22 +834,22 @@ class Cdp(db.Model, GlyphMixin):
         nullable=True,
         unique=False)
     # relations
-    sign_refs = db.relationship(
+    sign = db.relationship(
         "Sign",
         backref=backref("cdp_signs", lazy="dynamic"),
         cascade="all",
         primaryjoin="Sign.id == Cdp.sign_id")
-    description_refs = db.relationship(
+    description = db.relationship(
         "Description",
         backref="cdp_signs",
         cascade="all",
         primaryjoin="Description.id == Cdp.description_id")
-    oracc_refs = db.relationship(
+    oracc = db.relationship(
         "Oracc",
         backref=backref("cdp_signs", lazy="dynamic"),
         cascade="all",
         primaryjoin="Oracc.id == Cdp.oracc_id")
-    cdli_refs = db.relationship(
+    cdli = db.relationship(
         "Cdli",
         backref="cdp_signs",
         cascade="all",

@@ -1,8 +1,11 @@
 {% extends "base.jinja" %}
-{% block title %}CDP records for sign {{ cdp_records[0].sign_refs.sign_ref }}{% endblock %}
+{% block title %}CDP records for sign {{ cdp_records[0].sign.sign_ref }}{% endblock %}
 {% block side_container %}{% endblock %}
 {% block content %}
     <div class="container-fluid">
+        <p>
+            These are the CDP records for the <strong class="text-info">{{ cdp_records[0].sign.sign_ref }}</strong> sign.
+        </p>
         <table class="table table-striped table-bordered table-condensed">
             <thead>
                 <tr>
@@ -22,6 +25,37 @@
                         "UET_2",
                         "ARM_XV",
                         "Hinke",
+                    ] %}
+                       <th>{{ heading }}</th> 
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {%- for item in cdp_records %}
+                <tr>
+                    <td>{{ item.sign.sign_ref }}</td>
+                    <td>{{ item.description.sign_ref }}</td>
+                    <td>{{ item.oracc.sign_ref }}</td>
+                    <td>{{ item.cdli.sign_ref }}</td>
+                    <td>{{ item.form_name }}</td>
+                    <td>{{ item.variant_name }}</td>
+                    <td>{{ item.form_description }}</td>
+                    <td>{{ item.notes }}</td>
+                    <td>{{ item.MesZL }}</td>
+                    <td>{{ item.ELLes }}</td>
+                    <td>{{ item.ZATU }}</td>
+                    <td>{{ item.LAK }}</td>
+                    <td>{{ item.UET_2 }}</td>
+                    <td>{{ item.ARM_XV }}</td>
+                    <td>{{ item.Hinke }}</td>
+                </tr>
+                {%- endfor %}
+            </tbody>
+        </table>
+        <table class="table table-striped table-bordered table-condensed">
+            <thead>
+                <tr>
+                    {% for heading in [
                         "Clay BE A 14",
                         "Koenig AfO Bei 16",
                         "Ranke BE A 6/1",
@@ -45,21 +79,6 @@
             <tbody>
                 {%- for item in cdp_records %}
                 <tr>
-                    <td>{{ item.sign_refs.sign_ref }}</td>
-                    <td>{{ item.description_refs.sign_ref }}</td>
-                    <td>{{ item.oracc_refs.sign_ref }}</td>
-                    <td>{{ item.cdli_refs.sign_ref }}</td>
-                    <td>{{ item.form_name }}</td>
-                    <td>{{ item.variant_name }}</td>
-                    <td>{{ item.form_description }}</td>
-                    <td>{{ item.notes }}</td>
-                    <td>{{ item.MesZL }}</td>
-                    <td>{{ item.ELLes }}</td>
-                    <td>{{ item.ZATU }}</td>
-                    <td>{{ item.LAK }}</td>
-                    <td>{{ item.UET_2 }}</td>
-                    <td>{{ item.ARM_XV }}</td>
-                    <td>{{ item.Hinke }}</td>
                     <td>{{ item.Clay_BE_A_14 }}</td>
                     <td>{{ item.Koenig_AfO_Bei_16 }}</td>
                     <td>{{ item.Ranke_BE_A_61 }}</td>

@@ -857,10 +857,10 @@ class Cdp(db.Model, GlyphMixin):
 
     def __repr__(self):
         return "Record (CDP: %s, id: %s) (ORACC: %s id: %s) id: %s" % (
-            self.sign_refs.sign_ref,
-            self.sign_refs.id,
-            self.oracc_refs.sign_ref,
-            self.oracc_refs.id,
+            self.sign.sign_ref,
+            self.sign.id,
+            self.oracc.sign_ref,
+            self.oracc.id,
             self.id)
 
 

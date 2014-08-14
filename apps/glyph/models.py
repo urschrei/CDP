@@ -717,17 +717,17 @@ class Cdp(db.Model, GlyphMixin):
         "description_id",
         db.Integer(),
         db.ForeignKey("description.id"),
-        nullable=False)
+        nullable=True)
     oracc_id = db.Column(
         "oracc_id",
         db.Integer(),
         db.ForeignKey("oracc.id"),
-        nullable=False)
+        nullable=True)
     cdli_id = db.Column(
         "cdli_id",
         db.Integer(),
         db.ForeignKey("cdli.id"),
-        nullable=False)
+        nullable=True)
     form_name = db.Column(
         db.String(5),
         nullable=True,

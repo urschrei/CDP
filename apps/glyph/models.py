@@ -669,6 +669,12 @@ class Sign(db.Model, GlyphMixin):
         unique=True,
         index=True)
 
+    cdp = db.relationship(
+        "Cdp",
+        backref=backref("sign"),
+        cascade="all",
+        primaryjoin="Sign.id == Cdp.sign_id")
+
     def __repr__(self):
         return "<Sign: %s>" % self.sign_ref
 
@@ -680,6 +686,12 @@ class Description(db.Model, GlyphMixin):
         nullable=False,
         unique=True,
         index=True)
+
+    cdp = db.relationship(
+        "Cdp",
+        backref=backref("description"),
+        cascade="all",
+        primaryjoin="Description.id == Cdp.description_id")
 
     def __repr__(self):
         return "<Description: %s>" % self.sign_ref
@@ -693,6 +705,12 @@ class Oracc(db.Model, GlyphMixin):
         unique=True,
         index=True)
 
+    cdp = db.relationship(
+        "Cdp",
+        backref=backref("oracc"),
+        cascade="all",
+        primaryjoin="Oracc.id == Cdp.oracc_id")
+
     def __repr__(self):
         return "<Oracc: %s>" % self.sign_ref
 
@@ -704,6 +722,12 @@ class Cdli(db.Model, GlyphMixin):
         nullable=False,
         unique=True,
         index=True)
+
+    cdp = db.relationship(
+        "Cdp",
+        backref=backref('cdli'),
+        cascade="all",
+        primaryjoin="Cdli.id == Cdp.cdli_id")
 
     def __repr__(self):
         return "<CDLI Archaic: %s>" % self.sign_ref
@@ -733,6 +757,7 @@ class Cdp(db.Model, GlyphMixin):
         db.Integer(),
         db.ForeignKey("cdli.id"),
         nullable=True)
+    # backrefs for fk relations always go on the 'one' side of one-to-many
     form_name = db.Column(
         db.String(5),
         nullable=True,
@@ -838,27 +863,6 @@ class Cdp(db.Model, GlyphMixin):
         db.String(50),
         nullable=True,
         unique=False)
-    # relations
-    sign = db.relationship(
-        "Sign",
-        backref=backref("cdp_signs", lazy="dynamic"),
-        cascade="all",
-        primaryjoin="Sign.id == Cdp.sign_id")
-    description = db.relationship(
-        "Description",
-        backref="cdp_signs",
-        cascade="all",
-        primaryjoin="Description.id == Cdp.description_id")
-    oracc = db.relationship(
-        "Oracc",
-        backref=backref("cdp_signs", lazy="dynamic"),
-        cascade="all",
-        primaryjoin="Oracc.id == Cdp.oracc_id")
-    cdli = db.relationship(
-        "Cdli",
-        backref="cdp_signs",
-        cascade="all",
-        primaryjoin="Cdli.id == Cdp.cdli_id")
 
     def __repr__(self):
         return "<CDP Entry for Sign '%s'>" % (self.sign.sign_ref)

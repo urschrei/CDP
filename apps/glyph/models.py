@@ -4,6 +4,11 @@ from apps.shared.models import db, GlyphMixin
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.orm import backref
 
+# TODO: remember to set the collation to case- and diacritic-sensitive
+# http://docs.sqlalchemy.org/en/latest/dialects/mysql.html#create-table-arguments-including-storage-engines
+# we want to set table (and, if necessary column) collation to utf8_bin
+# like so: create_table(..., mysql_DEFAULT_CHARSET='utf8', mysql_COLLATE='utf8_bin')
+
 
 class Tablet(db.Model, GlyphMixin):
     timestamp = db.Column(

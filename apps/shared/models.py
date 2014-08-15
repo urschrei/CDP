@@ -34,7 +34,11 @@ class GlyphMixin(object):
     def __tablename__(cls):
         return cls.__name__.lower()
 
-    __table_args__ = {'mysql_engine': 'InnoDB'}
+    __table_args__ = {
+        'mysql_engine': 'InnoDB',
+        'mysql_collate': 'utf8mb4_bin',
+        'mysql_default_charset': 'utf8mb4'
+    }
     __mapper_args__ = {'always_refresh': True}
 
     id = db.Column(db.Integer, primary_key=True)

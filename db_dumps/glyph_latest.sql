@@ -7,7 +7,7 @@
 #
 # Host: 127.0.0.1 (MySQL 5.6.20-log)
 # Database: glyph
-# Generation Time: 2014-08-15 16:14:15 +0000
+# Generation Time: 2014-08-15 18:03:33 +0000
 # ************************************************************
 
 
@@ -34,7 +34,7 @@ LOCK TABLES `alembic_version` WRITE;
 
 INSERT INTO `alembic_version` (`version_num`)
 VALUES
-	('25b06dd4bab6');
+	('54903f3b1315');
 
 /*!40000 ALTER TABLE `alembic_version` ENABLE KEYS */;
 UNLOCK TABLES;
@@ -2214,10 +2214,10 @@ CREATE TABLE `cdp` (
   `oracc_id` int(11) DEFAULT NULL,
   `cdli_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `fk_description_sign` (`description_id`),
-  KEY `fk_oracc_sign` (`oracc_id`),
-  KEY `fk_cdli_sign` (`cdli_id`),
-  KEY `ix_cdp_sign` (`sign_id`),
+  KEY `fk_sign_cdp` (`sign_id`),
+  KEY `fk_cdli_cdp` (`cdli_id`),
+  KEY `fk_oracc_cdp` (`oracc_id`),
+  KEY `fk_description_cdp` (`description_id`),
   CONSTRAINT `fk_cdli_cdp` FOREIGN KEY (`cdli_id`) REFERENCES `cdli` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `fk_description_cdp` FOREIGN KEY (`description_id`) REFERENCES `description` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `fk_oracc_cdp` FOREIGN KEY (`oracc_id`) REFERENCES `oracc` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,

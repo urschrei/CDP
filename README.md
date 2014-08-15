@@ -5,9 +5,9 @@
 4. Install pip: `(sudo) easy_install pip`
 5. Install virtualenv: `(sudo) pip install virtualenv`
 6. Clone this repository, and `cd` into it
-7. Import the latest database dump from `db_dumps`:
+7. Import the latest database dump 'glyph_latest.sql' from `db_dumps`:
  -  Using [Sequel Pro](http://www.sequelpro.com)
- -  Using the command line: `mysql -h 127.0.0.1 -u root -p glyph < db_dumps/glyph_xx-xx-xxxx.sql `
+ -  Using the command line: `mysql -h 127.0.0.1 -u root -p glyph < db_dumps/glyph_latest.sql `
 8. Create a new virtualenv: `virtualenv venv`
 9. Activate it: `source venv/bin/activate`
 10. Install required packages: `pip install -r requirements.txt`

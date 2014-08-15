@@ -1,4 +1,4 @@
-The data in this repository currently exist in a licensing twilight. We (Myself, Dr Jon Taylor (British Museum), and Prof Steve Tinney (UPenn)) think they may be in the public domain, and they are available to anyone in the form of a database dump. However, in the absence of a licence, I am not sure what you may do with them in terms of reuse and/or publishing. Until this is clarified, it would be best to ask if in doubt.
+The data in this repository currently exist in a licensing twilight. We (Myself, Dr Eleanor Robson (UCL), Dr Jon Taylor (British Museum), and Prof Steve Tinney (UPenn)) think they may be in the public domain, and they are available to anyone in the form of a database dump. However, in the absence of a licence, I am not sure what you may do with them in terms of reuse and/or publishing. Until this is clarified, it would be best to ask if in doubt.
 
 All code is provided under the MIT LICENSE
 

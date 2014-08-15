@@ -672,7 +672,7 @@ class Sign(db.Model, GlyphMixin):
     cdp = db.relationship(
         "Cdp",
         backref=backref("sign"),
-        cascade="all",
+        cascade="all, delete-orphan",
         primaryjoin="Sign.id == Cdp.sign_id")
 
     def __repr__(self):
@@ -690,7 +690,7 @@ class Description(db.Model, GlyphMixin):
     cdp = db.relationship(
         "Cdp",
         backref=backref("description"),
-        cascade="all",
+        cascade="all, delete-orphan",
         primaryjoin="Description.id == Cdp.description_id")
 
     def __repr__(self):
@@ -708,7 +708,7 @@ class Oracc(db.Model, GlyphMixin):
     cdp = db.relationship(
         "Cdp",
         backref=backref("oracc"),
-        cascade="all",
+        cascade="all, delete-orphan",
         primaryjoin="Oracc.id == Cdp.oracc_id")
 
     def __repr__(self):
@@ -726,7 +726,7 @@ class Cdli(db.Model, GlyphMixin):
     cdp = db.relationship(
         "Cdp",
         backref=backref('cdli'),
-        cascade="all",
+        cascade="all, delete-orphan",
         primaryjoin="Cdli.id == Cdp.cdli_id")
 
     def __repr__(self):
@@ -740,22 +740,22 @@ class Cdp(db.Model, GlyphMixin):
     sign_id = db.Column(
         "sign_id",
         db.Integer(),
-        db.ForeignKey("sign.id"),
+        db.ForeignKey("sign.id", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False)
     description_id = db.Column(
         "description_id",
         db.Integer(),
-        db.ForeignKey("description.id"),
+        db.ForeignKey("description.id", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=True)
     oracc_id = db.Column(
         "oracc_id",
         db.Integer(),
-        db.ForeignKey("oracc.id"),
+        db.ForeignKey("oracc.id", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=True)
     cdli_id = db.Column(
         "cdli_id",
         db.Integer(),
-        db.ForeignKey("cdli.id"),
+        db.ForeignKey("cdli.id", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=True)
     # backrefs for fk relations always go on the 'one' side of one-to-many
     form_name = db.Column(

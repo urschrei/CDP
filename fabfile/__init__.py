@@ -12,6 +12,10 @@ from time import time
 from alembic.config import Config
 from alembic import command
 
+from sqlalchemy import create_engine
+from sqlalchemy.engine import Engine
+from sqlalchemy.ext.declarative import declarative_base
+
 import sys
 import os
 
@@ -73,3 +77,16 @@ def show_migrations():
     List all DB migrations in chronological order
     """
     command.history(alembic_cfg)
+
+@task
+def build_db():
+    """
+    Build a database using the App's models
+    """
+    print(cyan("Creating tables in DB"))
+    # create / sync all models
+    local('export GLYPH_CONFIGURATION=`pwd`/config/dev.py && venv/bin/python ./create_db.py')
+    # stamp the db with the most recent revision
+    command.stamp(alembic_cfg, 'head')
+    print(cyan("Tables successfully created and synced"))
+    print(red("\n\nImport db_dumps/glyph_latest.sql to populate the DB"))

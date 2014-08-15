@@ -23,7 +23,7 @@ Other `fab` commands:
     - `db.session.query(Cdp).join(Sign).filter(Sign.sign_ref == 'AK').all()`
 
 ### A note on character sets
-As we're using MySQl, please pay particular attention to your DB's character encoding and collation settings.  
+As we're using MySQL, please pay particular attention to your DB's character encoding and collation settings.  
 
 For encoding, `utf8mb4` should be used.
 For collation, `utf8mb4_bin` should be used. Binary collation is required in order to distinguish between e.g. S and Š.

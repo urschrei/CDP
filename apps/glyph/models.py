@@ -861,12 +861,7 @@ class Cdp(db.Model, GlyphMixin):
         primaryjoin="Cdli.id == Cdp.cdli_id")
 
     def __repr__(self):
-        return "Record (CDP: %s, id: %s) (ORACC: %s id: %s) id: %s" % (
-            self.sign.sign_ref,
-            self.sign.id,
-            self.oracc.sign_ref,
-            self.oracc.id,
-            self.id)
+        return "<CDP Entry for Sign '%s'>" % (self.sign.sign_ref)
 
 
 class Function(db.Model, GlyphMixin):

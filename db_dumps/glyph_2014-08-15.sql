@@ -7,7 +7,7 @@
 #
 # Host: 127.0.0.1 (MySQL 5.6.20-log)
 # Database: glyph
-# Generation Time: 2014-08-14 23:02:03 +0000
+# Generation Time: 2014-08-15 03:29:19 +0000
 # ************************************************************
 
 
@@ -34,7 +34,7 @@ LOCK TABLES `alembic_version` WRITE;
 
 INSERT INTO `alembic_version` (`version_num`)
 VALUES
-	('b0de4bc6da1');
+	('376e994c8e0a');
 
 /*!40000 ALTER TABLE `alembic_version` ENABLE KEYS */;
 UNLOCK TABLES;
@@ -63,22 +63,23 @@ VALUES
 UNLOCK TABLES;
 
 
-# Dump of table Cdli
+# Dump of table cdli
 # ------------------------------------------------------------
 
-DROP TABLE IF EXISTS `Cdli`;
+DROP TABLE IF EXISTS `cdli`;
 
-CREATE TABLE `Cdli` (
+CREATE TABLE `cdli` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `sign_ref` varchar(150) COLLATE utf8_bin NOT NULL DEFAULT '',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `uq_sign_ref` (`sign_ref`)
+  UNIQUE KEY `uq_sign_ref` (`sign_ref`),
+  UNIQUE KEY `ix_cdli_sign_ref` (`sign_ref`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
-LOCK TABLES `Cdli` WRITE;
-/*!40000 ALTER TABLE `Cdli` DISABLE KEYS */;
+LOCK TABLES `cdli` WRITE;
+/*!40000 ALTER TABLE `cdli` DISABLE KEYS */;
 
-INSERT INTO `Cdli` (`id`, `sign_ref`)
+INSERT INTO `cdli` (`id`, `sign_ref`)
 VALUES
 	(1165,X'31284E303129'),
 	(1096,X'31284E3031406629'),
@@ -2171,16 +2172,16 @@ VALUES
 	(1436,X'7C5A41545538333140677C'),
 	(1969,X'7C78284E3537292E4741527C');
 
-/*!40000 ALTER TABLE `Cdli` ENABLE KEYS */;
+/*!40000 ALTER TABLE `cdli` ENABLE KEYS */;
 UNLOCK TABLES;
 
 
-# Dump of table Cdp
+# Dump of table cdp
 # ------------------------------------------------------------
 
-DROP TABLE IF EXISTS `Cdp`;
+DROP TABLE IF EXISTS `cdp`;
 
-CREATE TABLE `Cdp` (
+CREATE TABLE `cdp` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `Ranke_BE_A_61` varchar(50) CHARACTER SET utf8 DEFAULT NULL,
   `Labat` varchar(50) CHARACTER SET utf8 DEFAULT NULL,
@@ -2213,20 +2214,20 @@ CREATE TABLE `Cdp` (
   `oracc_id` int(11) DEFAULT NULL,
   `cdli_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `fk_cdp_sign` (`sign_id`),
   KEY `fk_description_sign` (`description_id`),
   KEY `fk_oracc_sign` (`oracc_id`),
   KEY `fk_cdli_sign` (`cdli_id`),
+  KEY `ix_cdp_sign` (`sign_id`),
   CONSTRAINT `fk_cdli_sign` FOREIGN KEY (`cdli_id`) REFERENCES `cdli` (`id`),
   CONSTRAINT `fk_description_sign` FOREIGN KEY (`description_id`) REFERENCES `description` (`id`),
   CONSTRAINT `fk_oracc_sign` FOREIGN KEY (`oracc_id`) REFERENCES `oracc` (`id`),
-  CONSTRAINT `fk_sign_cdp` FOREIGN KEY (`sign_id`) REFERENCES `sign` (`id`)
+  CONSTRAINT `ix_cdp_sign` FOREIGN KEY (`sign_id`) REFERENCES `sign` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
-LOCK TABLES `Cdp` WRITE;
-/*!40000 ALTER TABLE `Cdp` DISABLE KEYS */;
+LOCK TABLES `cdp` WRITE;
+/*!40000 ALTER TABLE `cdp` DISABLE KEYS */;
 
-INSERT INTO `Cdp` (`id`, `Ranke_BE_A_61`, `Labat`, `MesZL`, `Koenig_AfO_Bei_16`, `REC`, `HA`, `Schroder_VS_15`, `UET_2`, `Fossey_pp`, `Clay_BE_A_10`, `Hinke`, `Clay_BE_A_14`, `KWU`, `form_description`, `variant_name`, `ELLes`, `HZL`, `Emar`, `aBZL`, `LAK`, `notes`, `Schroeder_VS_12`, `ARM_XV`, `form_name`, `ZATU`, `RSP`, `sign_id`, `description_id`, `oracc_id`, `cdli_id`)
+INSERT INTO `cdp` (`id`, `Ranke_BE_A_61`, `Labat`, `MesZL`, `Koenig_AfO_Bei_16`, `REC`, `HA`, `Schroder_VS_15`, `UET_2`, `Fossey_pp`, `Clay_BE_A_10`, `Hinke`, `Clay_BE_A_14`, `KWU`, `form_description`, `variant_name`, `ELLes`, `HZL`, `Emar`, `aBZL`, `LAK`, `notes`, `Schroeder_VS_12`, `ARM_XV`, `form_name`, `ZATU`, `RSP`, `sign_id`, `description_id`, `oracc_id`, `cdli_id`)
 VALUES
 	(1,NULL,'1','1',NULL,NULL,'1',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'1',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,28169,NULL,NULL,NULL),
 	(2,NULL,'480','748',NULL,NULL,NULL,NULL,NULL,NULL,NULL,'241',NULL,NULL,NULL,NULL,NULL,'356',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'3',28169,NULL,NULL,NULL),
@@ -3885,7 +3886,7 @@ VALUES
 	(1655,NULL,'114','183',NULL,'34','113',NULL,NULL,NULL,NULL,'27',NULL,'116',NULL,NULL,'42','83',NULL,'37','69',NULL,NULL,NULL,NULL,NULL,'411',29580,3582,423,820),
 	(1656,NULL,'114','183',NULL,'34','114',NULL,NULL,NULL,NULL,'27',NULL,'116',NULL,NULL,'42','83',NULL,'37','69',NULL,NULL,NULL,NULL,NULL,'411',29580,3582,423,820);
 
-INSERT INTO `Cdp` (`id`, `Ranke_BE_A_61`, `Labat`, `MesZL`, `Koenig_AfO_Bei_16`, `REC`, `HA`, `Schroder_VS_15`, `UET_2`, `Fossey_pp`, `Clay_BE_A_10`, `Hinke`, `Clay_BE_A_14`, `KWU`, `form_description`, `variant_name`, `ELLes`, `HZL`, `Emar`, `aBZL`, `LAK`, `notes`, `Schroeder_VS_12`, `ARM_XV`, `form_name`, `ZATU`, `RSP`, `sign_id`, `description_id`, `oracc_id`, `cdli_id`)
+INSERT INTO `cdp` (`id`, `Ranke_BE_A_61`, `Labat`, `MesZL`, `Koenig_AfO_Bei_16`, `REC`, `HA`, `Schroder_VS_15`, `UET_2`, `Fossey_pp`, `Clay_BE_A_10`, `Hinke`, `Clay_BE_A_14`, `KWU`, `form_description`, `variant_name`, `ELLes`, `HZL`, `Emar`, `aBZL`, `LAK`, `notes`, `Schroeder_VS_12`, `ARM_XV`, `form_name`, `ZATU`, `RSP`, `sign_id`, `description_id`, `oracc_id`, `cdli_id`)
 VALUES
 	(1657,NULL,'114','183',NULL,'34','113',NULL,NULL,NULL,NULL,'27',NULL,'116',NULL,NULL,'42','83',NULL,'37','69',NULL,NULL,NULL,NULL,NULL,'411',29580,3582,423,820),
 	(1658,NULL,'114','183',NULL,'34','114',NULL,NULL,NULL,NULL,'27',NULL,'116',NULL,NULL,'42','83',NULL,'37','69',NULL,NULL,NULL,NULL,NULL,'411',29580,3582,423,820),
@@ -5501,7 +5502,7 @@ VALUES
 	(3268,NULL,'444','701b',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'178','257',NULL,NULL,NULL,NULL,'428',NULL,30585,2251,1381,685),
 	(3269,NULL,'444','701b',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'178','257',NULL,NULL,NULL,NULL,'428',NULL,30585,2251,1381,554);
 
-INSERT INTO `Cdp` (`id`, `Ranke_BE_A_61`, `Labat`, `MesZL`, `Koenig_AfO_Bei_16`, `REC`, `HA`, `Schroder_VS_15`, `UET_2`, `Fossey_pp`, `Clay_BE_A_10`, `Hinke`, `Clay_BE_A_14`, `KWU`, `form_description`, `variant_name`, `ELLes`, `HZL`, `Emar`, `aBZL`, `LAK`, `notes`, `Schroeder_VS_12`, `ARM_XV`, `form_name`, `ZATU`, `RSP`, `sign_id`, `description_id`, `oracc_id`, `cdli_id`)
+INSERT INTO `cdp` (`id`, `Ranke_BE_A_61`, `Labat`, `MesZL`, `Koenig_AfO_Bei_16`, `REC`, `HA`, `Schroder_VS_15`, `UET_2`, `Fossey_pp`, `Clay_BE_A_10`, `Hinke`, `Clay_BE_A_14`, `KWU`, `form_description`, `variant_name`, `ELLes`, `HZL`, `Emar`, `aBZL`, `LAK`, `notes`, `Schroeder_VS_12`, `ARM_XV`, `form_name`, `ZATU`, `RSP`, `sign_id`, `description_id`, `oracc_id`, `cdli_id`)
 VALUES
 	(3270,NULL,'444','701b',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'178','257',NULL,NULL,NULL,NULL,'428',NULL,30585,2251,1381,553),
 	(3271,NULL,NULL,'874',NULL,NULL,'522',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,30586,1618,1382,NULL),
@@ -7011,7 +7012,7 @@ VALUES
 	(4775,NULL,NULL,'885',NULL,NULL,'555v',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'279',NULL,NULL,NULL,'524',NULL,NULL,NULL,NULL,NULL,NULL,31602,1439,2121,NULL),
 	(4776,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,31603,3440,2122,NULL);
 
-/*!40000 ALTER TABLE `Cdp` ENABLE KEYS */;
+/*!40000 ALTER TABLE `cdp` ENABLE KEYS */;
 UNLOCK TABLES;
 
 
@@ -7027,7 +7028,6 @@ CREATE TABLE `city` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `uq_name` (`name`),
   KEY `locality_id` (`locality_id`),
-  KEY `idx_name` (`name`),
   CONSTRAINT `city_ibfk_1` FOREIGN KEY (`locality_id`) REFERENCES `locality` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -7117,7 +7117,6 @@ CREATE TABLE `city_site` (
   `city_id` int(11) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `uq_name` (`name`),
-  KEY `idx_name` (`name`),
   KEY `city_id` (`city_id`),
   CONSTRAINT `city_site_ibfk_1` FOREIGN KEY (`city_id`) REFERENCES `city` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -7133,7 +7132,7 @@ CREATE TABLE `column` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `number` varchar(5) NOT NULL,
   PRIMARY KEY (`id`),
-  KEY `ix_column_number` (`number`)
+  UNIQUE KEY `number` (`number`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 LOCK TABLES `column` WRITE;
@@ -7203,22 +7202,22 @@ VALUES
 UNLOCK TABLES;
 
 
-# Dump of table Description
+# Dump of table description
 # ------------------------------------------------------------
 
-DROP TABLE IF EXISTS `Description`;
+DROP TABLE IF EXISTS `description`;
 
-CREATE TABLE `Description` (
+CREATE TABLE `description` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `sign_ref` varchar(150) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `uq_sign_ref` (`sign_ref`)
+  UNIQUE KEY `ix_description_sign_ref` (`sign_ref`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
-LOCK TABLES `Description` WRITE;
-/*!40000 ALTER TABLE `Description` DISABLE KEYS */;
+LOCK TABLES `description` WRITE;
+/*!40000 ALTER TABLE `description` DISABLE KEYS */;
 
-INSERT INTO `Description` (`id`, `sign_ref`)
+INSERT INTO `description` (`id`, `sign_ref`)
 VALUES
 	(95,X'312841C5A0407429'),
 	(3515,X'312842414EE2828229'),
@@ -10845,7 +10844,7 @@ VALUES
 	(1349,X'C5A055C5A0414E41'),
 	(1358,X'C5A055E28282');
 
-/*!40000 ALTER TABLE `Description` ENABLE KEYS */;
+/*!40000 ALTER TABLE `description` ENABLE KEYS */;
 UNLOCK TABLES;
 
 
@@ -10903,8 +10902,7 @@ CREATE TABLE `eponym` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(50) NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `uq_name` (`name`),
-  KEY `idx_name` (`name`)
+  UNIQUE KEY `uq_name` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 LOCK TABLES `eponym` WRITE;
@@ -11144,8 +11142,7 @@ CREATE TABLE `function` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(50) NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `uq_name` (`name`),
-  KEY `idx_name` (`name`)
+  UNIQUE KEY `uq_name` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 LOCK TABLES `function` WRITE;
@@ -11171,8 +11168,7 @@ CREATE TABLE `genre` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(100) NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `uq_name` (`name`),
-  KEY `idx_name` (`name`)
+  UNIQUE KEY `uq_name` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 LOCK TABLES `genre` WRITE;
@@ -11253,7 +11249,7 @@ CREATE TABLE `iteration` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `number` varchar(5) NOT NULL,
   PRIMARY KEY (`id`),
-  KEY `ix_iteration_number` (`number`)
+  UNIQUE KEY `number` (`number`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 LOCK TABLES `iteration` WRITE;
@@ -11290,8 +11286,7 @@ CREATE TABLE `language` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(100) NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `uq_name` (`name`),
-  KEY `idx_name` (`name`)
+  UNIQUE KEY `uq_name` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 LOCK TABLES `language` WRITE;
@@ -11318,7 +11313,7 @@ CREATE TABLE `line` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `number` varchar(5) NOT NULL,
   PRIMARY KEY (`id`),
-  KEY `ix_line_number` (`number`)
+  UNIQUE KEY `number` (`number`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 LOCK TABLES `line` WRITE;
@@ -11640,8 +11635,7 @@ CREATE TABLE `locality` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `area` varchar(100) NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `uq_area` (`area`),
-  KEY `idx_area` (`area`)
+  UNIQUE KEY `uq_area` (`area`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 LOCK TABLES `locality` WRITE;
@@ -11669,8 +11663,7 @@ CREATE TABLE `medium` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(50) NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `uq_name` (`name`),
-  KEY `idx_name` (`name`)
+  UNIQUE KEY `uq_name` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 LOCK TABLES `medium` WRITE;
@@ -11696,8 +11689,7 @@ CREATE TABLE `method` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(50) NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `uq_name` (`name`),
-  KEY `idx_name` (`name`)
+  UNIQUE KEY `uq_name` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 LOCK TABLES `method` WRITE;
@@ -11724,8 +11716,7 @@ CREATE TABLE `non_ruler_corresp` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(100) NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `uq_name` (`name`),
-  KEY `idx_name` (`name`)
+  UNIQUE KEY `uq_name` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 LOCK TABLES `non_ruler_corresp` WRITE;
@@ -11746,22 +11737,22 @@ VALUES
 UNLOCK TABLES;
 
 
-# Dump of table Oracc
+# Dump of table oracc
 # ------------------------------------------------------------
 
-DROP TABLE IF EXISTS `Oracc`;
+DROP TABLE IF EXISTS `oracc`;
 
-CREATE TABLE `Oracc` (
+CREATE TABLE `oracc` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `sign_ref` varchar(150) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `uq_sign_ref` (`sign_ref`)
+  UNIQUE KEY `ix_oracc_sign_ref` (`sign_ref`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
-LOCK TABLES `Oracc` WRITE;
-/*!40000 ALTER TABLE `Oracc` DISABLE KEYS */;
+LOCK TABLES `oracc` WRITE;
+/*!40000 ALTER TABLE `oracc` DISABLE KEYS */;
 
-INSERT INTO `Oracc` (`id`, `sign_ref`)
+INSERT INTO `oracc` (`id`, `sign_ref`)
 VALUES
 	(26,X'312841C5A0407429'),
 	(332,X'312842414EE2828229'),
@@ -13887,7 +13878,7 @@ VALUES
 	(1796,X'C5A055C5A0414E41'),
 	(1721,X'C5A055E28282');
 
-/*!40000 ALTER TABLE `Oracc` ENABLE KEYS */;
+/*!40000 ALTER TABLE `oracc` ENABLE KEYS */;
 UNLOCK TABLES;
 
 
@@ -13902,8 +13893,7 @@ CREATE TABLE `period` (
   `from_date` varchar(50) NOT NULL,
   `to_date` varchar(50) NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `uq_name` (`name`),
-  KEY `idx_name` (`name`)
+  UNIQUE KEY `uq_name` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 LOCK TABLES `period` WRITE;
@@ -13949,7 +13939,6 @@ CREATE TABLE `reign` (
   KEY `dynasty_id` (`dynasty_id`),
   KEY `period_id` (`period_id`),
   KEY `sub_period_id` (`sub_period_id`),
-  KEY `ix_reign_rim_ref` (`rim_ref`),
   KEY `ruler_id` (`ruler_id`),
   CONSTRAINT `reign_ibfk_1` FOREIGN KEY (`city_id`) REFERENCES `city` (`id`),
   CONSTRAINT `reign_ibfk_2` FOREIGN KEY (`start_date`) REFERENCES `year` (`id`),
@@ -14566,8 +14555,7 @@ CREATE TABLE `ruler` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(100) NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `uq_name` (`name`),
-  KEY `idx_name` (`name`)
+  UNIQUE KEY `uq_name` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 LOCK TABLES `ruler` WRITE;
@@ -15353,8 +15341,7 @@ CREATE TABLE `script_type` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `script` varchar(50) NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `uq_script` (`script`),
-  KEY `idx_script` (`script`)
+  UNIQUE KEY `uq_script` (`script`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 LOCK TABLES `script_type` WRITE;
@@ -15369,22 +15356,22 @@ VALUES
 UNLOCK TABLES;
 
 
-# Dump of table Sign
+# Dump of table sign
 # ------------------------------------------------------------
 
-DROP TABLE IF EXISTS `Sign`;
+DROP TABLE IF EXISTS `sign`;
 
-CREATE TABLE `Sign` (
+CREATE TABLE `sign` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `sign_ref` varchar(150) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
+  `sign_ref` varchar(150) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `uq_sign_ref` (`sign_ref`)
+  UNIQUE KEY `ix_sign_sign_ref` (`sign_ref`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-LOCK TABLES `Sign` WRITE;
-/*!40000 ALTER TABLE `Sign` DISABLE KEYS */;
+LOCK TABLES `sign` WRITE;
+/*!40000 ALTER TABLE `sign` DISABLE KEYS */;
 
-INSERT INTO `Sign` (`id`, `sign_ref`)
+INSERT INTO `sign` (`id`, `sign_ref`)
 VALUES
 	(28169,X'31'),
 	(28840,X'312841C5A0405429'),
@@ -18823,7 +18810,7 @@ VALUES
 	(31110,X'CABE55E28283'),
 	(30888,X'E1B9A3494CE28283');
 
-/*!40000 ALTER TABLE `Sign` ENABLE KEYS */;
+/*!40000 ALTER TABLE `sign` ENABLE KEYS */;
 UNLOCK TABLES;
 
 
@@ -18837,8 +18824,7 @@ CREATE TABLE `sub_locality` (
   `name` varchar(100) NOT NULL,
   `locality_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `uq_name` (`name`),
-  KEY `idx_name` (`name`)
+  UNIQUE KEY `uq_name` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
@@ -18853,7 +18839,7 @@ CREATE TABLE `sub_period` (
   `name` varchar(100) NOT NULL,
   `period_id` int(11) NOT NULL,
   PRIMARY KEY (`id`),
-  KEY `idx_name` (`name`),
+  UNIQUE KEY `name` (`name`),
   KEY `period_id` (`period_id`),
   CONSTRAINT `sub_period_ibfk_1` FOREIGN KEY (`period_id`) REFERENCES `period` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -18911,7 +18897,7 @@ CREATE TABLE `surface` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(20) NOT NULL,
   PRIMARY KEY (`id`),
-  KEY `ix_surface_name` (`name`)
+  UNIQUE KEY `name` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 LOCK TABLES `surface` WRITE;
@@ -18978,7 +18964,6 @@ CREATE TABLE `tablet` (
   KEY `origin_city_id` (`origin_city_id`),
   KEY `period_id` (`period_id`),
   KEY `text_vehicle_id` (`text_vehicle_id`),
-  KEY `idx_museum_number` (`museum_number`),
   KEY `tablet_ibfk_6` (`from_id`),
   KEY `tablet_ibfk_7` (`to_id`),
   KEY `year_id` (`year_id`),
@@ -19289,8 +19274,7 @@ CREATE TABLE `text_vehicle` (
   `bm_catalogue` varchar(100) DEFAULT NULL,
   `cdli` varchar(100) DEFAULT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `uq_name` (`name`),
-  KEY `idx_name` (`name`)
+  UNIQUE KEY `uq_name` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 LOCK TABLES `text_vehicle` WRITE;
@@ -19333,7 +19317,6 @@ CREATE TABLE `year` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `year` (`year`),
   KEY `eponym_id` (`eponym_id`),
-  KEY `idx_year` (`year`),
   CONSTRAINT `year_ibfk_1` FOREIGN KEY (`eponym_id`) REFERENCES `eponym` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 

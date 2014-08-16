@@ -197,6 +197,7 @@ class Tablet(db.Model, GlyphMixin):
     reign = db.relationship(
         "Reign",
         backref="tablets")
+    tablets = db.relationship("Instance", backref="tablet")
 
     def __init__(self, **kwargs):
         """
@@ -665,6 +666,7 @@ class Sign(db.Model, GlyphMixin):
         unique=True,
         index=True)
 
+    instances = db.relationship("Instance", backref="sign")
     cdp = db.relationship(
         "Cdp",
         backref=backref("sign"),
@@ -971,8 +973,6 @@ class Instance(db.Model, GlyphMixin):
         unique=True)
 
     # relations
-    tablet = db.relationship("Tablet", backref="instances")
-    sign = db.relationship("Sign", backref="instances")
     surface = db.relationship("Surface", backref="instances")
     column = db.relationship("Column", backref="instances")
     line = db.relationship("Line", backref="instances")

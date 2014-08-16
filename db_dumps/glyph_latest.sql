@@ -7,7 +7,7 @@
 #
 # Host: 127.0.0.1 (MySQL 5.6.20-log)
 # Database: glyph
-# Generation Time: 2014-08-15 18:03:33 +0000
+# Generation Time: 2014-08-16 12:22:44 +0000
 # ************************************************************
 
 
@@ -34,7 +34,7 @@ LOCK TABLES `alembic_version` WRITE;
 
 INSERT INTO `alembic_version` (`version_num`)
 VALUES
-	('54903f3b1315');
+	('101d7cf93dfb');
 
 /*!40000 ALTER TABLE `alembic_version` ENABLE KEYS */;
 UNLOCK TABLES;
@@ -11213,13 +11213,13 @@ CREATE TABLE `instance` (
   KEY `function_id` (`function_id`),
   KEY `iteration_id` (`iteration_id`),
   KEY `tablet_id` (`tablet_id`),
-  CONSTRAINT `instance_ibfk_1` FOREIGN KEY (`sign_id`) REFERENCES `cdp` (`id`),
+  CONSTRAINT `fk_instance_sign_id_sign` FOREIGN KEY (`sign_id`) REFERENCES `sign` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_instance_tablet_id_tablet` FOREIGN KEY (`tablet_id`) REFERENCES `tablet` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `instance_ibfk_2` FOREIGN KEY (`surface_id`) REFERENCES `surface` (`id`),
   CONSTRAINT `instance_ibfk_3` FOREIGN KEY (`column_id`) REFERENCES `column` (`id`),
   CONSTRAINT `instance_ibfk_4` FOREIGN KEY (`line_id`) REFERENCES `line` (`id`),
   CONSTRAINT `instance_ibfk_5` FOREIGN KEY (`function_id`) REFERENCES `function` (`id`),
-  CONSTRAINT `instance_ibfk_6` FOREIGN KEY (`iteration_id`) REFERENCES `iteration` (`id`),
-  CONSTRAINT `instance_ibfk_7` FOREIGN KEY (`tablet_id`) REFERENCES `tablet` (`id`)
+  CONSTRAINT `instance_ibfk_6` FOREIGN KEY (`iteration_id`) REFERENCES `iteration` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 

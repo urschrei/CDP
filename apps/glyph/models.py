@@ -935,11 +935,11 @@ class Instance(db.Model, GlyphMixin):
     """
     tablet_id = db.Column(
         db.Integer(),
-        db.ForeignKey("tablet.id"),
+        db.ForeignKey("tablet.id", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False)
     sign_id = db.Column(
         db.Integer(),
-        db.ForeignKey("sign.id"),
+        db.ForeignKey("sign.id", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False)
     surface_id = db.Column(
         db.Integer(),

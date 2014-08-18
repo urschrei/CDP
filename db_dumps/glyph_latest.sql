@@ -5,9 +5,9 @@
 # http://www.sequelpro.com/
 # http://code.google.com/p/sequel-pro/
 #
-# Host: 127.0.0.1 (MySQL 5.6.20-log)
+# Host: 127.0.0.1 (MySQL 5.6.20)
 # Database: glyph
-# Generation Time: 2014-08-16 12:22:44 +0000
+# Generation Time: 2014-08-18 11:52:34 +0000
 # ************************************************************
 
 
@@ -47,10 +47,10 @@ DROP TABLE IF EXISTS `author`;
 
 CREATE TABLE `author` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(75) NOT NULL,
+  `name` varchar(75) CHARACTER SET utf8 NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `name` (`name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 LOCK TABLES `author` WRITE;
 /*!40000 ALTER TABLE `author` DISABLE KEYS */;
@@ -70,11 +70,11 @@ DROP TABLE IF EXISTS `cdli`;
 
 CREATE TABLE `cdli` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `sign_ref` varchar(150) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `sign_ref` varchar(150) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '',
   PRIMARY KEY (`id`),
   UNIQUE KEY `uq_sign_ref` (`sign_ref`),
   UNIQUE KEY `ix_cdli_sign_ref` (`sign_ref`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
 LOCK TABLES `cdli` WRITE;
 /*!40000 ALTER TABLE `cdli` DISABLE KEYS */;
@@ -2196,8 +2196,8 @@ CREATE TABLE `cdp` (
   `Hinke` varchar(50) CHARACTER SET utf8 DEFAULT NULL,
   `Clay_BE_A_14` varchar(50) CHARACTER SET utf8 DEFAULT NULL,
   `KWU` varchar(50) CHARACTER SET utf8 DEFAULT NULL,
-  `form_description` varchar(50) COLLATE utf8_bin DEFAULT NULL,
-  `variant_name` varchar(5) COLLATE utf8_bin DEFAULT NULL,
+  `form_description` varchar(50) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
+  `variant_name` varchar(5) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
   `ELLes` varchar(50) CHARACTER SET utf8 DEFAULT NULL,
   `HZL` varchar(50) CHARACTER SET utf8 DEFAULT NULL,
   `Emar` varchar(50) CHARACTER SET utf8 DEFAULT NULL,
@@ -2222,7 +2222,7 @@ CREATE TABLE `cdp` (
   CONSTRAINT `fk_description_cdp` FOREIGN KEY (`description_id`) REFERENCES `description` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `fk_oracc_cdp` FOREIGN KEY (`oracc_id`) REFERENCES `oracc` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `fk_sign_cdp` FOREIGN KEY (`sign_id`) REFERENCES `sign` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
 LOCK TABLES `cdp` WRITE;
 /*!40000 ALTER TABLE `cdp` DISABLE KEYS */;
@@ -7023,13 +7023,13 @@ DROP TABLE IF EXISTS `city`;
 
 CREATE TABLE `city` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(100) NOT NULL,
+  `name` varchar(100) CHARACTER SET utf8 NOT NULL,
   `locality_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `uq_name` (`name`),
   KEY `locality_id` (`locality_id`),
   CONSTRAINT `city_ibfk_1` FOREIGN KEY (`locality_id`) REFERENCES `locality` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
 LOCK TABLES `city` WRITE;
 /*!40000 ALTER TABLE `city` DISABLE KEYS */;
@@ -7113,13 +7113,13 @@ DROP TABLE IF EXISTS `city_site`;
 
 CREATE TABLE `city_site` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(100) NOT NULL,
+  `name` varchar(100) CHARACTER SET utf8 NOT NULL,
   `city_id` int(11) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `uq_name` (`name`),
   KEY `city_id` (`city_id`),
   CONSTRAINT `city_site_ibfk_1` FOREIGN KEY (`city_id`) REFERENCES `city` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
 
 
@@ -7130,10 +7130,10 @@ DROP TABLE IF EXISTS `column`;
 
 CREATE TABLE `column` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `number` varchar(5) NOT NULL,
+  `number` varchar(5) CHARACTER SET utf8 NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `number` (`number`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
 LOCK TABLES `column` WRITE;
 /*!40000 ALTER TABLE `column` DISABLE KEYS */;
@@ -7179,7 +7179,7 @@ CREATE TABLE `correspondent` (
   KEY `non_ruler_id` (`non_ruler_id`),
   CONSTRAINT `correspondent_ibfk_1` FOREIGN KEY (`ruler_id`) REFERENCES `ruler` (`id`),
   CONSTRAINT `correspondent_ibfk_2` FOREIGN KEY (`non_ruler_id`) REFERENCES `non_ruler_corresp` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
 LOCK TABLES `correspondent` WRITE;
 /*!40000 ALTER TABLE `correspondent` DISABLE KEYS */;
@@ -10855,10 +10855,10 @@ DROP TABLE IF EXISTS `dynasty`;
 
 CREATE TABLE `dynasty` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(100) NOT NULL,
+  `name` varchar(100) CHARACTER SET utf8 NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `name` (`name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
 LOCK TABLES `dynasty` WRITE;
 /*!40000 ALTER TABLE `dynasty` DISABLE KEYS */;
@@ -10900,10 +10900,10 @@ DROP TABLE IF EXISTS `eponym`;
 
 CREATE TABLE `eponym` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(50) NOT NULL,
+  `name` varchar(50) CHARACTER SET utf8 NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `uq_name` (`name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
 LOCK TABLES `eponym` WRITE;
 /*!40000 ALTER TABLE `eponym` DISABLE KEYS */;
@@ -11140,10 +11140,10 @@ DROP TABLE IF EXISTS `function`;
 
 CREATE TABLE `function` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(50) NOT NULL,
+  `name` varchar(50) CHARACTER SET utf8 NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `uq_name` (`name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
 LOCK TABLES `function` WRITE;
 /*!40000 ALTER TABLE `function` DISABLE KEYS */;
@@ -11166,10 +11166,10 @@ DROP TABLE IF EXISTS `genre`;
 
 CREATE TABLE `genre` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(100) NOT NULL,
+  `name` varchar(100) CHARACTER SET utf8 NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `uq_name` (`name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
 LOCK TABLES `genre` WRITE;
 /*!40000 ALTER TABLE `genre` DISABLE KEYS */;
@@ -11220,7 +11220,7 @@ CREATE TABLE `instance` (
   CONSTRAINT `instance_ibfk_4` FOREIGN KEY (`line_id`) REFERENCES `line` (`id`),
   CONSTRAINT `instance_ibfk_5` FOREIGN KEY (`function_id`) REFERENCES `function` (`id`),
   CONSTRAINT `instance_ibfk_6` FOREIGN KEY (`iteration_id`) REFERENCES `iteration` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
 
 
@@ -11236,7 +11236,7 @@ CREATE TABLE `instance_language` (
   KEY `language_id` (`language_id`),
   CONSTRAINT `instance_language_ibfk_1` FOREIGN KEY (`instance_id`) REFERENCES `instance` (`id`),
   CONSTRAINT `instance_language_ibfk_2` FOREIGN KEY (`language_id`) REFERENCES `language` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
 
 
@@ -11247,10 +11247,10 @@ DROP TABLE IF EXISTS `iteration`;
 
 CREATE TABLE `iteration` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `number` varchar(5) NOT NULL,
+  `number` varchar(5) CHARACTER SET utf8 NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `number` (`number`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
 LOCK TABLES `iteration` WRITE;
 /*!40000 ALTER TABLE `iteration` DISABLE KEYS */;
@@ -11284,10 +11284,10 @@ DROP TABLE IF EXISTS `language`;
 
 CREATE TABLE `language` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(100) NOT NULL,
+  `name` varchar(100) CHARACTER SET utf8 NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `uq_name` (`name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
 LOCK TABLES `language` WRITE;
 /*!40000 ALTER TABLE `language` DISABLE KEYS */;
@@ -11311,10 +11311,10 @@ DROP TABLE IF EXISTS `line`;
 
 CREATE TABLE `line` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `number` varchar(5) NOT NULL,
+  `number` varchar(5) CHARACTER SET utf8 NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `number` (`number`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
 LOCK TABLES `line` WRITE;
 /*!40000 ALTER TABLE `line` DISABLE KEYS */;
@@ -11633,10 +11633,10 @@ DROP TABLE IF EXISTS `locality`;
 
 CREATE TABLE `locality` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `area` varchar(100) NOT NULL,
+  `area` varchar(100) CHARACTER SET utf8 NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `uq_area` (`area`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
 LOCK TABLES `locality` WRITE;
 /*!40000 ALTER TABLE `locality` DISABLE KEYS */;
@@ -11661,10 +11661,10 @@ DROP TABLE IF EXISTS `medium`;
 
 CREATE TABLE `medium` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(50) NOT NULL,
+  `name` varchar(50) CHARACTER SET utf8 NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `uq_name` (`name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
 LOCK TABLES `medium` WRITE;
 /*!40000 ALTER TABLE `medium` DISABLE KEYS */;
@@ -11687,10 +11687,10 @@ DROP TABLE IF EXISTS `method`;
 
 CREATE TABLE `method` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(50) NOT NULL,
+  `name` varchar(50) CHARACTER SET utf8 NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `uq_name` (`name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
 LOCK TABLES `method` WRITE;
 /*!40000 ALTER TABLE `method` DISABLE KEYS */;
@@ -11714,10 +11714,10 @@ DROP TABLE IF EXISTS `non_ruler_corresp`;
 
 CREATE TABLE `non_ruler_corresp` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(100) NOT NULL,
+  `name` varchar(100) CHARACTER SET utf8 NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `uq_name` (`name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
 LOCK TABLES `non_ruler_corresp` WRITE;
 /*!40000 ALTER TABLE `non_ruler_corresp` DISABLE KEYS */;
@@ -13889,12 +13889,12 @@ DROP TABLE IF EXISTS `period`;
 
 CREATE TABLE `period` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(150) NOT NULL,
-  `from_date` varchar(50) NOT NULL,
-  `to_date` varchar(50) NOT NULL,
+  `name` varchar(150) CHARACTER SET utf8 NOT NULL,
+  `from_date` varchar(50) CHARACTER SET utf8 NOT NULL,
+  `to_date` varchar(50) CHARACTER SET utf8 NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `uq_name` (`name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
 LOCK TABLES `period` WRITE;
 /*!40000 ALTER TABLE `period` DISABLE KEYS */;
@@ -13924,7 +13924,7 @@ DROP TABLE IF EXISTS `reign`;
 
 CREATE TABLE `reign` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `rim_ref` varchar(50) NOT NULL,
+  `rim_ref` varchar(50) CHARACTER SET utf8 NOT NULL,
   `city_id` int(11) DEFAULT NULL,
   `start_date` int(11) DEFAULT NULL,
   `end_date` int(11) DEFAULT NULL,
@@ -13947,7 +13947,7 @@ CREATE TABLE `reign` (
   CONSTRAINT `reign_ibfk_5` FOREIGN KEY (`period_id`) REFERENCES `period` (`id`),
   CONSTRAINT `reign_ibfk_6` FOREIGN KEY (`sub_period_id`) REFERENCES `sub_period` (`id`),
   CONSTRAINT `reign_ibfk_7` FOREIGN KEY (`ruler_id`) REFERENCES `ruler` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
 LOCK TABLES `reign` WRITE;
 /*!40000 ALTER TABLE `reign` DISABLE KEYS */;
@@ -14553,10 +14553,10 @@ DROP TABLE IF EXISTS `ruler`;
 
 CREATE TABLE `ruler` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(100) NOT NULL,
+  `name` varchar(100) CHARACTER SET utf8 NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `uq_name` (`name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
 LOCK TABLES `ruler` WRITE;
 /*!40000 ALTER TABLE `ruler` DISABLE KEYS */;
@@ -15159,7 +15159,7 @@ CREATE TABLE `ruler_tablet` (
   KEY `tablet_id` (`tablet_id`),
   CONSTRAINT `ruler_tablet_ibfk_1` FOREIGN KEY (`ruler_id`) REFERENCES `ruler` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `ruler_tablet_ibfk_2` FOREIGN KEY (`tablet_id`) REFERENCES `tablet` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
 LOCK TABLES `ruler_tablet` WRITE;
 /*!40000 ALTER TABLE `ruler_tablet` DISABLE KEYS */;
@@ -15339,10 +15339,10 @@ DROP TABLE IF EXISTS `script_type`;
 
 CREATE TABLE `script_type` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `script` varchar(50) NOT NULL,
+  `script` varchar(50) CHARACTER SET utf8 NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `uq_script` (`script`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
 LOCK TABLES `script_type` WRITE;
 /*!40000 ALTER TABLE `script_type` DISABLE KEYS */;
@@ -15366,7 +15366,7 @@ CREATE TABLE `sign` (
   `sign_ref` varchar(150) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `ix_sign_sign_ref` (`sign_ref`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
 LOCK TABLES `sign` WRITE;
 /*!40000 ALTER TABLE `sign` DISABLE KEYS */;
@@ -18821,11 +18821,11 @@ DROP TABLE IF EXISTS `sub_locality`;
 
 CREATE TABLE `sub_locality` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(100) NOT NULL,
+  `name` varchar(100) CHARACTER SET utf8 NOT NULL,
   `locality_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `uq_name` (`name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
 
 
@@ -18836,13 +18836,13 @@ DROP TABLE IF EXISTS `sub_period`;
 
 CREATE TABLE `sub_period` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(100) NOT NULL,
+  `name` varchar(100) CHARACTER SET utf8 NOT NULL,
   `period_id` int(11) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `name` (`name`),
   KEY `period_id` (`period_id`),
   CONSTRAINT `sub_period_ibfk_1` FOREIGN KEY (`period_id`) REFERENCES `period` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
 LOCK TABLES `sub_period` WRITE;
 /*!40000 ALTER TABLE `sub_period` DISABLE KEYS */;
@@ -18884,7 +18884,7 @@ CREATE TABLE `subperiod_dynasty` (
   KEY `dynasty_id` (`dynasty_id`),
   CONSTRAINT `subperiod_dynasty_ibfk_1` FOREIGN KEY (`subperiod_id`) REFERENCES `sub_period` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `subperiod_dynasty_ibfk_2` FOREIGN KEY (`dynasty_id`) REFERENCES `dynasty` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
 
 
@@ -18895,10 +18895,10 @@ DROP TABLE IF EXISTS `surface`;
 
 CREATE TABLE `surface` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(20) NOT NULL,
+  `name` varchar(20) CHARACTER SET utf8 NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `name` (`name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
 LOCK TABLES `surface` WRITE;
 /*!40000 ALTER TABLE `surface` DISABLE KEYS */;
@@ -18926,19 +18926,19 @@ DROP TABLE IF EXISTS `tablet`;
 
 CREATE TABLE `tablet` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `museum_number` varchar(75) NOT NULL,
+  `museum_number` varchar(75) CHARACTER SET utf8 NOT NULL,
   `medium_id` int(11) NOT NULL,
   `script_type_id` int(11) DEFAULT NULL,
   `city_id` int(11) DEFAULT NULL,
   `origin_city_id` int(11) DEFAULT NULL,
-  `publication` varchar(200) DEFAULT NULL,
+  `publication` varchar(200) CHARACTER SET utf8 DEFAULT NULL,
   `period_id` int(11) NOT NULL,
   `from_id` int(11) DEFAULT NULL,
   `to_id` int(11) DEFAULT NULL,
-  `ancient_month` varchar(10) DEFAULT NULL,
-  `ancient_day` varchar(10) DEFAULT NULL,
+  `ancient_month` varchar(10) CHARACTER SET utf8 DEFAULT NULL,
+  `ancient_day` varchar(10) CHARACTER SET utf8 DEFAULT NULL,
   `text_vehicle_id` int(11) DEFAULT NULL,
-  `notes` varchar(500) DEFAULT NULL,
+  `notes` varchar(500) CHARACTER SET utf8 DEFAULT NULL,
   `language_id` int(11) DEFAULT NULL,
   `year_id` int(11) DEFAULT NULL,
   `method_id` int(11) DEFAULT NULL,
@@ -18951,9 +18951,9 @@ CREATE TABLE `tablet` (
   `city_site_id` int(11) DEFAULT NULL,
   `reign_id` int(11) DEFAULT NULL,
   `timestamp` datetime NOT NULL,
-  `ancient_year` varchar(10) DEFAULT NULL,
-  `absolute_month` varchar(10) DEFAULT NULL,
-  `absolute_day` varchar(10) DEFAULT NULL,
+  `ancient_year` varchar(10) CHARACTER SET utf8 DEFAULT NULL,
+  `absolute_month` varchar(10) CHARACTER SET utf8 DEFAULT NULL,
+  `absolute_day` varchar(10) CHARACTER SET utf8 DEFAULT NULL,
   `eponym_id` int(11) DEFAULT NULL,
   `author_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
@@ -18998,7 +18998,7 @@ CREATE TABLE `tablet` (
   CONSTRAINT `tablet_ibfk_6` FOREIGN KEY (`from_id`) REFERENCES `correspondent` (`id`),
   CONSTRAINT `tablet_ibfk_7` FOREIGN KEY (`to_id`) REFERENCES `correspondent` (`id`),
   CONSTRAINT `tablet_ibfk_9` FOREIGN KEY (`text_vehicle_id`) REFERENCES `text_vehicle` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
 LOCK TABLES `tablet` WRITE;
 /*!40000 ALTER TABLE `tablet` DISABLE KEYS */;
@@ -19250,7 +19250,7 @@ CREATE TABLE `tablet_correspondent` (
   KEY `correspondent_id` (`correspondent_id`),
   CONSTRAINT `tablet_correspondent_ibfk_1` FOREIGN KEY (`tablet_id`) REFERENCES `tablet` (`id`),
   CONSTRAINT `tablet_correspondent_ibfk_2` FOREIGN KEY (`correspondent_id`) REFERENCES `correspondent` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
 LOCK TABLES `tablet_correspondent` WRITE;
 /*!40000 ALTER TABLE `tablet_correspondent` DISABLE KEYS */;
@@ -19270,12 +19270,12 @@ DROP TABLE IF EXISTS `text_vehicle`;
 
 CREATE TABLE `text_vehicle` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(100) NOT NULL,
-  `bm_catalogue` varchar(100) DEFAULT NULL,
-  `cdli` varchar(100) DEFAULT NULL,
+  `name` varchar(100) CHARACTER SET utf8 NOT NULL,
+  `bm_catalogue` varchar(100) CHARACTER SET utf8 DEFAULT NULL,
+  `cdli` varchar(100) CHARACTER SET utf8 DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `uq_name` (`name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
 LOCK TABLES `text_vehicle` WRITE;
 /*!40000 ALTER TABLE `text_vehicle` DISABLE KEYS */;
@@ -19312,13 +19312,13 @@ DROP TABLE IF EXISTS `year`;
 
 CREATE TABLE `year` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `year` varchar(14) NOT NULL,
+  `year` varchar(14) CHARACTER SET utf8 NOT NULL,
   `eponym_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `year` (`year`),
   KEY `eponym_id` (`eponym_id`),
   CONSTRAINT `year_ibfk_1` FOREIGN KEY (`eponym_id`) REFERENCES `eponym` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
 LOCK TABLES `year` WRITE;
 /*!40000 ALTER TABLE `year` DISABLE KEYS */;

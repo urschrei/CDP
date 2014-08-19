@@ -5,9 +5,9 @@
 # http://www.sequelpro.com/
 # http://code.google.com/p/sequel-pro/
 #
-# Host: 127.0.0.1 (MySQL 5.6.20)
+# Host: 127.0.0.1 (MySQL 5.6.20-log)
 # Database: glyph
-# Generation Time: 2014-08-18 11:52:34 +0000
+# Generation Time: 2014-08-19 10:18:38 +0000
 # ************************************************************
 
 
@@ -34,7 +34,7 @@ LOCK TABLES `alembic_version` WRITE;
 
 INSERT INTO `alembic_version` (`version_num`)
 VALUES
-	('101d7cf93dfb');
+	('499765559c01');
 
 /*!40000 ALTER TABLE `alembic_version` ENABLE KEYS */;
 UNLOCK TABLES;
@@ -49,7 +49,7 @@ CREATE TABLE `author` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(75) CHARACTER SET utf8 NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `name` (`name`)
+  UNIQUE KEY `uq_author_name` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 LOCK TABLES `author` WRITE;
@@ -7027,6 +7027,7 @@ CREATE TABLE `city` (
   `locality_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `uq_name` (`name`),
+  UNIQUE KEY `uq_city_name` (`name`),
   KEY `locality_id` (`locality_id`),
   CONSTRAINT `city_ibfk_1` FOREIGN KEY (`locality_id`) REFERENCES `locality` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
@@ -7117,6 +7118,7 @@ CREATE TABLE `city_site` (
   `city_id` int(11) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `uq_name` (`name`),
+  UNIQUE KEY `uq_city_site_name` (`name`),
   KEY `city_id` (`city_id`),
   CONSTRAINT `city_site_ibfk_1` FOREIGN KEY (`city_id`) REFERENCES `city` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
@@ -7132,7 +7134,7 @@ CREATE TABLE `column` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `number` varchar(5) CHARACTER SET utf8 NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `number` (`number`)
+  UNIQUE KEY `uq_column_number` (`number`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
 LOCK TABLES `column` WRITE;
@@ -10857,7 +10859,7 @@ CREATE TABLE `dynasty` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(100) CHARACTER SET utf8 NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `name` (`name`)
+  UNIQUE KEY `uq_dynasty_name` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
 LOCK TABLES `dynasty` WRITE;
@@ -10902,7 +10904,8 @@ CREATE TABLE `eponym` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(50) CHARACTER SET utf8 NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `uq_name` (`name`)
+  UNIQUE KEY `uq_name` (`name`),
+  UNIQUE KEY `uq_eponym_name` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
 LOCK TABLES `eponym` WRITE;
@@ -11142,7 +11145,8 @@ CREATE TABLE `function` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(50) CHARACTER SET utf8 NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `uq_name` (`name`)
+  UNIQUE KEY `uq_name` (`name`),
+  UNIQUE KEY `uq_function_name` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
 LOCK TABLES `function` WRITE;
@@ -11168,7 +11172,8 @@ CREATE TABLE `genre` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(100) CHARACTER SET utf8 NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `uq_name` (`name`)
+  UNIQUE KEY `uq_name` (`name`),
+  UNIQUE KEY `uq_genre_name` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
 LOCK TABLES `genre` WRITE;
@@ -11205,7 +11210,7 @@ CREATE TABLE `instance` (
   `notes` varchar(250) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
   `filename` varchar(50) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `filename` (`filename`),
+  UNIQUE KEY `uq_instance_filename` (`filename`),
   KEY `sign_id` (`sign_id`),
   KEY `surface_id` (`surface_id`),
   KEY `column_id` (`column_id`),
@@ -11249,7 +11254,7 @@ CREATE TABLE `iteration` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `number` varchar(5) CHARACTER SET utf8 NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `number` (`number`)
+  UNIQUE KEY `uq_iteration_number` (`number`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
 LOCK TABLES `iteration` WRITE;
@@ -11286,7 +11291,8 @@ CREATE TABLE `language` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(100) CHARACTER SET utf8 NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `uq_name` (`name`)
+  UNIQUE KEY `uq_name` (`name`),
+  UNIQUE KEY `uq_language_name` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
 LOCK TABLES `language` WRITE;
@@ -11313,7 +11319,7 @@ CREATE TABLE `line` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `number` varchar(5) CHARACTER SET utf8 NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `number` (`number`)
+  UNIQUE KEY `uq_line_number` (`number`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
 LOCK TABLES `line` WRITE;
@@ -11635,7 +11641,8 @@ CREATE TABLE `locality` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `area` varchar(100) CHARACTER SET utf8 NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `uq_area` (`area`)
+  UNIQUE KEY `uq_area` (`area`),
+  UNIQUE KEY `uq_locality_area` (`area`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
 LOCK TABLES `locality` WRITE;
@@ -11663,7 +11670,8 @@ CREATE TABLE `medium` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(50) CHARACTER SET utf8 NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `uq_name` (`name`)
+  UNIQUE KEY `uq_name` (`name`),
+  UNIQUE KEY `uq_medium_name` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
 LOCK TABLES `medium` WRITE;
@@ -11689,7 +11697,8 @@ CREATE TABLE `method` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(50) CHARACTER SET utf8 NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `uq_name` (`name`)
+  UNIQUE KEY `uq_name` (`name`),
+  UNIQUE KEY `uq_method_name` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
 LOCK TABLES `method` WRITE;
@@ -11716,7 +11725,8 @@ CREATE TABLE `non_ruler_corresp` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(100) CHARACTER SET utf8 NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `uq_name` (`name`)
+  UNIQUE KEY `uq_name` (`name`),
+  UNIQUE KEY `uq_non_ruler_corresp_name` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
 LOCK TABLES `non_ruler_corresp` WRITE;
@@ -13893,7 +13903,8 @@ CREATE TABLE `period` (
   `from_date` varchar(50) CHARACTER SET utf8 NOT NULL,
   `to_date` varchar(50) CHARACTER SET utf8 NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `uq_name` (`name`)
+  UNIQUE KEY `uq_name` (`name`),
+  UNIQUE KEY `uq_period_name` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
 LOCK TABLES `period` WRITE;
@@ -14555,7 +14566,8 @@ CREATE TABLE `ruler` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(100) CHARACTER SET utf8 NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `uq_name` (`name`)
+  UNIQUE KEY `uq_name` (`name`),
+  UNIQUE KEY `uq_ruler_name` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
 LOCK TABLES `ruler` WRITE;
@@ -15341,7 +15353,8 @@ CREATE TABLE `script_type` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `script` varchar(50) CHARACTER SET utf8 NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `uq_script` (`script`)
+  UNIQUE KEY `uq_script` (`script`),
+  UNIQUE KEY `uq_script_type_script` (`script`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
 LOCK TABLES `script_type` WRITE;
@@ -18824,7 +18837,8 @@ CREATE TABLE `sub_locality` (
   `name` varchar(100) CHARACTER SET utf8 NOT NULL,
   `locality_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `uq_name` (`name`)
+  UNIQUE KEY `uq_name` (`name`),
+  UNIQUE KEY `uq_sub_locality_name` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
 
@@ -18839,7 +18853,7 @@ CREATE TABLE `sub_period` (
   `name` varchar(100) CHARACTER SET utf8 NOT NULL,
   `period_id` int(11) NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `name` (`name`),
+  UNIQUE KEY `uq_sub_period_name` (`name`),
   KEY `period_id` (`period_id`),
   CONSTRAINT `sub_period_ibfk_1` FOREIGN KEY (`period_id`) REFERENCES `period` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
@@ -18897,7 +18911,7 @@ CREATE TABLE `surface` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(20) CHARACTER SET utf8 NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `name` (`name`)
+  UNIQUE KEY `uq_surface_name` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
 LOCK TABLES `surface` WRITE;
@@ -18957,7 +18971,7 @@ CREATE TABLE `tablet` (
   `eponym_id` int(11) DEFAULT NULL,
   `author_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `museum_number` (`museum_number`),
+  UNIQUE KEY `uq_tablet_museum_number` (`museum_number`),
   KEY `medium_id` (`medium_id`),
   KEY `script_type_id` (`script_type_id`),
   KEY `city_id` (`city_id`),
@@ -19274,7 +19288,8 @@ CREATE TABLE `text_vehicle` (
   `bm_catalogue` varchar(100) CHARACTER SET utf8 DEFAULT NULL,
   `cdli` varchar(100) CHARACTER SET utf8 DEFAULT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `uq_name` (`name`)
+  UNIQUE KEY `uq_name` (`name`),
+  UNIQUE KEY `uq_text_vehicle_name` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
 LOCK TABLES `text_vehicle` WRITE;
@@ -19315,7 +19330,7 @@ CREATE TABLE `year` (
   `year` varchar(14) CHARACTER SET utf8 NOT NULL,
   `eponym_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `year` (`year`),
+  UNIQUE KEY `uq_year_year` (`year`),
   KEY `eponym_id` (`eponym_id`),
   CONSTRAINT `year_ibfk_1` FOREIGN KEY (`eponym_id`) REFERENCES `eponym` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;

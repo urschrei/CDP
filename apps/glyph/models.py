@@ -967,6 +967,10 @@ class Instance(db.Model, GlyphMixin):
         db.String(250),
         nullable=True,
         unique=False)
+    jjt_notes = db.Column(
+        db.String(250),
+        nullable=True,
+        unique=False)
     filename = db.Column(
         db.String(50),
         nullable=False,

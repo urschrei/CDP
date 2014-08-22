@@ -6,7 +6,7 @@
 </h1>
 <div class="row-fluid">
     <div class="span9">
-        Available sign instances:
+        <h3>There are {{tablet.instances|length}} available sign instances:</h3>
         <table class="table-bordered table-striped">
         <thead>
         <tr>
@@ -18,7 +18,7 @@
         <th>Iteration</th>
         <th>JJT Notes 2012</th>
         <th>Notes</th>
-        <th>Languages</th>
+        <th>Language</th>
         </tr>
         </thead>
             {%- for instance in tablet.instances %}
@@ -31,7 +31,7 @@
                 <td>{{ instance.iteration.number }}</td>
                 <td>{{ instance.jjt_notes }}</td>
                 <td>{{ instance.notes }}</td>
-                <td>{{ instance.languages }}</td>
+                <td>{{ instance.languages|join(", ", attribute='name') }}</td>
             </tr>
             {%- endfor %}
         </table>

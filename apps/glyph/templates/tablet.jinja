@@ -21,7 +21,7 @@
         <th>Languages</th>
         </tr>
         </thead>
-        {%- for instance in tablet.instances %}
+            {%- for instance in tablet.instances %}
             <tr>
                 <td><strong>{{ instance.sign.sign_ref }}</strong></td>
                 <td>{{ instance.surface.name }}</td>
@@ -33,7 +33,7 @@
                 <td>{{ instance.notes }}</td>
                 <td>{{ instance.languages }}</td>
             </tr>
-        {%- endfor %}
+            {%- endfor %}
         </table>
     </div>
 </div>

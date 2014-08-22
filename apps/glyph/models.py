@@ -992,7 +992,7 @@ class Instance(db.Model, GlyphMixin):
     def __init__(
         self, sign, surface=None, column=None, line=None,
         function=None, iteration=None, notes=None, filename=None,
-        languages=None):
+        languages=None, tablet=None, jjt_notes=None):
 
         self.sign = sign
         self.surface = surface
@@ -1000,6 +1000,10 @@ class Instance(db.Model, GlyphMixin):
         self.line = line
         self.function = function
         self.iteration = iteration
+        self.notes = notes
+        self.filename = filename
+        self.tablet = tablet
+        self.jjt_notes = jjt_notes
 
 
 class Instance_Language(db.Model):

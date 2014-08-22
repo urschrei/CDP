@@ -3,17 +3,36 @@
 {% block content %}
 <h1>
     {{ tablet.museum_number }}
-    <small>available sign instances:</small>
 </h1>
 <div class="row-fluid">
     <div class="span9">
+        Available sign instances:
         <table class="table-bordered table-striped">
-        {%- for chunk in chunks %}
+        <thead>
         <tr>
-            {%- for sign in chunk %}
-                    <td><a href="#">{{ sign }}</a></td>
-            {%- endfor %}
+        <th>Sign</th>
+        <th>Surface</th>
+        <th>Column</th>
+        <th>Line</th>
+        <th>Function</th>
+        <th>Iteration</th>
+        <th>JJT Notes 2012</th>
+        <th>Notes</th>
+        <th>Languages</th>
         </tr>
+        </thead>
+        {%- for instance in tablet.instances %}
+            <tr>
+                <td><strong>{{ instance.sign.sign_ref }}</strong></td>
+                <td>{{ instance.surface.name }}</td>
+                <td>{{ instance.column.number }}</td>
+                <td>{{ instance.line.number }}</td>
+                <td>{{ instance.function.name }}</td>
+                <td>{{ instance.iteration.number }}</td>
+                <td>{{ instance.jjt_notes }}</td>
+                <td>{{ instance.notes }}</td>
+                <td>{{ instance.languages }}</td>
+            </tr>
         {%- endfor %}
         </table>
     </div>

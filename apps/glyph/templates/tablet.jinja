@@ -21,9 +21,10 @@
         <th>Language</th>
         </tr>
         </thead>
+        <tbody>
             {%- for instance in tablet.instances %}
             <tr>
-                <td><strong>{{ instance.sign.sign_ref }}</strong></td>
+            <td><strong><a href="{{ url_for(".cdp", sign_id=instance.sign_id) }}">{{ instance.sign.sign_ref }}</a></strong></td>
                 <td>{{ instance.surface.name }}</td>
                 <td>{{ instance.column.number }}</td>
                 <td>{{ instance.line.number }}</td>
@@ -34,6 +35,7 @@
                 <td>{{ instance.languages|join(", ", attribute='name') }}</td>
             </tr>
             {%- endfor %}
+            </tbody>
         </table>
     </div>
 </div>

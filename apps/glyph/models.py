@@ -197,7 +197,7 @@ class Tablet(db.Model, GlyphMixin):
     reign = db.relationship(
         "Reign",
         backref="tablets")
-    tablets = db.relationship("Instance", backref="tablet")
+    instances = db.relationship("Instance", backref="tablet")
 
     def __init__(self, **kwargs):
         """

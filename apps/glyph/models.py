@@ -3,6 +3,8 @@ from apps.shared.models import db, GlyphMixin
 
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.orm import backref
+from sqlalchemy import desc
+from sqlalchemy.sql import select
 
 
 

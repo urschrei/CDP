@@ -100,7 +100,7 @@
         </table>
     </div>
     <div>
-    <h3>This sign occurs in the following tablets:</h3>
+    <h3>This sign occurs in the following {{ cdp_records[0].sign.instances|groupby('tablet.museum_number')|length }} tablets:</h3>
     {% for group in cdp_records[0].sign.instances|groupby('tablet.museum_number') %}
         <li><strong><a href="{{ url_for(".tablet", tablet_id=group[1][0].tablet.id) }}">{{ group.grouper }} ({{group[1]|length}} instances)</a></strong></ul></li>
     {% endfor %}

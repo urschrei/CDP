@@ -68,7 +68,7 @@ def tablets(page):
     """
     Show result of restricting records using various criteria
     """
-    q = Tablet.query
+    q = Tablet.query.order_by('museum_number')
     if request.args.get("ruler"):
         q = Tablet.query.filter(
             Tablet.rulers.any(Ruler.name == request.args.get("ruler")))

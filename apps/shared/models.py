@@ -52,4 +52,15 @@ class GlyphMixin(object):
     __mapper_args__ = {'always_refresh': True}
 
     id = db.Column(db.Integer, primary_key=True)
+
+    @property
+    def columns(self):
+        return [c.name for c in self.__table__.columns]
+
+    @property
+    def columnitems(self):
+        d = dict([(c, getattr(self, c)) for c in self.columns])
+
+    def __repr__(self):
+        return '{}({})'.format(self.__class__.__name__, self.columnitems)
     # timestamp = db.Column(DateTime, nullable=False, server_default=utcnow())

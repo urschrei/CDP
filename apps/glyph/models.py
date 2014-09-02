@@ -864,9 +864,37 @@ class Cdp(db.Model, GlyphMixin):
         nullable=True,
         unique=False)
 
-    def __repr__(self):
-        return "<CDP Entry for Sign '%s'>" % (self.sign.sign_ref)
+    @property
+    def columns(self):
+        return [c.name for c in self.__table__.columns]
 
+    @property
+    def columnitems(self):
+        """
+        This is a hacky way of sending back the correct representation of related records
+        It's in no way generalisable
+        """
+        d = dict([(c, getattr(self, c)) for c in self.columns])
+        # replace sign_id, description_id, oracc_id, cdli_id with related values
+        for each in ['_sa_instance_state', 'id', 'sign_id', 'description_id', 'oracc_id', 'cdli_id']:
+            d.pop(each, None)
+        d['Sign'] = self.sign.sign_ref
+        if self.description:
+            d['Description'] = self.description.sign_ref
+        else:
+            self.description = None
+        if self.oracc:
+            d['ORACC'] = self.oracc.sign_ref
+        else:
+            d['ORACC'] = None
+        if self.cdli:
+            d['CDLI'] = self.cdli.sign_ref
+        else:
+            d['CDLI'] = None
+        return d
+
+    def __repr__(self):
+        return '{}({})'.format(self.__class__.__name__, self.columnitems)
 
 class Function(db.Model, GlyphMixin):
     """

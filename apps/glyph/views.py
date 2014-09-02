@@ -1,3 +1,4 @@
+from itertools import izip_longest
 from apps.shared.models import db
 from flask import Blueprint, request, render_template
 from models import *
@@ -43,7 +44,11 @@ def signs(page):
     methods=['GET'])
 def cdp(sign_id):
     cdp_records = Cdp.query.filter_by(sign_id=sign_id).all()
-    return render_template('cdp.jinja', cdp_records=cdp_records)
+    # pivot row results into columns. Yes, really.
+    by_column = list(zip(
+        cdp_records[0].columnitems.keys(), *[res.columnitems.values() for res in cdp_records]))
+    # print flibble
+    return render_template('cdp.jinja', cdp_records=cdp_records, row_cols=by_column)
 
 
 @glyph.route(

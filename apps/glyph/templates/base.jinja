@@ -34,6 +34,7 @@
                     (url_for('.tablets'), 'tablets', 'Tablets'),
                     (url_for('.signs'), 'signs', 'Signs')
                 ] -%}
+                {% set active_page = active_page|default('index') -%}
                 <a class="navbar-brand" href="{{ url_for('glyph.index') }}">CDPP</a>
                 <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
                     <ul class="nav navbar-nav">

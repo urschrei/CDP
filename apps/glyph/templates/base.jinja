@@ -8,16 +8,14 @@
         {% assets "bootstrap" %}
             <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}">
         {% endassets %}
-        {% assets "static_nav" %}
-            <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}">
-        {% endassets %}
-        {% assets "bootstrap_responsive" %}
+        {% assets "bootstrap_theme" %}
             <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}">
         {% endassets %}
         <!--[if lt IE 9]>
         {% assets "html5shim" %}
             <script src="{{ ASSET_URL }}"></script>
         {% endassets %}
+        <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
         <![endif]-->
     </head>
     <body>
@@ -62,7 +60,7 @@
             </div>
         </div>
         {% assets "js_jquery" %}
-            <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
+            <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
             <script>window.jQuery || document.write('<script src="{{ ASSET_URL }}"><\/script>')</script>
         {% endassets %}
         {% assets "js_all" %}

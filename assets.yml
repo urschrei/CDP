@@ -1,8 +1,8 @@
 js_jquery:
   filters: yui_js
-  output: gen/jquery190.%(version)s.js
+  output: gen/jquery111.%(version)s.js
   contents:
-    - http://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.js
+    - https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.js
 
 js_all:
   filters: yui_js
@@ -23,6 +23,12 @@ bootstrap:
   output: gen/bootstrap.%(version)s.css
   contents:
     - css/bootstrap.css
+
+bootstrap_theme:
+  filters: yui_css
+  output: gen/css/bootstrap_theme.%(version)s.css
+  contents:
+    - https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.css
 
 bootstrap_responsive:
   filters: yui_css

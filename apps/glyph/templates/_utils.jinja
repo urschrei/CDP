@@ -1,6 +1,6 @@
 {% macro render_pagination(pagination, endpoint, request) %}
-    <div class="pagination pagination-centered">
-        <ul>
+    <div>
+        <ul class="pagination pagination-lg">
             {%- for page in pagination.iter_pages() %}
                 {% if page %}
                     {% if page != pagination.page %}

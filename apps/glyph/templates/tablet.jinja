@@ -111,21 +111,23 @@
             <li class="list-group-item"><strong>Scribe:</strong> {{ tablet.author.name }}</li>
         {% endif %}
     </ul>
-    <h3>Object images:</h3>
+    <h3>Random Object Images of {{ tablet.museum_number }}</h3>
+    {% for n in range(4) %}
+        {% set image = tablet.instances|random %}
     <!-- for-each loop goes here, because we've joined to Signs on Museum Number -->
-    <div class="row-fluid">
-        <a href="#" class="thumbnail">
-          <img src="http://placehold.it/360x268" alt="">
-        </a>
-    </div>
-    <div class="row-fluid">
-        <a href="#" class="thumbnail">
-          <img src="http://placehold.it/360x268" alt="">
-        </a>
-    </div>
-    <div class="row-fluid">
-        <a href="#" class="thumbnail">
-          <img src="http://placehold.it/360x268" alt="">
-        </a>
-    </div>
+        <div class="row-fluid">
+            <div class="thumbnail">
+                <a href="#" class="thumbnail">
+                    <img src="http://placehold.it/360x268" alt="">
+                </a>
+                <div class="caption">
+                    <ul class="list-group">
+                        <li class="list-group-item"><strong>Sign:</strong> {{ image.sign.sign_ref }}</li>
+                        <li class="list-group-item"><strong>Line:</strong> {{ image.line.number }}</li>
+                        <li class="list-group-item"><strong>Function:</strong> {{ image.function.name }}</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
 {% endblock %}

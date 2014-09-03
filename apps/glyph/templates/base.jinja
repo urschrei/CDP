@@ -46,16 +46,16 @@
         <div class="container-fluid">
             <div class="row-fluid">
                 {% block side_container %}
-                    <div class="span3">
-                        <div class="well sidebar-nav">
-                            <ul class="nav nav-list">
-                                {% block sidebar %}{% endblock %}
-                            </ul>
+                    <div class="col-md-4">
+                        <div class="well">
+                            {% block sidebar %}{% endblock %}
                         </div><!--/.well -->
                     </div><!--/span-->
                 {% endblock %}
-                <div class="span9">
-                    {% block content %}{% endblock %}
+                <div class="col-md-8">
+                    <div class="well">
+                        {% block content %}{% endblock %}
+                    </div>
                 </div>
             </div>
         </div>

@@ -7,7 +7,7 @@ from fabric.decorators import task
 from fabric.utils import abort
 from fabric.contrib.console import confirm
 from fabric.context_managers import settings, hide, prefix
-from fabric.colors import cyan, yellow, green, red
+from fabric.colors import cyan, yellow, green, red, white
 from time import time
 from alembic.config import Config
 from alembic import command
@@ -18,6 +18,7 @@ from sqlalchemy.ext.declarative import declarative_base
 
 import sys
 import os
+import subprocess
 
 
 env.basename = os.path.dirname(__file__)
@@ -83,10 +84,16 @@ def build_db():
     """
     Build a database using the App's models
     """
-    print(cyan("Creating tables in DB"))
+    print(red("Creating CDPP tables in DB"))
     # create / sync all models
-    local('export GLYPH_CONFIGURATION=`pwd`/config/dev.py && venv/bin/python ./create_db.py')
+    local('export GLYPH_CONFIGURATION=`pwd`/config/dev.py && venv/bin/python ./create_db.py', capture=True)
     # stamp the db with the most recent revision
     command.stamp(alembic_cfg, 'head')
-    print(cyan("Tables successfully created and synced"))
-    print(red("\n\nImport db_dumps/glyph_latest.sql to populate the DB"))
+    print(white("Tables successfully created and synced"))
+    print(red("Importing latest data dump"))
+    proc = subprocess.Popen(
+        ["mysql", "--user=root", "glyph"],
+        stdin=subprocess.PIPE,
+        stdout=subprocess.PIPE)
+    out, err = proc.communicate(file("db_dumps/glyph_latest.sql").read())
+    print(white("Data successfully imported. CDPP DB is ready to use."))

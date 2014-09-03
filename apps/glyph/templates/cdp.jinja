@@ -2,36 +2,36 @@
 {% set active_page = "signs" %}
 {% block title %}CDP records for sign {{ cdp_records[0].sign.sign_ref }}{% endblock %}
 {% block content %}
-    <div class="container-fluid">
-        <h3>Sign: <strong>{{ cdp_records[0].sign.sign_ref }}</strong></h3>
-        <div class="row-fluid">
-            <div class="span9">
-                <h4>This sign occurs in the following {{ cdp_records[0].sign.instances|groupby('tablet.museum_number')|length }} tablets:</h4>
-                <ul class="list-group">
-                {% for group in cdp_records[0].sign.instances|groupby('tablet.museum_number') %}
-                    <li class="list-group-item"><strong><a href="{{ url_for(".tablet", tablet_id=group[1][0].tablet.id) }}">{{ group.grouper }} <span class="badge">{{group[1]|length}} instances</span></a></strong></li>
-                {% endfor %}
-                </ul>
-            </div>
-        </div>
+<h3>CDP Records </h3>
+        <table class="table table-striped table-bordered table-condensed">
+        <thead>
+            <tr><td></td><td><strong>Entries</strong></td></tr>
+        </thead>
+        {%- for row in row_cols %}
+            <tr>
+            {%- for item in row %}
+            {% if loop.index == 1 %}
+                <td><strong>{{ item }}<strong></td>
+            {% else %}
+                <td>{{ item }}</td>
+            {% endif %}
+            {%- endfor %}
+            </tr>
+        {%- endfor %}
+        </table>
 {% endblock %}
 {% block sidebar %}
-    <h3>CDP Records </h3>
-    <table class="table table-striped table-bordered table-condensed">
-    <thead>
-        <tr><td></td><td><strong>Entries</strong></td></tr>
-        <tr><td><strong>Detail</td></tr>
-    </thead>
-    {%- for row in row_cols %}
-        <tr>
-        {%- for item in row %}
-        {% if loop.index == 1 %}
-            <td><strong>{{ item }}<strong></td>
-        {% else %}
-            <td>{{ item }}</td>
-        {% endif %}
-        {%- endfor %}
-        </tr>
-    {%- endfor %}
-    </table>
+<div class="container-fluid">
+    <h3>Sign: <strong>{{ cdp_records[0].sign.sign_ref }}</strong></h3>
+    <div class="row-fluid">
+        <div class="span9">
+            <h4>This sign occurs in the following {{ cdp_records[0].sign.instances|groupby('tablet.museum_number')|length }} tablets:</h4>
+            <ul class="list-group">
+            {% for group in cdp_records[0].sign.instances|groupby('tablet.museum_number') %}
+                <li class="list-group-item"><strong><a href="{{ url_for(".tablet", tablet_id=group[1][0].tablet.id) }}">{{ group.grouper }} <span class="badge">{{group[1]|length}} instances</span></a></strong></li>
+            {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
 {% endblock %}

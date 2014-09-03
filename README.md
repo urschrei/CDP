@@ -8,17 +8,12 @@
 7. Create a new virtualenv: `virtualenv venv`
 8. Activate it: `source venv/bin/activate`
 9. Install required packages: `pip install -r requirements.txt`
-10. Run `fab create_db` in order to create the database tables
-11. Import the latest database dump 'glyph_latest.sql' from `db_dumps`:
- -  Using [Sequel Pro](http://www.sequelpro.com)
- -  Using the command line: `mysql -h 127.0.0.1 -u root -p glyph < db_dumps/glyph_latest.sql `
-12. Run `fab upgrade_db` in order to ensure that all database migrations have been run
-13. If all goes well, run the app in debug mode: `fab run_app`
-14. Access the site on [http://0.0.0.0:5000](http://0.0.0.0:5000)
+10. Run `fab build_db` in order to create the database tables and import the latest data dump
+11. Once the DB tables have been created and populated , run the app in debug mode: `fab run_app`
+12. Access the site on [http://0.0.0.0:5000](http://0.0.0.0:5000)
 
 Other `fab` commands:
 
-- `fab downgrade_db [version]` downgrade the database to the base version, or to a specific revision
 - `fab shell` open an IPython shell with an imported app context and db instance. Queries can then be run like so:
     - `db.session.query(Cdp).join(Sign).filter(Sign.sign_ref == 'AK').all()`
 

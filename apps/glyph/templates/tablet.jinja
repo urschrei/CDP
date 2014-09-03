@@ -38,25 +38,6 @@
             </tbody>
         </table>
 </div>
-<div class="row-fluid">
-    <h4>Object images:</h4>
-    <!-- for-each loop goes here, because we've joined to Signs on Museum Number -->
-    <div class="col-xs-6 col-md-3">
-        <a href="#" class="thumbnail">
-          <img src="http://placehold.it/360x268" alt="">
-        </a>
-    </div>
-    <div class="col-xs-6 col-md-3">
-        <a href="#" class="thumbnail">
-          <img src="http://placehold.it/360x268" alt="">
-        </a>
-    </div>
-    <div class="col-xs-6 col-md-3">
-        <a href="#" class="thumbnail">
-          <img src="http://placehold.it/360x268" alt="">
-        </a>
-    </div>
-</div>
 {% endblock %}
 {% block sidebar %}
     <h3>Tablet Details</h3>
@@ -130,4 +111,21 @@
             <li class="list-group-item"><strong>Scribe:</strong> {{ tablet.author.name }}</li>
         {% endif %}
     </ul>
+    <h3>Object images:</h3>
+    <!-- for-each loop goes here, because we've joined to Signs on Museum Number -->
+    <div class="row-fluid">
+        <a href="#" class="thumbnail">
+          <img src="http://placehold.it/360x268" alt="">
+        </a>
+    </div>
+    <div class="row-fluid">
+        <a href="#" class="thumbnail">
+          <img src="http://placehold.it/360x268" alt="">
+        </a>
+    </div>
+    <div class="row-fluid">
+        <a href="#" class="thumbnail">
+          <img src="http://placehold.it/360x268" alt="">
+        </a>
+    </div>
 {% endblock %}

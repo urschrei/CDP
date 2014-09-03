@@ -43,7 +43,7 @@
     <h3>Tablet Details</h3>
     <ul class="list-group">
         {% if tablet.rulers %}
-        <li class="list-group-item"><strong>Ruler(s):</strong>
+        <li class="list-group-item"><strong>{{ 'Rulers' if tablet.rulers|length > 1 else 'Ruler' }}:</strong>
         <ul>
         {% for ruler in tablet.rulers %}
             <li><a href="{{ url_for('.tablets', ruler=ruler.name, page=1) }}">{{ ruler.name }}</a></li>

@@ -15,7 +15,7 @@ for r in res:
     d.pop('_sa_instance_state', None)
 
 # bulk-index the cleaned results
-es.bulk_index('cdpp', 'sign', res, id_field='id')
+es.bulk_index('cdpp', 'sign', [r.__dict__ for r in res], id_field='id')
 
 # construct a fuzzy search query over the signs
 q = {
@@ -28,4 +28,4 @@ q = {
         },
     }
 }
-es.search(qt, index='cdpp')
+es.search(q, index='cdpp')

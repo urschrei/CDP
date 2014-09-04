@@ -117,8 +117,8 @@
     <!-- for-each loop goes here, because we've joined to Signs on Museum Number -->
         <div class="row-fluid">
             <div class="thumbnail">
-                <a href="#" class="thumbnail">
-                    <img src="http://placehold.it/360x268" alt="">
+                <a href="{{ url_for('static', filename='img/instance/%s.jpg' % image.filename) }}" class="thumbnail">
+                    <img src="{{ url_for('static', filename='img/instance/%s.jpg' % image.filename) }}" alt="Example of {{ image.sign.sign_ref }} in {{ tablet.museum_number }}">
                 </a>
                 <div class="caption">
                     <ul class="list-group">

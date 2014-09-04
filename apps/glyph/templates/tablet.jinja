@@ -120,13 +120,11 @@
                 <a href="{{ url_for('static', filename='img/instance/%s.jpg' % image.filename) }}" class="thumbnail">
                     <img src="{{ url_for('static', filename='img/instance/%s.jpg' % image.filename) }}" alt="Example of {{ image.sign.sign_ref }} in {{ tablet.museum_number }}">
                 </a>
-                <div class="caption">
                     <ul class="list-group">
                         <li class="list-group-item"><strong>Sign:</strong> {{ image.sign.sign_ref }}</li>
                         <li class="list-group-item"><strong>Line:</strong> {{ image.line.number }}</li>
                         <li class="list-group-item"><strong>Function:</strong> {{ image.function.name }}</li>
                     </ul>
-                </div>
             </div>
         </div>
     {% endfor %}

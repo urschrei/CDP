@@ -4,10 +4,9 @@
 {% block title %}Home{% endblock %}
 {% block content %}
     <div class="hero-unit">
-        <h2>Hi!</h2>
-            <h2>Click <a href="{{ url_for('.tablets') }}">here</a> to see the tablets</h2>
-            <h2>Click <a href="{{ url_for('.signs') }}">here</a> to see the signs</h2>
-        </div>
+        <h2>Click <a href="{{ url_for('.tablets') }}">here</a> to see the tablets</h2>
+        <h2>Click <a href="{{ url_for('.signs') }}">here</a> to see the signs</h2>
+    </div>
 {% endblock %}
 {% block sidebar %}
 {% for number in range(3) %}

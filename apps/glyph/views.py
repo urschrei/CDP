@@ -1,5 +1,6 @@
 from itertools import izip_longest
 from apps.shared.models import db
+from sqlalchemy import or_
 from flask import Blueprint, request, render_template
 from models import *
 from forms import RecordForm, SearchForm
@@ -86,7 +87,10 @@ def search():
         }
     }
     res = es.search(q, index='cdpp')
-    items = [r['_source'] for r in res['hits']['hits']]
+    sign_ids = [r['_source']['id'] for r in res['hits']['hits']]
+    # retrieve the 'real' results so we can actually use relations
+    clauses = or_(*[Sign.id == id for id in sign_ids])
+    items = db.session.query(Sign).filter(clauses).all()
     return render_template('search_results.jinja', term=search.search.data, items=items, searchform=search)
 
 

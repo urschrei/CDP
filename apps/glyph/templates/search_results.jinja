@@ -20,5 +20,5 @@
 {% endblock %}
 {% block sidebar %}
     <h3>Search results for "{{ term }}"</h3>
-    <h4>{{ items|length }} results found</h4>
+    <h4>{{ items|length }} {{ 'results' if items|length > 1 else 'result' }} found</h4>
 {% endblock %}

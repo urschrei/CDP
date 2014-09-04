@@ -2,7 +2,8 @@ from itertools import izip_longest
 from apps.shared.models import db
 from flask import Blueprint, request, render_template
 from models import *
-from forms import RecordForm
+from forms import RecordForm, SearchForm
+from pyelasticsearch import ElasticSearch
 
 glyph = Blueprint(
     'glyph',
@@ -10,16 +11,19 @@ glyph = Blueprint(
     template_folder='templates'
 )
 
+# initialise ElasticSearch
+es = ElasticSearch('http://localhost:9200/')
 
 @glyph.route('/', methods=['GET', 'POST'])
 def index():
     """ Records """
+    search = SearchForm()
     form = RecordForm()
     if request.method == 'POST' and form.validate_on_submit():
         record = Test(form.record.data)
         db.session.add(record)
         db.session.commit()
-    return render_template('index.jinja', form=form)
+    return render_template('index.jinja', form=form, searchform=search)
 
 
 @glyph.route(
@@ -30,9 +34,10 @@ def index():
     '/signs/<int:page>',
     methods=['GET'])
 def signs(page):
+    search = SearchForm()
     q = Sign.query.order_by("sign_ref")
     page = q.paginate(page, per_page=25)
-    return render_template('signs.jinja', page=page)
+    return render_template('signs.jinja', page=page, searchform=search)
 
 
 @glyph.route(
@@ -43,23 +48,46 @@ def signs(page):
     '/cdp/<int:sign_id>',
     methods=['GET'])
 def cdp(sign_id):
+    search = SearchForm()
     cdp_records = Cdp.query.filter_by(sign_id=sign_id).all()
     # pivot row results into columns. Yes, really.
     by_column = list(zip(
         cdp_records[0].columnitems.keys(), *[res.columnitems.values() for res in cdp_records]))
     # print flibble
-    return render_template('cdp.jinja', cdp_records=cdp_records, row_cols=by_column)
+    return render_template('cdp.jinja', cdp_records=cdp_records, row_cols=by_column, searchform=search)
 
 
 @glyph.route(
     '/tablet/<int:tablet_id>',
     methods=['GET'])
 def tablet(tablet_id):
+    search = SearchForm()
     tablet = Tablet.query.get_or_404(tablet_id)
     # split Signs into 12-item chunks
     # chunked = list(chunks(tablet.signs, 12))
     chunked = list(chunks(range(36), 12))
-    return render_template('tablet.jinja', tablet=tablet, chunks=chunked)
+    return render_template('tablet.jinja', tablet=tablet, chunks=chunked, searchform=search)
+
+
+@glyph.route(
+    '/search',
+    methods=['GET', 'POST'])
+def search():
+    """ Search form """
+    search = SearchForm()
+    # TODO validate
+    q = {
+        "query": {
+            "fuzzy_like_this_field" : {
+                "sign.sign_ref" : {
+                    "like_text" : search.search.data,
+                }
+            },
+        }
+    }
+    res = es.search(q, index='cdpp')
+    items = [r['_source'] for r in res['hits']['hits']]
+    return render_template('search_results.jinja', term=search.search.data, items=items, searchform=search)
 
 
 @glyph.route(
@@ -73,6 +101,7 @@ def tablets(page):
     """
     Show result of restricting records using various criteria
     """
+    search = SearchForm()
     q = Tablet.query.order_by('museum_number')
     if request.args.get("ruler"):
         q = Tablet.query.filter(
@@ -126,7 +155,7 @@ def tablets(page):
         q = q.join(Dynasty).filter(
             Dynasty.name == request.args.get("dynasty"))
     page = q.paginate(page, per_page=25)
-    return render_template('tablets.jinja', page=page)
+    return render_template('tablets.jinja', page=page, searchform=search)
 
 
 # utilities

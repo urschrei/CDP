@@ -10,3 +10,4 @@ ipython
 jsmin
 webassets==dev
 yuicompressor
+pyelasticsearch

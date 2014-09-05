@@ -116,12 +116,22 @@ def search():
             }
         }
     }
-    res = es.search(q, index='cdpp')
-    sign_ids = [r['_source']['id'] for r in res['hits']['hits']]
-    # retrieve the 'real' results so we can actually use relations
-    clauses = or_(*[Sign.id == id for id in sign_ids])
-    items = db.session.query(Sign).filter(clauses).all()
-    return render_template('search_results.jinja', term=search.search.data, items=items, searchform=search)
+    res = es.search(q2, index='cdpp')
+    # grab IDs from search results
+    sign_ids = [r['_id'] for r in res['hits']['hits'] if r['_type'] == 'sign']
+    tablet_ids = [r['_id'] for r in res['hits']['hits'] if r['_type'] == 'tablet']
+    # retrieve DB records
+    signs = []
+    tablets = []
+    if sign_ids:
+        signs = db.session.query(Sign).filter(
+            or_(*[Sign.id == id for id in sign_ids])
+        ).all()
+    if tablet_ids:
+        tablets = db.session.query(Tablet).filter(
+            or_(*[Tablet.id == id for id in tablet_ids])
+        ).all()
+    return render_template('search_results.jinja', term=search.search.data, signs=signs, tablets=tablets, searchform=search)
 
 
 @glyph.route(

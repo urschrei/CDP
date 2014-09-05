@@ -42,7 +42,7 @@
                         <form class="navbar-form navbar-left" role="search" method="POST" action="{{ url_for('.search') }}">
                             {{ searchform.hidden_tag() }}
                             <div class="form-group">
-                                {{ searchform.search(class_="form-control", placeholder="Sign name", size=20) }}
+                                {{ searchform.search(class_="form-control", placeholder="Sign / Tablet / Medium / Ruler / City etc.", size=40) }}
                             </div>
                             <button type="submit" class="btn btn-default">Search</button>
                         </form>

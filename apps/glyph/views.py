@@ -96,6 +96,26 @@ def search():
             },
         }
     }
+    q2 = {
+        "query": {
+            "fuzzy_like_this": {
+                "fields": [
+                    "sign.sign_ref",
+                    "tablet.medium",
+                    "tablet.city",
+                    "tablet.period",
+                    "tablet.sub_period",
+                    "tablet.text_vehicle",
+                    "tablet.method",
+                    "tablet.genre",
+                    "tablet.museum_number",
+                    "tablet.ruler"
+              ],
+            "like_text": search.search.data,
+            "max_query_terms": 10
+            }
+        }
+    }
     res = es.search(q, index='cdpp')
     sign_ids = [r['_source']['id'] for r in res['hits']['hits']]
     # retrieve the 'real' results so we can actually use relations

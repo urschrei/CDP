@@ -22,11 +22,11 @@
 {% endblock %}
 {% block sidebar %}
 <div class="container-fluid">
-    <h3>Sign: <strong>{{ cdp_records[0].sign.sign_ref }}</strong></h3>
+    <h3>Sign: {{ cdp_records[0].sign.sign_ref }} (<a href="{{ url_for('.sign_images', sign_id=cdp_records[0].sign.id) }}">images</a>)</h3>
     <div class="row-fluid">
         <div class="span9">
         {%if cdp_records[0].sign.instances|length > 0 %}
-            <h4>This sign occurs in the following {{ cdp_records[0].sign.instances|groupby('tablet.museum_number')|length }} tablets:</h4>
+            <h4>{{ cdp_records[0].sign.instances|length }} instances of this sign are known, ocurring in the following {{ cdp_records[0].sign.instances|groupby('tablet.museum_number')|length }} tablets:</h4>
                 <ul class="list-group">
                 {% for group in cdp_records[0].sign.instances|groupby('tablet.museum_number') %}
                     <li class="list-group-item"><strong><a href="{{ url_for(".tablet", tablet_id=group[1][0].tablet.id) }}">{{ group.grouper }} <span class="badge">{{group[1]|length}} {{'instances' if group[1]|length > 1 else 'instance' }}</span></a></strong></li>

@@ -11,7 +11,7 @@
                 </a>
                 <div class="caption">
                     <ul class="list-group">
-                        <li class="list-group-item"><strong>Sign:</strong> <a href="{{  url_for('.cdp', sign_id=instance.sign.id) }}">{{ instance.sign.sign_ref }}</a></li>
+                        <li class="list-group-item"><strong>Sign:</strong> <a href="{{  url_for('.sign_images', sign_id=instance.sign.id) }}">{{ instance.sign.sign_ref }}</a></li>
                         <li class="list-group-item"><strong>Line:</strong> {{ instance.line.number }}</li>
                         <li class="list-group-item"><strong>Function:</strong> {{ instance.function.name }}</li>
                     </ul>
@@ -21,5 +21,11 @@
     </div>
 {% endblock %}
 {% block sidebar %}
-    <h3>{{ tablet.instances|length }} {{ 'images' if tablet.instances|length > 1 else 'image'}} available for <a href="{{ url_for('.tablet', tablet_id=tablet.id) }}">{{ tablet.museum_number  }}</a>
+    <h3>Tablet: <a href="{{ url_for('.tablet', tablet_id=tablet.id) }}">{{ tablet.museum_number  }}</a></h3>
+    <h4>{{ tablet.instances|length }} {{ 'images' if tablet.instances|length > 1 else 'image'}} are available for this tablet, depicting the following {{ tablet.instances|groupby('sign.sign_ref')|length }} signs:</h4>
+    <ul class="list-group">
+        {% for group in tablet.instances|groupby('sign.sign_ref') %}
+            <li class="list-group-item"><strong><a href="{{ url_for(".cdp", sign_id=group[1][0].sign.id) }}">{{ group.grouper }} <span class="badge">{{group[1]|length}} {{'instances' if group[1]|length > 1 else 'instance' }}</span></a></strong></li>
+        {% endfor %}
+    </ul>
 {% endblock %}

@@ -59,6 +59,15 @@ def cdp(sign_id):
 
 
 @glyph.route(
+    '/cdp/<int:sign_id>/images',
+    methods=['GET'])
+def sign_images(sign_id):
+    search=SearchForm()
+    sign = Sign.query.get(sign_id)
+    return render_template('sign_images.jinja', sign=sign, searchform=search)
+
+
+@glyph.route(
     '/tablet/<int:tablet_id>',
     methods=['GET'])
 def tablet(tablet_id):

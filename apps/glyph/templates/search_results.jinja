@@ -45,5 +45,5 @@
 {% block sidebar %}
     {% set result_length = signs|length + tablets|length %}
     <h3>Search results for "{{ term }}"</h3>
-    <h4>{{ result_length }} {{ 'results' if result_length > 1 else 'result' }} found</h4>
+    <h4>{{ result_length }} {{ 'results' if result_length > 1 or result_length == 0 else 'result' }} found</h4>
 {% endblock %}

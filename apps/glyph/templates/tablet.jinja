@@ -111,7 +111,8 @@
             <li class="list-group-item"><strong>Scribe:</strong> {{ tablet.author.name }}</li>
         {% endif %}
     </ul>
-    <h3>Random Object Images of {{ tablet.museum_number }}</h3>
+    <h3><a href="{{ url_for('.tablet_images', tablet_id=tablet.id) }}">Show all images</h3>
+    <h3>Random images of {{ tablet.museum_number }}</h3>
     {% for n in range(4) %}
         {% set image = tablet.instances|random %}
     <!-- for-each loop goes here, because we've joined to Signs on Museum Number -->

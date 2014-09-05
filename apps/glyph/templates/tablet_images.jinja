@@ -1,0 +1,25 @@
+{% extends "base.jinja" %}
+{% set active_page = "tablets" %}
+{% from "_utils.jinja" import render_pagination %}
+{% block title %}CDP: All images for {{ tablet.museum_number }}{% endblock %}
+{% block content %}
+    <div class="container-fluid">
+        {% for instance in tablet.instances %}
+            <div class="thumbnail">
+                <a href="{{ url_for('static', filename='img/instance/%s.jpg' % instance.filename) }}" class="thumbnail">
+                    <img src="{{ url_for('static', filename='img/instance/%s.jpg' % instance.filename) }}" alt="Example of {{ instance.sign.sign_ref }} in {{ tablet.museum_number }}">
+                </a>
+                <div class="caption">
+                    <ul class="list-group">
+                        <li class="list-group-item"><strong>Sign:</strong> <a href="{{  url_for('.cdp', sign_id=instance.sign.id) }}">{{ instance.sign.sign_ref }}</a></li>
+                        <li class="list-group-item"><strong>Line:</strong> {{ instance.line.number }}</li>
+                        <li class="list-group-item"><strong>Function:</strong> {{ instance.function.name }}</li>
+                    </ul>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}
+{% block sidebar %}
+    <h3>{{ tablet.instances|length }} {{ 'images' if tablet.instances|length > 1 else 'image'}} available for <a href="{{ url_for('.tablet', tablet_id=tablet.id) }}">{{ tablet.museum_number  }}</a>
+{% endblock %}

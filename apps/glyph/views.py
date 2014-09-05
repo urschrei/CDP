@@ -71,6 +71,16 @@ def tablet(tablet_id):
 
 
 @glyph.route(
+    '/tablet/<int:tablet_id>/images',
+    methods=['GET'])
+def tablet_images(tablet_id):
+    search=SearchForm()
+    tablet = Tablet.query.get_or_404(tablet_id)
+    return render_template('tablet_images.jinja', tablet=tablet, searchform=search)
+
+
+
+@glyph.route(
     '/search',
     methods=['GET', 'POST'])
 def search():

@@ -310,6 +310,10 @@ class Locality(db.Model, GlyphMixin):
         if sub_localities:
             self.sub_localities = sub_localities
 
+    def __repr__(self):
+        return self.area
+
+
 
 class Sub_Locality(db.Model, GlyphMixin):
     name = db.Column(db.String(100), nullable=False, unique=True)
@@ -337,6 +341,10 @@ class City(db.Model, GlyphMixin):
         if sites:
             self.sites = sites
 
+    def __repr__(self):
+        return self.name
+
+
 
 class City_Site(db.Model, GlyphMixin):
     name = db.Column(db.String(100), nullable=False, unique=True)
@@ -354,12 +362,18 @@ class Method(db.Model, GlyphMixin):
     def __init__(self, name):
         self.name = name
 
+    def __repr__(self):
+        return self.name
+
 
 class Script_Type(db.Model, GlyphMixin):
     script = db.Column(db.String(50), nullable=False, unique=True)
 
     def __init__(self, script):
         self.script = script
+
+    def __repr__(self):
+        return self.script
 
 
 class Year(db.Model, GlyphMixin):
@@ -381,12 +395,18 @@ class Medium(db.Model, GlyphMixin):
     def __init__(self, name):
         self.name = name
 
+    def __repr__(self):
+        return self.name
+
 
 class Genre(db.Model, GlyphMixin):
     name = db.Column(db.String(100), nullable=False, unique=True)
 
     def __init__(self, name):
         self.name = name
+
+    def __repr__(self):
+        return self.name
 
 
 class Language(db.Model, GlyphMixin):
@@ -401,6 +421,9 @@ class Language(db.Model, GlyphMixin):
     def __init__(self, name, instances=None):
         self.name = name
 
+    def __repr__(self):
+        return self.name
+
 
 class Text_Vehicle(db.Model, GlyphMixin):
     name = db.Column(db.String(100), nullable=False, unique=True)
@@ -413,6 +436,9 @@ class Text_Vehicle(db.Model, GlyphMixin):
             self.bm_catalogue = bm_catalogue
         if cdli:
             self.cdli = cdli
+
+    def __repr__(self):
+        return self.name
 
 
 class Eponym(db.Model, GlyphMixin):
@@ -438,6 +464,9 @@ class Period(db.Model, GlyphMixin):
         if sub_period:
             self.sub_period = sub_period
 
+    def __repr__(self):
+        return self.name
+
 
 class Sub_Period(db.Model, GlyphMixin):
     name = db.Column(db.String(100), nullable=False, unique=True)
@@ -454,6 +483,8 @@ class Sub_Period(db.Model, GlyphMixin):
         self.name = name
         self.period = period
 
+    def __repr__(self):
+        return self.name
 
 class Ruler(db.Model, GlyphMixin):
     name = db.Column(db.String(100), nullable=False, unique=True)

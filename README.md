@@ -17,7 +17,11 @@ Other `fab` commands:
 - `fab shell` open an IPython shell with an imported app context and db instance. Queries can then be run like so:
     - `db.session.query(Cdp).join(Sign).filter(Sign.sign_ref == 'AK').all()`
 
-### A note on character sets
+# Elasticsearch
+The search functionality requires [Elasticsearch](http://www.elasticsearch.org/overview/), running on port 9200. There's currently no way of automatically populating the index, but `%run`ning [`utils/elastic.py`](utils/elastic.py) after `fab shell` should work.
+
+
+# A note on character sets
 As we're using MySQL, please pay particular attention to your DB's character encoding and collation settings.  
 
 For encoding, `utf8mb4` should be used.

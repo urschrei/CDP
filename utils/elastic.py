@@ -8,7 +8,7 @@
 
 from pyelasticsearch import ElasticSearch
 es = ElasticSearch('http://localhost:9200/')
-
+es.delete_index('cdpp')
 res = db.session.query(Sign).all()
 for r in res:
     d = r.__dict__
@@ -34,3 +34,5 @@ for result in tablets:
     repr.append(as_dict)
 # bulk-index the cleaned tablets
 es.bulk_index('cdpp', 'tablet', repr, id_field='id')
+
+# TODO BULK-INDEXING CAN CAUSE DUPLICATE IDS FIX THIS NOW

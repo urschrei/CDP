@@ -87,16 +87,8 @@ def search():
     """ Search form """
     search = SearchForm()
     # TODO validate
-    q = {
-        "query": {
-            "fuzzy_like_this_field" : {
-                "sign.sign_ref" : {
-                    "like_text" : search.search.data,
-                }
-            },
-        }
-    }
     q2 = {
+        "size": 25,
         "query": {
             "fuzzy_like_this": {
                 "fields": [

@@ -111,7 +111,7 @@
             <li class="list-group-item"><strong>Scribe:</strong> {{ tablet.author.name }}</li>
         {% endif %}
     </ul>
-    <h3><a href="{{ url_for('.tablet_images', tablet_id=tablet.id) }}">Show all images</h3>
+    <h3><a href="{{ url_for('.tablet_images', tablet_id=tablet.id) }}">Show all images</h3></a>
     <h3>Random images of {{ tablet.museum_number }}</h3>
     {% for n in range(4) %}
         {% set image = tablet.instances|random %}

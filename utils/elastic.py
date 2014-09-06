@@ -22,7 +22,7 @@ tablets = db.session.query(Tablet).all()
 repr = []
 for result in tablets:
     d = result.__dict__
-    keys = ['medium', 'city', 'period', 'sub_period', 'text_vehicle', 'method', 'genre', 'museum_number']
+    keys = ['medium', 'city', 'locality', 'period', 'sub_period', 'text_vehicle', 'method', 'genre', 'museum_number']
     as_dict = {}
     for key in keys:
         value = getattr(result, key)
@@ -31,6 +31,7 @@ for result in tablets:
     if result.rulers:
         as_dict['ruler'] = result.rulers[0].name
     as_dict['id'] = result.id
+    as_dict['notes'] = result.notes
     repr.append(as_dict)
 # bulk-index the cleaned tablets
 es.bulk_index('cdpp', 'tablet', repr, id_field='id')

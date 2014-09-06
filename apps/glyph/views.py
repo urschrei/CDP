@@ -110,7 +110,9 @@ def search():
                     "tablet.method",
                     "tablet.genre",
                     "tablet.museum_number",
-                    "tablet.ruler"
+                    "tablet.ruler",
+                    "tablet.notes",
+                    "tablet.locality"
               ],
             "like_text": search.search.data,
             "max_query_terms": 10

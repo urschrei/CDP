@@ -5,6 +5,10 @@ from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.orm import backref
 from sqlalchemy import desc
 from sqlalchemy.sql import select
+from sqlalchemy import event
+
+from pyelasticsearch import ElasticSearch
+es = ElasticSearch('http://localhost:9200/')
 
 
 
@@ -1095,3 +1099,38 @@ class Instance_Language(db.Model):
     def __init__(self, instance=None, language=None):
         self.instance = instance
         self.language = language
+
+# ElasticSearch record insert and update logic
+@event.listens_for(Sign, 'after_insert')
+@event.listens_for(Sign, 'after_update')
+def update_es_sign(mapper, connection, target):
+    """ Insert or update Sign records in the ES index """
+    script = {
+        'script': 'ctx._source.sign_ref = sign_ref',
+        'params': {'sign_ref': target.sign_ref}
+    }
+    upsert = {'sign_ref': target.sign_ref}
+    es.update('cdpp', 'sign', target.id, script=script, upsert=upsert)
+
+@event.listens_for(Tablet, 'after_insert')
+@event.listens_for(Tablet, 'after_update')
+def update_es_tablet(mapper, connection, target):
+    """ Insert or update Tablet records in the ES index """
+    d = target.__dict__
+    keys = ['medium', 'city', 'locality', 'period', 'sub_period', 'text_vehicle', 'method', 'genre', 'museum_number']
+    as_dict = {}
+    for key in keys:
+        value = getattr(target, key)
+        if value:
+            as_dict[key] = unicode(value)
+    if target.rulers:
+        as_dict['ruler'] = target.rulers[0].name
+    as_dict['id'] = target.id
+    as_dict['notes'] = target.notes
+    # need to pop id if it's an update
+    script_src = '; '.join(['ctx._source.%s = %s' % (key, key) for key, value in as_dict.keys()])
+    script = {
+        'script': script_src,
+        'params': as_dict}
+    upsert = {}
+    es.update('cdpp', 'tablet', target.id, script=script, upsert=upsert)

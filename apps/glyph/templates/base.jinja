@@ -15,7 +15,9 @@
         {% assets "html5shim" %}
             <script src="{{ ASSET_URL }}"></script>
         {% endassets %}
-        <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+        {% assets "respond" %}
+            <script src="{{ ASSET_URL }}"></script>
+        {% endassets %}
         <![endif]-->
     </head>
     <body>

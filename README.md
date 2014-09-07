@@ -18,8 +18,7 @@ Other `fab` commands:
     - `db.session.query(Cdp).join(Sign).filter(Sign.sign_ref == 'AK').all()`
 
 # Elasticsearch
-The search functionality requires [Elasticsearch](http://www.elasticsearch.org/overview/), running on port 9200. There's currently no way of automatically populating the index, but `%run`ning [`utils/elastic.py`](utils/elastic.py) after `fab shell` should work.
-
+The search functionality requires [Elasticsearch](http://www.elasticsearch.org/overview/), running on port 9200. In order to generate the index before first use, run `fab elastic`. Record changes and insertions should propagate to the index automatically.
 
 # A note on character sets
 As we're using MySQL, please pay particular attention to your DB's character encoding and collation settings.  

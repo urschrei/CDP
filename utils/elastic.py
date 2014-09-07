@@ -5,10 +5,25 @@
 # install ElasticSearch Head
 # plugin -install mobz/elasticsearch-head
 # available at http://localhost:9200/_plugin/head/
+import sys, os
+from pyelasticsearch import ElasticSearch, ElasticHttpNotFoundError
+from flask import *
+sys.path.insert(0, '..')
+from __init__ import app
+from flask.ext.sqlalchemy import SQLAlchemy
+from apps.glyph.models import *
 
-from pyelasticsearch import ElasticSearch
+app.testing = True
+client = app.test_client()
+ctx = app.test_request_context()
+ctx.push()
+
 es = ElasticSearch('http://localhost:9200/')
-es.delete_index('cdpp')
+try:
+    es.delete_index('cdpp')
+except ElasticHttpNotFoundError:
+    # we can safely ignore this, because it might be an initial run
+    pass
 res = db.session.query(Sign).all()
 for r in res:
     d = r.__dict__
@@ -35,5 +50,3 @@ for result in tablets:
     repr.append(as_dict)
 # bulk-index the cleaned tablets
 es.bulk_index('cdpp', 'tablet', repr, id_field='id')
-
-# TODO BULK-INDEXING CAN CAUSE DUPLICATE IDS FIX THIS NOW

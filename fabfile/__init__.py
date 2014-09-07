@@ -97,3 +97,10 @@ def build_db():
         stdout=subprocess.PIPE)
     out, err = proc.communicate(file("db_dumps/glyph_latest.sql").read())
     print(white("Data successfully imported. CDPP DB is ready to use."))
+
+@task 
+def elasticsearch():
+    """ Generate a full Elasticsearch index """
+    print(red("Generating complete Elasticsearch index"))
+    local('export GLYPH_CONFIGURATION=`pwd`/config/dev.py && venv/bin/python ./utils/elastic.py', capture=True)
+    print(white("Elasticsearch index generation complete"))

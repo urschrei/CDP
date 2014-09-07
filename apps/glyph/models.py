@@ -1127,7 +1127,7 @@ def update_es_tablet(mapper, connection, target):
         as_dict['ruler'] = target.rulers[0].name
     as_dict['notes'] = target.notes
     # need to pop id if it's an update
-    script_src = '; '.join(['ctx._source.%s = %s' % (key, key) for key, value in as_dict.keys()])
+    script_src = '; '.join(['ctx._source.%s = %s' % (key, key) for key in as_dict.keys()])
     script = {
         'script': script_src,
         'params': as_dict}

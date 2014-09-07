@@ -90,12 +90,14 @@ def tablet_images(tablet_id):
 
 @glyph.route(
     '/search',
-    methods=['GET', 'POST'])
+    methods=['POST'])
 def search():
     """ Search form """
     search = SearchForm()
     if search.validate_on_submit():
         return redirect(url_for('.search_results', query=search.search.data))
+    else:
+        return redirect(request.referrer)
 
 
 @glyph.route('/search_results/<query>')
@@ -117,7 +119,7 @@ def search_results(query):
                     "tablet.ruler",
                     "tablet.notes",
                     "tablet.locality"
-              ],
+                ],
             "like_text": query,
             "max_query_terms": 10
             }

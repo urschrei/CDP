@@ -1,5 +1,5 @@
 {% extends "base.jinja" %}
-{% set active_page = "tablets" %}
+{% set active_page = "signs" %}
 {% from "_utils.jinja" import render_pagination %}
 {% block title %}CDP: All images for {{ sign.sign_ref }}{% endblock %}
 {% block content %}
@@ -22,7 +22,7 @@
 {% endblock %}
 {% block sidebar %}
     <h3>Sign: <a href="{{ url_for('.cdp', sign_id=sign.id) }}">{{ sign.sign_ref }}</a></h3>
-    <h4>{{ sign.instances|length }} {{ 'images' if sign.instances|length > 1 else 'image'}} are available for this sign, on {{ sign.instances|groupby('tablet.museum_number')|length }} tablets:</h4>
+    <h4>{{ sign.instances|length }} {{ 'images' if sign.instances|length > 1 or sign.instances|length == 0 else 'image'}} are available for this sign, on {{ sign.instances|groupby('tablet.museum_number')|length }} tablets:</h4>
     <ul class="list-group">
         {% for group in sign.instances|groupby('tablet.museum_number') %}
             <li class="list-group-item"><strong><a href="{{ url_for(".tablet", tablet_id=group[1][0].tablet.id) }}">{{ group.grouper }} <span class="badge">{{group[1]|length}} {{'instances' if group[1]|length > 1 else 'instance' }}</span></a></strong></li>

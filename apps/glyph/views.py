@@ -3,7 +3,7 @@ from apps.shared.models import db
 from sqlalchemy import or_
 from flask import Blueprint, request, render_template, redirect, url_for, g
 from models import *
-from forms import RecordForm, SearchForm
+from forms import SearchForm
 from pyelasticsearch import ElasticSearch
 
 glyph = Blueprint(
@@ -15,16 +15,11 @@ glyph = Blueprint(
 # initialise ElasticSearch
 es = ElasticSearch('http://localhost:9200/')
 
-@glyph.route('/', methods=['GET', 'POST'])
+@glyph.route('/', methods=['GET'])
 def index():
     """ Records """
     search = SearchForm()
-    form = RecordForm()
-    if request.method == 'POST' and form.validate_on_submit():
-        record = Test(form.record.data)
-        db.session.add(record)
-        db.session.commit()
-    return render_template('index.jinja', form=form, searchform=search)
+    return render_template('index.jinja', searchform=search)
 
 
 @glyph.route(
@@ -103,7 +98,7 @@ def search():
 @glyph.route('/search_results/<query>')
 def search_results(query):
     q2 = {
-        "size": 25,
+        "size": 100,
         "query": {
             "fuzzy_like_this": {
                 "fields": [

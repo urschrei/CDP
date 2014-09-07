@@ -4,15 +4,10 @@
 {% block title %}Home{% endblock %}
 {% block content %}
     <div class="hero-unit">
-        <h2>Click <a href="{{ url_for('.tablets') }}">here</a> to see the tablets</h2>
-        <h2>Click <a href="{{ url_for('.signs') }}">here</a> to see the signs</h2>
+        <h2>Welcome to the CDP Project</h2>
+        <h3>Click <a href="{{ url_for('.tablets') }}">here</a> to see the tablets</h3>
+        <h3>Click <a href="{{ url_for('.signs') }}">here</a> to see the signs</h3>
     </div>
 {% endblock %}
-{% block sidebar %}
-{% for number in range(3) %}
-    <li class="nav-header">Sidebar</li>
-    <li><a href="#">Link</a></li>
-    <li><a href="#">Link</a></li>
-    <li><a href="#">Link</a></li>
-{% endfor %}
+{% block side_container %}
 {% endblock %}

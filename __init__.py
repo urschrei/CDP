@@ -36,6 +36,7 @@ for bundle_name, bundle in bundles.items():
     assets.register(bundle_name, bundle)
 
 from apps.glyph.views import glyph
+from apps.glyph.forms import SearchForm
 app.register_blueprint(glyph)
 
 
@@ -44,11 +45,11 @@ app.register_blueprint(glyph)
 def page_not_found(error):
     """ 404 handler """
     return render_template(
-        'errors/404.jinja'), 404
+        'errors/404.jinja', searchform=SearchForm()), 404
 
 
 @app.errorhandler(500)
 def application_error(error):
     """ 500 handler """
     return render_template(
-        'errors/500.jinja'), 500
+        'errors/500.jinja', searchform=SearchForm()), 500

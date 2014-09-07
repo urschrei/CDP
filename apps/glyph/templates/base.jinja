@@ -31,8 +31,8 @@
                 </button>
                 {% set navigation_bar = [
                     (url_for('glyph.index'), 'index', 'Home'),
-                    (url_for('.tablets'), 'tablets', 'Tablets'),
-                    (url_for('.signs'), 'signs', 'Signs')
+                    (url_for('glyph.tablets'), 'tablets', 'Tablets'),
+                    (url_for('glyph.signs'), 'signs', 'Signs')
                 ] -%}
                 {% set active_page = active_page|default('index') -%}
                 <a class="navbar-brand" href="{{ url_for('glyph.index') }}">CDPP</a>
@@ -41,7 +41,7 @@
                         {% for href, id, caption in navigation_bar %}
                             <li{% if id == active_page %} class="active"{% endif %}><a href="{{ href|e }}">{{ caption|e }}</a></li>
                         {% endfor %}
-                        <form class="navbar-form navbar-left" role="search" method="POST" action="{{ url_for('.search') }}">
+                        <form class="navbar-form navbar-left" role="search" method="POST" action="{{ url_for('glyph.search') }}">
                             {{ searchform.hidden_tag() }}
                             <div class="form-group">
                                 {{ searchform.search(class_="form-control", placeholder="Sign / Tablet / Medium / Ruler / City etc.", size=40) }}

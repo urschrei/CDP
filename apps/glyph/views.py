@@ -1,7 +1,7 @@
 from itertools import izip_longest
 from apps.shared.models import db
 from sqlalchemy import or_
-from flask import Blueprint, request, render_template
+from flask import Blueprint, request, render_template, redirect, url_for, g
 from models import *
 from forms import RecordForm, SearchForm
 from pyelasticsearch import ElasticSearch
@@ -88,14 +88,18 @@ def tablet_images(tablet_id):
     return render_template('tablet_images.jinja', tablet=tablet, searchform=search)
 
 
-
 @glyph.route(
     '/search',
     methods=['GET', 'POST'])
 def search():
     """ Search form """
     search = SearchForm()
-    # TODO validate
+    if search.validate_on_submit():
+        return redirect(url_for('.search_results', query=search.search.data))
+
+
+@glyph.route('/search_results/<query>')
+def search_results(query):
     q2 = {
         "size": 25,
         "query": {
@@ -114,7 +118,7 @@ def search():
                     "tablet.notes",
                     "tablet.locality"
               ],
-            "like_text": search.search.data,
+            "like_text": query,
             "max_query_terms": 10
             }
         }
@@ -134,7 +138,13 @@ def search():
         tablets = db.session.query(Tablet).filter(
             or_(*[Tablet.id == id for id in tablet_ids])
         ).all()
-    return render_template('search_results.jinja', term=search.search.data, signs=signs, tablets=tablets, searchform=search)
+    search=SearchForm()
+    return render_template(
+        'search_results.jinja',
+        term=query,
+        signs=signs,
+        tablets=tablets,
+        searchform=search)
 
 
 @glyph.route(

@@ -17,6 +17,4 @@ class RecordForm(Form):
 
 
 class SearchForm(Form):
-    search = StringField('Search', validators=[validators.DataRequired])
-
-
+    search = StringField('Search', validators=[validators.DataRequired()])

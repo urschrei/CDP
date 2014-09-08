@@ -118,7 +118,7 @@
                     <img src="{{ url_for('static', filename='img/instance/%s.jpg' % image.filename) }}" alt="Example of {{ image.sign.sign_ref }} in {{ tablet.museum_number }}">
                 </a>
                     <ul class="list-group">
-                        <li class="list-group-item"><strong>Sign:</strong> {{ image.sign.sign_ref }}</li>
+                        <li class="list-group-item"><strong>Sign:</strong> <a title="Show the {{ tablet.museum_number }} instance of '{{ image.sign.sign_ref }}'" href="{{  url_for('.sign_images', sign_id=image.sign.id) }}#{{ tablet.museum_number }}">{{ image.sign.sign_ref }}</a></li>
                         <li class="list-group-item"><strong>Line:</strong> {{ image.line.number }}</li>
                         <li class="list-group-item"><strong>Function:</strong> {{ image.function.name }}</li>
                     </ul>

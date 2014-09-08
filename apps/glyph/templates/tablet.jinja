@@ -3,7 +3,7 @@
 {% block title %}Individual Tablet View for {{ tablet.museum_number }}{% endblock %}
 {% block content %}
 <div class="row-fluid">
-        <h3>{{ '%s sign instances are ' % tablet.instances|length if tablet.instances|length > 1 else '%s sign instance is ' % tablet.instances|length }} available for this tablet ({{ tablet.instances|groupby('sign.sign_ref')|length }} signs):</h3>
+        <h3>{{ '%s sign instances are ' % tablet.instances|length if tablet.instances|length > 1 else '%s sign instance is ' % tablet.instances|length }} available for this tablet ({{ tablet.instances|groupby('sign.sign_ref')|length }} {{ 'signs' if tablet.instances|groupby('sign.sign_ref')|length  > 1 else 'sign'}}):</h3>
         <table class="table table-striped table-bordered table-condensed">
         <thead>
         <tr>

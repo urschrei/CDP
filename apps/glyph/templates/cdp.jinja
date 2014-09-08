@@ -22,7 +22,7 @@
 {% endblock %}
 {% block sidebar %}
 <div class="container-fluid">
-    <h3>Sign: {{ cdp_records[0].sign.sign_ref }} (<a href="{{ url_for('.sign_images', sign_id=cdp_records[0].sign.id) }}">images</a>)</h3>
+    <h3>Sign: {{ cdp_records[0].sign.sign_ref }} {%if cdp_records[0].sign.instances|length > 0 %}(<a href="{{ url_for('.sign_images', sign_id=cdp_records[0].sign.id) }}">images</a>){% endif %}</h3>
     <div class="row-fluid">
         <div class="span9">
         {%if cdp_records[0].sign.instances|length > 0 %}

@@ -3,20 +3,23 @@
 {% from "_utils.jinja" import render_pagination %}
 {% block title %}CDP: All images for {{ sign.sign_ref }}{% endblock %}
 {% block content %}
-    <div class="container-fluid">
-        {% for instance in sign.instances %}
+    <div id='top' class="container-fluid">
+        {% for group in sign.instances|groupby('tablet.museum_number') %}
+            <a href="#{{ group.grouper }}"><div id="{{ group.grouper }}"></div></a>
             <div class="thumbnail">
-                <a href="{{ url_for('static', filename='img/instance/%s.jpg' % instance.filename) }}" class="thumbnail">
-                    <img src="{{ url_for('static', filename='img/instance/%s.jpg' % instance.filename) }}" alt="Example of {{ instance.sign.sign_ref }} in {{ instance.tablet.museum_number }}">
-                </a>
-                <div class="caption">
-                    <ul class="list-group">
-                        <li class="list-group-item"><strong>Tablet:</strong> <a href="{{ url_for('.tablet_images', tablet_id=instance.tablet.id) }}">{{ instance.tablet.museum_number }}</a></li>
-                        <li class="list-group-item"><strong>Line:</strong> {{ instance.line.number }}</li>
-                        <li class="list-group-item"><strong>Function:</strong> {{ instance.function.name }}</li>
-                    </ul>
-                </div>
-            </div>
+                {% for instance in group[1] %}
+                        <a href="{{ url_for('static', filename='img/instance/%s.jpg' % instance.filename) }}" class="thumbnail">
+                            <img src="{{ url_for('static', filename='img/instance/%s.jpg' % instance.filename) }}" alt="Example of {{ instance.sign.sign_ref }} in {{ instance.tablet.museum_number }}">
+                        </a>
+                        <div class="caption">
+                            <ul class="list-group">
+                                <li class="list-group-item"><strong>Tablet:</strong> <a href="{{ url_for('.tablet_images', tablet_id=instance.tablet.id) }}#{{ instance.sign.sign_ref }}">{{ instance.tablet.museum_number }}</a></li>
+                                <li class="list-group-item"><strong>Line:</strong> {{ instance.line.number }}</li>
+                                <li class="list-group-item"><strong>Function:</strong> {{ instance.function.name }}</li>
+                            </ul>
+                        </div>
+                {% endfor %}
+        <a href="#top" title="Top of page"><div>&#8593;</div></a></div>
         {% endfor %}
     </div>
 {% endblock %}
@@ -25,7 +28,7 @@
     <h4>{{ sign.instances|length }} {{ 'images' if sign.instances|length > 1 or sign.instances|length == 0 else 'image'}} are available for this sign, on {{ sign.instances|groupby('tablet.museum_number')|length }} tablets:</h4>
     <ul class="list-group">
         {% for group in sign.instances|groupby('tablet.museum_number') %}
-            <li class="list-group-item"><strong><a href="{{ url_for(".tablet", tablet_id=group[1][0].tablet.id) }}">{{ group.grouper }} <span class="badge">{{group[1]|length}} {{'instances' if group[1]|length > 1 else 'instance' }}</span></a></strong></li>
+            <li class="list-group-item"><strong><a href="{{ url_for(".tablet", tablet_id=group[1][0].tablet.id) }}">{{ group.grouper }} <span class="badge">{{group[1]|length}} {{'instances' if group[1]|length > 1 else 'instance' }}</span></a></strong> <a href="#{{ group.grouper }}" title="Jump to {{ group.grouper }} on this page">&#8680;</a></li>
         {% endfor %}
     </ul>
 {% endblock %}

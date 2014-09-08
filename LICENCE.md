@@ -1,4 +1,4 @@
-The data in this repository currently exist in a licensing twilight. We (Myself, Dr Eleanor Robson (UCL), Dr Jon Taylor (British Museum), and Prof Steve Tinney (UPenn)) think they may be in the public domain, and they are available to anyone in the form of a database dump. However, in the absence of a licence, I am not sure what you may do with them in terms of reuse and/or publishing. Until this is clarified, it would be best to ask if in doubt.
+The data in this repository currently exist in a licensing twilight. We ([Myself](https://www.bartlett.ucl.ac.uk/casa/people/mphil-phd-students/Stephan_Hugel), [Dr Eleanor Robson](http://www.ucl.ac.uk/history/people/academic-staff/eleanor-robson/eleanor-robson) (UCL), [Dr Jon Taylor](http://www.britishmuseum.org/about_us/departments/staff/middle_east/jonathan_taylor.aspx) (British Museum), and [Prof Steve Tinney](http://www.sas.upenn.edu/nelc/people/facultyProfiles.html) (Penn)) think they may be in the public domain, and they are available to anyone in the form of a database dump. However, in the absence of a licence, I am not sure what you may do with them in terms of reuse and/or publishing. Until this is clarified, it would be best to ask if in doubt.
 
 All code is provided under the MIT LICENSE
 
@@ -6,7 +6,7 @@ The MIT License (MIT)
 [OSI Approved License]
 The MIT License (MIT)
 
-Copyright (c) 2014 Stephan Hügel
+Code Copyright (c) 2014 Stephan Hügel
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

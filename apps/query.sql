@@ -1,1 +1,0 @@
-"INSERT INTO description (sign_ref) VALUES ('|\xc5\xa0U&\xc5\xa0U|')"

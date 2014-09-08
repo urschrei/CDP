@@ -13,7 +13,7 @@
                         </a>
                         <div class="caption">
                             <ul class="list-group">
-                                <li class="list-group-item"><strong>Tablet:</strong> <a href="{{ url_for('.tablet_images', tablet_id=instance.tablet.id) }}#{{ instance.sign.sign_ref }}">{{ instance.tablet.museum_number }}</a></li>
+                                <li class="list-group-item"><strong>Tablet:</strong> <a title="Show {{ instance.sign.sign_ref }} instances in {{ instance.tablet.museum_number }}" href="{{ url_for('.tablet_images', tablet_id=instance.tablet.id) }}#{{ instance.sign.sign_ref }}">{{ instance.tablet.museum_number }}</a></li>
                                 <li class="list-group-item"><strong>Line:</strong> {{ instance.line.number }}</li>
                                 <li class="list-group-item"><strong>Function:</strong> {{ instance.function.name }}</li>
                             </ul>

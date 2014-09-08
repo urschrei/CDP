@@ -39,5 +39,5 @@ respond:
   filter: yui_js
   output: gen/js/respond.%(version)s.js
   contents:
-    - https://oss.maxcdn.com/respond/1.4.2/respond.min.js
+    - js/respond.js
 

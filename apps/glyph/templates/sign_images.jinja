@@ -5,21 +5,26 @@
 {% block content %}
     <div id='top' class="container-fluid">
         {% for group in sign.instances|groupby('tablet.museum_number') %}
-            <a href="#{{ group.grouper }}"><div id="{{ group.grouper }}"></div></a>
-            <div class="thumbnail">
+            <div class="row">
                 {% for instance in group[1] %}
-                        <a href="{{ url_for('static', filename='img/instance/%s.jpg' % instance.filename) }}" class="thumbnail">
+                    {% if loop.first %}
+                        <h4 id="{{ instance.tablet.museum_number }}">Tablet: <a title="Show '{{ instance.sign.sign_ref }}' instances in {{ instance.tablet.museum_number }}" href="{{ url_for('.tablet_images', tablet_id=instance.tablet.id) }}#{{ instance.sign.sign_ref }}">{{ instance.tablet.museum_number }}</a> <a href="#top" title="Back to top">&#8593;</a></h4>
+                    {% endif %}
+                    <div class="col-xs-4 col-md-4">
+                        <div class="thumbnail">
+                            <a href="{{ url_for('static', filename='img/instance/%s.jpg' % instance.filename) }}" class="thumbnail">
                             <img src="{{ url_for('static', filename='img/instance/%s.jpg' % instance.filename) }}" alt="Example of {{ instance.sign.sign_ref }} in {{ instance.tablet.museum_number }}">
-                        </a>
-                        <div class="caption">
-                            <ul class="list-group">
-                                <li class="list-group-item"><strong>Tablet:</strong> <a title="Show '{{ instance.sign.sign_ref }}' instances in {{ instance.tablet.museum_number }}" href="{{ url_for('.tablet_images', tablet_id=instance.tablet.id) }}#{{ instance.sign.sign_ref }}">{{ instance.tablet.museum_number }}</a></li>
-                                <li class="list-group-item"><strong>Line:</strong> {{ instance.line.number }}</li>
-                                <li class="list-group-item"><strong>Function:</strong> {{ instance.function.name }}</li>
-                            </ul>
+                            </a>
+                            <div class="caption">
+                                <ul class="list-group">
+                                    <li class="list-group-item"><strong>Line:</strong> {{ instance.line.number }}</li>
+                                    <li class="list-group-item"><strong>Function:</strong> {{ instance.function.name }}</li>
+                                </ul>
+                            </div>
                         </div>
+                    </div>
                 {% endfor %}
-        <a href="#top" title="Top of page"><div>&#8593;</div></a></div>
+            </div>
         {% endfor %}
     </div>
 {% endblock %}

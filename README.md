@@ -20,7 +20,7 @@ Other `fab` commands:
 # Elasticsearch
 The search functionality requires [Elasticsearch](http://www.elasticsearch.org/overview/), running on port 9200.  
 
-In order to generate the index before first use, run `fab elastic`. Record changes and insertions should propagate to the index automatically, so long as the ORM is being used (i.e. in the normal course of things).
+In order to generate the index before first use, run `fab elasticsearch`. Record changes and insertions should propagate to the index automatically, so long as the ORM is being used (i.e. in the normal course of things). The import script may also be run manually from a `fab shell`: `%run utils/elastic.py`
 
 # A note on character sets
 As we're using MySQL, please pay particular attention to your DB's character encoding and collation settings.  

@@ -3,14 +3,14 @@
 {% from "_utils.jinja" import render_pagination %}
 {% block title %}CDP: All images for {{ sign.sign_ref }}{% endblock %}
 {% block content %}
-    <div id='top' class="container-fluid">
+    <div id="top" class="container-fluid">
         {% for group in sign.instances|groupby('tablet.museum_number') %}
-            <div class="row">
+            <div class="col-md-8">
                 {% for instance in group[1] %}
                     {% if loop.first %}
-                        <h4 id="{{ instance.tablet.museum_number }}">Tablet: <a title="Show '{{ instance.sign.sign_ref }}' instances in {{ instance.tablet.museum_number }}" href="{{ url_for('.tablet_images', tablet_id=instance.tablet.id) }}#{{ instance.sign.sign_ref }}">{{ instance.tablet.museum_number }}</a> <a href="#top" title="Back to top">&#10548;</a></h4>
+                        <div class="row-fluid"><h4 id="{{ instance.tablet.museum_number }}">Tablet: <a title="Show '{{ instance.sign.sign_ref }}' instances in {{ instance.tablet.museum_number }}" href="{{ url_for('.tablet_images', tablet_id=instance.tablet.id) }}#{{ instance.sign.sign_ref }}">{{ instance.tablet.museum_number }}</a> <a href="#top" title="Back to top">&#10548;</a></h4></div>
                     {% endif %}
-                    <div class="col-xs-8 col-md-6">
+                    <div class="col-md-6">
                         <div class="thumbnail">
                             <a href="{{ url_for('static', filename='img/instance/%s.jpg' % instance.filename) }}" class="thumbnail">
                             <img src="{{ url_for('static', filename='img/instance/%s.jpg' % instance.filename) }}" alt="Example of {{ instance.sign.sign_ref }} in {{ instance.tablet.museum_number }}">
@@ -26,7 +26,6 @@
                 {% endfor %}
             </div>
         {% endfor %}
-    </div>
 {% endblock %}
 {% block sidebar %}
     <h3>Sign: <a href="{{ url_for('.cdp', sign_id=sign.id) }}">{{ sign.sign_ref }}</a></h3>

@@ -28,3 +28,11 @@ As we're using MySQL, please pay particular attention to your DB's character enc
 
 For encoding, `utf8mb4` should be used.
 For collation, `utf8mb4_bin` should be used. Binary collation is required in order to distinguish between e.g. S and Š.
+
+## Citation
+This project has a DOI: [10.5281/zenodo.11647](http://dx.doi.org/10.5281/zenodo.11647)  
+
+Cite as:  
+Stephan Hügel (2014). Cuneiform Digital Palaeography Project (CDPP) v0.2. ZENODO.  
+10.5281/zenodo.11647  
+[![DOI](https://zenodo.org/badge/doi/10.5281/zenodo.11647.png)](http://dx.doi.org/10.5281/zenodo.11647)

@@ -26,6 +26,7 @@
                 {% endfor %}
             </div>
         {% endfor %}
+    </div>
 {% endblock %}
 {% block sidebar %}
     <h3>Sign: <a href="{{ url_for('.cdp', sign_id=sign.id) }}">{{ sign.sign_ref }}</a></h3>

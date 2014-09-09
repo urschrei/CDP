@@ -23,8 +23,6 @@ The search functionality requires [Elasticsearch](http://www.elasticsearch.org/o
 
 In order to generate the index before first use, run `fab elasticsearch`. Record changes and insertions should propagate to the index automatically, so long as the ORM is being used (i.e. in the normal course of things). The import script may also be run manually from a `fab shell`: `%run utils/elastic.py`
 
-## Images
-Instance images are not hosted within this repo, and will thus be unavailable within the application. The full dump is approximately 503mb in size, and will be made available as soon as I can find a permanent home for it, and the [copyright](LICENCE.md) issue is resolved.
 ## A note on character sets
 As we're using MySQL, please pay particular attention to your DB's character encoding and collation settings.  
 

@@ -3,6 +3,7 @@
 1. Ensure you have Python 2.7.x on your system
 2. Ensure you have a recent MySQL (5.5.x / 5.6.x) installation
 3. Ensure you have a blank database named `glyph`, see [config/common.py](config/common.py) for settings
+    - You should have a db user named `glyph`, with full privileges
 4. Install pip: `(sudo) easy_install pip`
 5. Install virtualenv: `(sudo) pip install virtualenv`
 6. Clone this repository, and `cd` into it

@@ -8,6 +8,6 @@ SQLAlchemy
 alembic
 ipython
 jsmin
-webassets==dev
 yuicompressor
 pyelasticsearch
+pyyaml

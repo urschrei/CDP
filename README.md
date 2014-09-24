@@ -1,23 +1,27 @@
 # Cuneiform Digital Palæography Project (CDPP)
 ## Installation
-1. Ensure you have Python 2.7.x on your system
-2. Ensure you have a recent MySQL (5.5.x / 5.6.x) installation
-3. Ensure you have a blank database named `glyph`, see [config/common.py](config/common.py) for settings
-    - You should have a db user named `glyph`, with full privileges
-4. Install pip: `(sudo) easy_install pip`
-5. Install virtualenv: `(sudo) pip install virtualenv`
-6. Clone this repository, and `cd` into it
-7. Create a new virtualenv: `virtualenv venv`
-8. Activate it: `source venv/bin/activate`
-9. Install required packages: `pip install -r requirements.txt`
-10. Run `fab build_db` in order to create the database tables and import the latest data dump
-11. Once the tables have been created and populated, run the app in debug mode: `fab run_app`
-12. Access the site on [http://0.0.0.0:5000](http://0.0.0.0:5000)
+1. Install [Vagrant](http://www.vagrantup.com) and [Virtualbox](https://www.virtualbox.org)
+2. Clone this repository, and `cd` into it
+3. Run `vagrant up`. This will create a new virtual machine with all necessary packages
+4. When it's completed, run `vagrant ssh` to access the VM
+5. Run `fab build_db` to populate the database
+5. Run `fab run_app` to start the application in debug mode
+6. Access the site on [localhost:5000](http://localhost:5000)
 
 Other `fab` commands:
 
-- `fab shell` open an IPython shell with an imported app context and db instance. Queries can then be run like so:
+- `fab shell`: open an IPython shell with an imported app context and db instance. Queries can then be run like so:
     - `db.session.query(Cdp).join(Sign).filter(Sign.sign_ref == 'AK').all()`
+
+## Database admin
+The database can be accessed via SSH (using e.g. Sequel Pro):
+
+1. The SSH host is 10.11.12.15
+2. The SSH user and password are `vagrant/vagrant`
+3. The MySQL user is `root`, the password is blank
+
+The application user/pass are `glyph/glyph`, and the db is `glyph`
+
 
 ## Elasticsearch
 The search functionality requires [Elasticsearch](http://www.elasticsearch.org/overview/), running on port 9200.  

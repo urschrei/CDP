@@ -14,7 +14,13 @@
         - python-psycopg2
 
   - name: ensure database is created
-    postgresql_db: name={{ item.name }}
+    postgresql_db: >
+      name={{ item.name }}
+      owner={{ item.user }}
+      template=template0
+      encoding=UTF8
+      lc_collate=en_GB.UTF-8
+      lc_ctype=en_GB.UTF-8
     sudo: yes
     sudo_user: postgres
     with_items: postgres

@@ -2,7 +2,7 @@
 domain: glyph
 tld: dev
 
-app_name: app
+app_name: glyph
 webapps_dir: /vagrant
 
 user: vagrant

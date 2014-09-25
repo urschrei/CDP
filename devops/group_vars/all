@@ -10,7 +10,7 @@ memcached:
 
 
 # app_name is the name of your Flask app
-app_name: glyph
+app_name: app
 
 
 # Supervisor apps, included below is an example config for a flask app running on gunicorn.
@@ -18,7 +18,7 @@ app_name: glyph
 supervisor_apps:
   -
     name: glyph
-    command: "{{ app_dir }}/venv/bin/gunicorn --env {{ gunicorn_env }} --error-logfile=/var/log/gunicorn/gunicorn-error.log --access-logfile=/var/log/gunicorn/gunicorn-access.log --log-level=WARNING glyph:app"
+    command: "{{ app_dir }}/venv/bin/gunicorn --env {{ gunicorn_env }} --error-logfile=/var/log/gunicorn/gunicorn-error.log --access-logfile=/var/log/gunicorn/gunicorn-access.log --log-level=WARNING app:app"
     directory: '{{ app_dir }}'
 
 

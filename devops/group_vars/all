@@ -18,7 +18,7 @@ app_name: glyph
 supervisor_apps:
   -
     name: glyph
-    command: "{{ app_dir }}/venv/bin/gunicorn --env {{ gunicorn_env }} --error-logfile=/var/log/gunicorn/gunicorn-error.log --access-logfile=/var/log/gunicorn/gunicorn-access.log --log-level=WARNING myproject:app"
+    command: "{{ app_dir }}/venv/bin/gunicorn --env {{ gunicorn_env }} --error-logfile=/var/log/gunicorn/gunicorn-error.log --access-logfile=/var/log/gunicorn/gunicorn-access.log --log-level=WARNING glyph:app"
     directory: '{{ app_dir }}'
 
 

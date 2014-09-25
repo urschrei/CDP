@@ -3,7 +3,7 @@ hostname: glyph.com
 domain: glyph
 tld: com
 
-app_name: myproject
+app_name: glyph
 webapps_dir: /srv/www
 
 user: deploy

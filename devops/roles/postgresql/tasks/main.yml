@@ -13,6 +13,12 @@
         - libpq-dev
         - python-psycopg2
 
+  - name: ensure app user exists
+    postgresql_user: name={{ item.user }} password={{ item.pass }}
+    sudo: yes
+    sudo_user: postgres
+    with_items: postgres
+
   - name: ensure database is created
     postgresql_db: >
       name={{ item.name }}

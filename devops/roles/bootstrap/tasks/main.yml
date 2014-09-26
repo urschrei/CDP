@@ -25,3 +25,14 @@
     - build-essential
     - git
     - make
+
+- name: update apt
+  command: apt-get update
+
+- name: update bash to mitigate against shellshock
+  command: apt-get --only-upgrade install bash
+
+- name: confirm that the shellshock fix is effective
+  command: env x='() { :;}; echo vulnerable' bash -c "echo this is a test"
+  register: command_result
+  failed_when: "'error' not in command_result.stderr"

@@ -14,6 +14,7 @@
 -- run mysqldump -u root --compatible=postgresql --no-create-info --default-character-set=utf8 glyph > db_dumps/for_postgres.sql
 -- run python utils/db_converter.py db_dumps/for_postgres.sql db_dumps/glyph_latest_postgres.sql
 -- ensure this script sets client_encoding to utf8
+-- import: psql -h localhost -d glyph -U glyph -f db_dumps/glyph_latest_postgres.sql
 
 START TRANSACTION;
 set client_encoding to utf8;

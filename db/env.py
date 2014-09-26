@@ -6,7 +6,7 @@ from logging.config import fileConfig
 import os
 import sys
 sys.path.append(os.getcwd())
-from __init__ import app
+from app import app
 from apps.shared.models import db
 from apps.glyph.models import *
 

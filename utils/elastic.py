@@ -9,7 +9,7 @@ import sys, os
 from pyelasticsearch import ElasticSearch, ElasticHttpNotFoundError
 from flask import *
 sys.path.insert(0, '..')
-from __init__ import app
+from app import app
 from flask.ext.sqlalchemy import SQLAlchemy
 from apps.glyph.models import *
 

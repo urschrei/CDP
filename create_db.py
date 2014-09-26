@@ -4,7 +4,7 @@
 import os
 import sys
 from flask import *
-from __init__ import app
+from app import app
 
 from flask.ext.sqlalchemy import SQLAlchemy
 from apps.glyph.models import *

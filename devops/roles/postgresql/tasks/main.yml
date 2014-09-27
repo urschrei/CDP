@@ -32,7 +32,7 @@
     with_items: postgres
 
   - name: ensure user has access to database
-    postgresql_user: db={{ item.name }} name={{ item.user }} password={{ item.pass }} priv=ALL
+    postgresql_user: db={{ item.name }} name={{ item.user }} password={{ item.pass }} priv=ALL state=present
     sudo: yes
     sudo_user: postgres
     with_items: postgres

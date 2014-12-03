@@ -9,7 +9,7 @@
 6. Activate it by executing `source venv/bin/activate` 
 7. Install the required Python libraries by executing `pip install -r requirements.txt`
 8. Ensure that a MySQL database named `glyph` exists. Username and password should both be `glyph`. See the section on Character Sets, below, for encoding and collation settings
-9. Execute `fab build_db` to create the database structure and populate it
+9. Execute `fab build_db` to create the database structure and populate it. The db can also be populated by first importing `db_dumps/schema.sql`, then importing `db_dumps/glyph_latest.sql`
 10. Open the `run.wsgi` file in an editor, and modify the first line with the **full path** to the `activate_this` script. For example, if you've cloned this repository into the `/var/www` directory, the full path would be `/var/www/CDP/venv/bin/activate_this.py`
 11. See [here](http://flask.pocoo.org/docs/0.10/deploying/mod_wsgi/#configuring-apache) for a sample Apache WSGI virtualhost
 12. Remember to reload Apache when you've created the new vhost.

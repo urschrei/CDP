@@ -22,7 +22,6 @@ from cdpp.models import (
     Locality,
     Medium,
     Method,
-    NonRulerCorrespondent,
     Period,
     Ruler,
     ScriptType,
@@ -58,13 +57,6 @@ def _related(
     return TabletFilter(key, label, condition, options)
 
 
-def _correspondent_named(value: str) -> ColumnElement[bool]:
-    return or_(
-        Correspondent.ruler.has(Ruler.name == value),
-        Correspondent.non_ruler.has(NonRulerCorrespondent.name == value),
-    )
-
-
 def _eponym(value: str) -> ColumnElement[bool]:
     return or_(
         Tablet.eponym.has(Eponym.name == value),
@@ -73,13 +65,13 @@ def _eponym(value: str) -> ColumnElement[bool]:
 
 
 def _sent_from(value: str) -> ColumnElement[bool]:
-    return Tablet.sent_from.has(_correspondent_named(value))
+    return Tablet.sent_from.has(Correspondent.name == value)
 
 
 def _sent_to(value: str) -> ColumnElement[bool]:
     return or_(
-        Tablet.sent_to.has(_correspondent_named(value)),
-        Tablet.recipients.any(_correspondent_named(value)),
+        Tablet.sent_to.has(Correspondent.name == value),
+        Tablet.recipients.any(Correspondent.name == value),
     )
 
 

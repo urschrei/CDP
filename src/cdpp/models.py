@@ -9,12 +9,15 @@ from typing import Any
 from sqlalchemy import (
     CheckConstraint,
     Column,
+    ColumnElement,
     DateTime,
     ForeignKey,
     String,
     Table,
     func,
+    select,
 )
+from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import Mapped, MappedColumn, mapped_column, relationship
 
 from cdpp.db import Base, db
@@ -246,13 +249,29 @@ class Correspondent(Entity):
     ruler: Mapped[Ruler | None] = relationship()
     non_ruler: Mapped[NonRulerCorrespondent | None] = relationship()
 
-    @property
+    @hybrid_property
     def name(self) -> str | None:
         if self.ruler is not None:
             return self.ruler.name
         if self.non_ruler is not None:
             return self.non_ruler.name
         return None
+
+    @name.inplace.expression
+    @classmethod
+    def _name_expression(cls) -> ColumnElement[str | None]:
+        # Each subquery takes the correspondent row from the enclosing query. A
+        # query that selects only the name must use select_from(Correspondent).
+        return func.coalesce(
+            select(Ruler.name)
+            .where(Ruler.id == cls.ruler_id)
+            .correlate_except(Ruler)
+            .scalar_subquery(),
+            select(NonRulerCorrespondent.name)
+            .where(NonRulerCorrespondent.id == cls.non_ruler_id)
+            .correlate_except(NonRulerCorrespondent)
+            .scalar_subquery(),
+        )
 
 
 class Reign(Entity):

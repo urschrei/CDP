@@ -5,7 +5,14 @@ description = "Cuneiform Digital Palaeography Project"
 readme = "README.md"
 authors = [{ name = "Stephan Hügel", email = "urschrei@gmail.com" }]
 requires-python = ">=3.14"
-dependencies = []
+dependencies = [
+    "flask>=3.1.3",
+    "flask-migrate>=4.1.0",
+    "flask-sqlalchemy>=3.1.1",
+    "gunicorn>=26.2.0",
+    "meilisearch>=0.43.0",
+    "sqlalchemy>=2.0.52",
+]
 
 [build-system]
 requires = ["uv_build>=0.12.13,<0.13"]
@@ -19,3 +26,10 @@ select = ["E", "F", "W", "I", "UP", "B", "SIM", "RUF"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.1.1",
+    "ruff>=0.16.7",
+    "ty>=0.0.80",
+]

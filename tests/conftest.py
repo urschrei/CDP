@@ -105,4 +105,11 @@ def sample(app: Flask) -> Sample:
 
     db.session.add_all([tablet, tablet_without_instances, sign_without_records])
     db.session.commit()
-    return Sample(tablet, tablet_without_instances, sign, sign_without_records)
+    sample = Sample(tablet, tablet_without_instances, sign, sign_without_records)
+    # The test client shares this session. Detach the records, so that each
+    # test starts with an empty identity map, as each request does. Refresh
+    # them first, so that their column values stay readable.
+    for record in (tablet, tablet_without_instances, sign, sign_without_records):
+        db.session.refresh(record)
+    db.session.expunge_all()
+    return sample

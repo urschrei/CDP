@@ -333,7 +333,7 @@ class Tablet(Entity):
     sent_from: Mapped[Correspondent | None] = relationship(foreign_keys=[from_id])
     sent_to: Mapped[Correspondent | None] = relationship(foreign_keys=[to_id])
     recipients: Mapped[list[Correspondent]] = relationship(
-        secondary=tablet_correspondent
+        lazy="raise_on_sql", secondary=tablet_correspondent
     )
     language: Mapped[Language | None] = relationship()
     eponym: Mapped[Eponym | None] = relationship()
@@ -348,9 +348,11 @@ class Tablet(Entity):
     reign: Mapped[Reign | None] = relationship()
     author: Mapped[Author | None] = relationship()
     rulers: Mapped[list[Ruler]] = relationship(
-        secondary=ruler_tablet, order_by=Ruler.name
+        lazy="raise_on_sql", secondary=ruler_tablet, order_by=Ruler.name
     )
-    instances: Mapped[list[Instance]] = relationship(back_populates="tablet")
+    instances: Mapped[list[Instance]] = relationship(
+        back_populates="tablet", lazy="raise_on_sql"
+    )
 
 
 # Signs and sign instances
@@ -361,9 +363,14 @@ class Sign(Entity):
 
     sign_ref: Mapped[str] = mapped_column(String(150), unique=True, index=True)
 
-    instances: Mapped[list[Instance]] = relationship(back_populates="sign")
+    instances: Mapped[list[Instance]] = relationship(
+        back_populates="sign", lazy="raise_on_sql"
+    )
     cdp_records: Mapped[list[Cdp]] = relationship(
-        back_populates="sign", cascade="all, delete-orphan", order_by="Cdp.id"
+        lazy="raise_on_sql",
+        back_populates="sign",
+        cascade="all, delete-orphan",
+        order_by="Cdp.id",
     )
 
 
@@ -512,5 +519,5 @@ class Instance(Entity):
     function: Mapped[Function | None] = relationship()
     iteration: Mapped[Iteration | None] = relationship()
     languages: Mapped[list[Language]] = relationship(
-        secondary=instance_language, order_by=Language.name
+        lazy="raise_on_sql", secondary=instance_language, order_by=Language.name
     )

@@ -1,11 +1,20 @@
 import pytest
 from flask import Flask
 from sqlalchemy import Table, select
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import IntegrityError, InvalidRequestError
 
 import cdpp.models  # noqa: F401 (registers the tables on the metadata)
 from cdpp.db import db
-from cdpp.models import Correspondent, NonRulerCorrespondent, Ruler
+from cdpp.models import (
+    Correspondent,
+    Entity,
+    Instance,
+    NonRulerCorrespondent,
+    Ruler,
+    Sign,
+    Tablet,
+)
+from tests.conftest import Sample
 
 
 @pytest.mark.parametrize("table", db.metadata.sorted_tables, ids=lambda t: t.name)
@@ -54,3 +63,25 @@ def test_correspondent_name_is_the_same_in_python_and_in_sql(app: Flask) -> None
     )
 
     assert in_python == list(in_sql) == ["Yasmah-Addu", "Zimri-Lim"]
+
+
+@pytest.mark.parametrize(
+    ("model", "collection"),
+    [
+        (Tablet, "instances"),
+        (Tablet, "rulers"),
+        (Tablet, "recipients"),
+        (Sign, "instances"),
+        (Sign, "cdp_records"),
+        (Instance, "languages"),
+    ],
+    ids=lambda value: value if isinstance(value, str) else value.__name__,
+)
+def test_unloaded_collections_raise_instead_of_querying(
+    sample: Sample, model: type[Entity], collection: str
+) -> None:
+    db.session.expire_all()
+    record = db.session.scalars(select(model).limit(1)).one()
+
+    with pytest.raises(InvalidRequestError, match="raise_on_sql"):
+        getattr(record, collection)

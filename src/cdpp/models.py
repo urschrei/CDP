@@ -6,7 +6,15 @@ Table and column names are the same as in the original MySQL schema.
 from datetime import datetime
 from typing import Any
 
-from sqlalchemy import Column, DateTime, ForeignKey, String, Table, func
+from sqlalchemy import (
+    CheckConstraint,
+    Column,
+    DateTime,
+    ForeignKey,
+    String,
+    Table,
+    func,
+)
 from sqlalchemy.orm import Mapped, MappedColumn, mapped_column, relationship
 
 from cdpp.db import Base, db
@@ -226,6 +234,11 @@ class Correspondent(Entity):
     """A ruler or a non-ruler who sent or received a tablet."""
 
     __tablename__ = "correspondent"
+    __table_args__ = (
+        CheckConstraint(
+            "(ruler_id IS NULL) != (non_ruler_id IS NULL)", name="one_party"
+        ),
+    )
 
     ruler_id: Mapped[int | None] = reference("ruler.id")
     non_ruler_id: Mapped[int | None] = reference("non_ruler_corresp.id")

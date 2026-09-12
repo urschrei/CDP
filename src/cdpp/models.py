@@ -1,15 +1,29 @@
 """ORM models for tablets, signs and sign instances.
 
-Table and column names are the same as in the original MySQL schema, so the
-historical data dump imports without a mapping step.
+Table and column names are the same as in the original MySQL schema.
 """
 
 from datetime import datetime
+from typing import Any
 
 from sqlalchemy import Column, DateTime, ForeignKey, String, Table, func
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, MappedColumn, mapped_column, relationship
 
 from cdpp.db import Base, db
+
+
+def reference(
+    target: str, *, name: str | None = None, **options: Any
+) -> MappedColumn[Any]:
+    """Return an indexed foreign key column that refers to ``target``.
+
+    SQLite does not index foreign key columns. Without an index, a join on the
+    column and a delete from the referenced table read the whole table.
+    """
+    foreign_key = ForeignKey(target, **options)
+    if name is None:
+        return mapped_column(foreign_key, index=True)
+    return mapped_column(name, foreign_key, index=True)
 
 
 class Entity(Base):
@@ -18,11 +32,19 @@ class Entity(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
 
 
+# In each association table, the primary key indexes the first column, and a
+# separate index covers the second column.
+
 ruler_tablet = Table(
     "ruler_tablet",
     db.metadata,
     Column("ruler_id", ForeignKey("ruler.id", ondelete="CASCADE"), primary_key=True),
-    Column("tablet_id", ForeignKey("tablet.id", ondelete="CASCADE"), primary_key=True),
+    Column(
+        "tablet_id",
+        ForeignKey("tablet.id", ondelete="CASCADE"),
+        primary_key=True,
+        index=True,
+    ),
 )
 
 tablet_correspondent = Table(
@@ -33,6 +55,7 @@ tablet_correspondent = Table(
         "correspondent_id",
         ForeignKey("correspondent.id", ondelete="CASCADE"),
         primary_key=True,
+        index=True,
     ),
 )
 
@@ -45,7 +68,10 @@ subperiod_dynasty = Table(
         primary_key=True,
     ),
     Column(
-        "dynasty_id", ForeignKey("dynasty.id", ondelete="CASCADE"), primary_key=True
+        "dynasty_id",
+        ForeignKey("dynasty.id", ondelete="CASCADE"),
+        primary_key=True,
+        index=True,
     ),
 )
 
@@ -56,7 +82,10 @@ instance_language = Table(
         "instance_id", ForeignKey("instance.id", ondelete="CASCADE"), primary_key=True
     ),
     Column(
-        "language_id", ForeignKey("language.id", ondelete="CASCADE"), primary_key=True
+        "language_id",
+        ForeignKey("language.id", ondelete="CASCADE"),
+        primary_key=True,
+        index=True,
     ),
 )
 
@@ -138,14 +167,14 @@ class SubLocality(Entity):
     __tablename__ = "sub_locality"
 
     name: Mapped[str] = mapped_column(String(100), unique=True)
-    locality_id: Mapped[int | None] = mapped_column(ForeignKey("locality.id"))
+    locality_id: Mapped[int | None] = reference("locality.id")
 
 
 class City(Entity):
     __tablename__ = "city"
 
     name: Mapped[str] = mapped_column(String(100), unique=True)
-    locality_id: Mapped[int | None] = mapped_column(ForeignKey("locality.id"))
+    locality_id: Mapped[int | None] = reference("locality.id")
 
     locality: Mapped[Locality | None] = relationship()
 
@@ -154,14 +183,14 @@ class CitySite(Entity):
     __tablename__ = "city_site"
 
     name: Mapped[str] = mapped_column(String(100), unique=True)
-    city_id: Mapped[int] = mapped_column(ForeignKey("city.id"))
+    city_id: Mapped[int] = reference("city.id")
 
 
 class Year(Entity):
     __tablename__ = "year"
 
     year: Mapped[str] = mapped_column(String(14), unique=True)
-    eponym_id: Mapped[int | None] = mapped_column(ForeignKey("eponym.id"))
+    eponym_id: Mapped[int | None] = reference("eponym.id")
 
     eponym: Mapped[Eponym | None] = relationship()
 
@@ -178,7 +207,7 @@ class SubPeriod(Entity):
     __tablename__ = "sub_period"
 
     name: Mapped[str] = mapped_column(String(100), unique=True)
-    period_id: Mapped[int] = mapped_column(ForeignKey("period.id"))
+    period_id: Mapped[int] = reference("period.id")
 
 
 class Ruler(Entity):
@@ -198,8 +227,8 @@ class Correspondent(Entity):
 
     __tablename__ = "correspondent"
 
-    ruler_id: Mapped[int | None] = mapped_column(ForeignKey("ruler.id"))
-    non_ruler_id: Mapped[int | None] = mapped_column(ForeignKey("non_ruler_corresp.id"))
+    ruler_id: Mapped[int | None] = reference("ruler.id")
+    non_ruler_id: Mapped[int | None] = reference("non_ruler_corresp.id")
 
     ruler: Mapped[Ruler | None] = relationship()
     non_ruler: Mapped[NonRulerCorrespondent | None] = relationship()
@@ -216,16 +245,14 @@ class Correspondent(Entity):
 class Reign(Entity):
     __tablename__ = "reign"
 
-    ruler_id: Mapped[int] = mapped_column(ForeignKey("ruler.id"))
+    ruler_id: Mapped[int] = reference("ruler.id")
     rim_ref: Mapped[str] = mapped_column(String(50))
-    city_id: Mapped[int | None] = mapped_column(ForeignKey("city.id"))
-    start_year_id: Mapped[int | None] = mapped_column(
-        "start_date", ForeignKey("year.id")
-    )
-    end_year_id: Mapped[int | None] = mapped_column("end_date", ForeignKey("year.id"))
-    dynasty_id: Mapped[int | None] = mapped_column(ForeignKey("dynasty.id"))
-    period_id: Mapped[int] = mapped_column(ForeignKey("period.id"))
-    sub_period_id: Mapped[int | None] = mapped_column(ForeignKey("sub_period.id"))
+    city_id: Mapped[int | None] = reference("city.id")
+    start_year_id: Mapped[int | None] = reference("year.id", name="start_date")
+    end_year_id: Mapped[int | None] = reference("year.id", name="end_date")
+    dynasty_id: Mapped[int | None] = reference("dynasty.id")
+    period_id: Mapped[int] = reference("period.id")
+    sub_period_id: Mapped[int | None] = reference("sub_period.id")
 
 
 class Tablet(Entity):
@@ -235,34 +262,34 @@ class Tablet(Entity):
         DateTime(timezone=True), server_default=func.now()
     )
     museum_number: Mapped[str] = mapped_column(String(75), unique=True)
-    medium_id: Mapped[int] = mapped_column(ForeignKey("medium.id"))
-    script_type_id: Mapped[int | None] = mapped_column(ForeignKey("script_type.id"))
-    city_id: Mapped[int | None] = mapped_column(ForeignKey("city.id"))
-    city_site_id: Mapped[int | None] = mapped_column(ForeignKey("city_site.id"))
-    origin_city_id: Mapped[int | None] = mapped_column(ForeignKey("city.id"))
+    medium_id: Mapped[int] = reference("medium.id")
+    script_type_id: Mapped[int | None] = reference("script_type.id")
+    city_id: Mapped[int | None] = reference("city.id")
+    city_site_id: Mapped[int | None] = reference("city_site.id")
+    origin_city_id: Mapped[int | None] = reference("city.id")
     publication: Mapped[str | None] = mapped_column(String(200))
-    period_id: Mapped[int] = mapped_column(ForeignKey("period.id"))
-    sub_period_id: Mapped[int | None] = mapped_column(ForeignKey("sub_period.id"))
-    from_id: Mapped[int | None] = mapped_column(ForeignKey("correspondent.id"))
-    to_id: Mapped[int | None] = mapped_column(ForeignKey("correspondent.id"))
-    language_id: Mapped[int | None] = mapped_column(ForeignKey("language.id"))
-    eponym_id: Mapped[int | None] = mapped_column(ForeignKey("eponym.id"))
-    year_id: Mapped[int | None] = mapped_column(ForeignKey("year.id"))
+    period_id: Mapped[int] = reference("period.id")
+    sub_period_id: Mapped[int | None] = reference("sub_period.id")
+    from_id: Mapped[int | None] = reference("correspondent.id")
+    to_id: Mapped[int | None] = reference("correspondent.id")
+    language_id: Mapped[int | None] = reference("language.id")
+    eponym_id: Mapped[int | None] = reference("eponym.id")
+    year_id: Mapped[int | None] = reference("year.id")
     absolute_month: Mapped[str | None] = mapped_column(String(10))
     absolute_day: Mapped[str | None] = mapped_column(String(10))
     ancient_year: Mapped[str | None] = mapped_column(String(10))
     ancient_month: Mapped[str | None] = mapped_column(String(10))
     ancient_day: Mapped[str | None] = mapped_column(String(10))
-    dynasty_id: Mapped[int | None] = mapped_column(ForeignKey("dynasty.id"))
-    text_vehicle_id: Mapped[int | None] = mapped_column(ForeignKey("text_vehicle.id"))
-    locality_id: Mapped[int | None] = mapped_column(ForeignKey("locality.id"))
-    sub_locality_id: Mapped[int | None] = mapped_column(ForeignKey("sub_locality.id"))
+    dynasty_id: Mapped[int | None] = reference("dynasty.id")
+    text_vehicle_id: Mapped[int | None] = reference("text_vehicle.id")
+    locality_id: Mapped[int | None] = reference("locality.id")
+    sub_locality_id: Mapped[int | None] = reference("sub_locality.id")
     notes: Mapped[str | None] = mapped_column(String(500))
-    method_id: Mapped[int | None] = mapped_column(ForeignKey("method.id"))
-    genre_id: Mapped[int | None] = mapped_column(ForeignKey("genre.id"))
-    function_id: Mapped[int | None] = mapped_column(ForeignKey("function.id"))
-    reign_id: Mapped[int | None] = mapped_column(ForeignKey("reign.id"))
-    author_id: Mapped[int | None] = mapped_column(ForeignKey("author.id"))
+    method_id: Mapped[int | None] = reference("method.id")
+    genre_id: Mapped[int | None] = reference("genre.id")
+    function_id: Mapped[int | None] = reference("function.id")
+    reign_id: Mapped[int | None] = reference("reign.id")
+    author_id: Mapped[int | None] = reference("author.id")
 
     medium: Mapped[Medium] = relationship()
     script_type: Mapped[ScriptType | None] = relationship()
@@ -358,17 +385,15 @@ class Cdp(Entity):
 
     __tablename__ = "cdp"
 
-    sign_id: Mapped[int] = mapped_column(
-        ForeignKey("sign.id", onupdate="CASCADE", ondelete="CASCADE")
+    sign_id: Mapped[int] = reference("sign.id", onupdate="CASCADE", ondelete="CASCADE")
+    description_id: Mapped[int | None] = reference(
+        "description.id", onupdate="CASCADE", ondelete="CASCADE"
     )
-    description_id: Mapped[int | None] = mapped_column(
-        ForeignKey("description.id", onupdate="CASCADE", ondelete="CASCADE")
+    oracc_id: Mapped[int | None] = reference(
+        "oracc.id", onupdate="CASCADE", ondelete="CASCADE"
     )
-    oracc_id: Mapped[int | None] = mapped_column(
-        ForeignKey("oracc.id", onupdate="CASCADE", ondelete="CASCADE")
-    )
-    cdli_id: Mapped[int | None] = mapped_column(
-        ForeignKey("cdli.id", onupdate="CASCADE", ondelete="CASCADE")
+    cdli_id: Mapped[int | None] = reference(
+        "cdli.id", onupdate="CASCADE", ondelete="CASCADE"
     )
     form_name: Mapped[str | None] = mapped_column(String(5))
     variant_name: Mapped[str | None] = mapped_column(String(5))
@@ -434,17 +459,15 @@ class Instance(Entity):
 
     __tablename__ = "instance"
 
-    tablet_id: Mapped[int] = mapped_column(
-        ForeignKey("tablet.id", onupdate="CASCADE", ondelete="CASCADE")
+    tablet_id: Mapped[int] = reference(
+        "tablet.id", onupdate="CASCADE", ondelete="CASCADE"
     )
-    sign_id: Mapped[int] = mapped_column(
-        ForeignKey("sign.id", onupdate="CASCADE", ondelete="CASCADE")
-    )
-    surface_id: Mapped[int | None] = mapped_column(ForeignKey("surface.id"))
-    column_id: Mapped[int | None] = mapped_column(ForeignKey("column.id"))
-    line_id: Mapped[int | None] = mapped_column(ForeignKey("line.id"))
-    function_id: Mapped[int | None] = mapped_column(ForeignKey("function.id"))
-    iteration_id: Mapped[int | None] = mapped_column(ForeignKey("iteration.id"))
+    sign_id: Mapped[int] = reference("sign.id", onupdate="CASCADE", ondelete="CASCADE")
+    surface_id: Mapped[int | None] = reference("surface.id")
+    column_id: Mapped[int | None] = reference("column.id")
+    line_id: Mapped[int | None] = reference("line.id")
+    function_id: Mapped[int | None] = reference("function.id")
+    iteration_id: Mapped[int | None] = reference("iteration.id")
     notes: Mapped[str | None] = mapped_column(String(250))
     jjt_notes: Mapped[str | None] = mapped_column(String(250))
     filename: Mapped[str] = mapped_column(String(50), unique=True)

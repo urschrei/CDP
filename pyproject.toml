@@ -20,6 +20,8 @@ build-backend = "uv_build"
 
 [tool.ruff]
 target-version = "py314"
+# nbformat 3 notebooks from the original data import: ruff cannot parse them.
+extend-exclude = ["utils/*.ipynb"]
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "UP", "B", "SIM", "RUF"]

@@ -3,14 +3,12 @@
 Table and column names are the same as in the original MySQL schema.
 """
 
-from datetime import datetime
 from typing import Any
 
 from sqlalchemy import (
     CheckConstraint,
     Column,
     ColumnElement,
-    DateTime,
     ForeignKey,
     String,
     Table,
@@ -290,9 +288,6 @@ class Reign(Entity):
 class Tablet(Entity):
     __tablename__ = "tablet"
 
-    timestamp: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), server_default=func.now()
-    )
     museum_number: Mapped[str] = mapped_column(String(75), unique=True)
     medium_id: Mapped[int] = reference("medium.id")
     script_type_id: Mapped[int | None] = reference("script_type.id")

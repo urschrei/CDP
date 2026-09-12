@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% from "macros.html" import pagination %}
+{% set section = "signs" %}
+{% block title %}Signs{% endblock %}
+{% block content %}
+  <h1 class="font-sign text-4xl sm:text-5xl">Signs</h1>
+  <p class="mt-3 max-w-prose text-muted">
+    {% if with_images %}
+      {{ count_noun(page.total, "sign") }} with photographs.
+      <a href="{{ url_for('cdpp.signs') }}">Show all {{ total|thousands }} signs</a>
+    {% else %}
+      {{ count_noun(page.total, "sign") }}. {{ total_with_images|thousands }} of them have photographs.
+      <a href="{{ url_for('cdpp.signs', with_images=1) }}">Show only signs with photographs</a>
+    {% endif %}
+  </p>
+
+  <ul class="mt-8 grid grid-cols-[repeat(auto-fill,minmax(9rem,1fr))] gap-x-6 gap-y-4">
+    {% for sign in page.items %}
+      <li>
+        <a href="{{ url_for('cdpp.sign', sign_id=sign.id) }}" class="font-sign text-xl wrap-anywhere">{{ sign.sign_ref }}</a>
+        {% if counts.get(sign.id) %}
+          <span class="block text-sm text-muted">{{ count_noun(counts[sign.id], "photograph") }}</span>
+        {% endif %}
+      </li>
+    {% endfor %}
+  </ul>
+
+  {{ pagination(page, "Pages of signs") }}
+{% endblock %}

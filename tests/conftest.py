@@ -1,8 +1,10 @@
 from collections.abc import Iterator
 from dataclasses import dataclass
+from pathlib import Path
 
 import pytest
 from flask import Flask
+from flask.testing import FlaskClient
 
 from cdpp import create_app
 from cdpp.db import db
@@ -27,13 +29,25 @@ from cdpp.models import (
 
 
 @pytest.fixture
-def app() -> Iterator[Flask]:
-    app = create_app({"TESTING": True, "SQLALCHEMY_DATABASE_URI": "sqlite://"})
+def app(tmp_path: Path) -> Iterator[Flask]:
+    (tmp_path / "instance").mkdir()
+    app = create_app(
+        {
+            "TESTING": True,
+            "SQLALCHEMY_DATABASE_URI": "sqlite://",
+            "MEDIA_ROOT": str(tmp_path),
+        }
+    )
     with app.app_context():
         db.create_all()
         yield app
         db.session.remove()
         db.drop_all()
+
+
+@pytest.fixture
+def client(app: Flask) -> FlaskClient:
+    return app.test_client()
 
 
 @dataclass(frozen=True)

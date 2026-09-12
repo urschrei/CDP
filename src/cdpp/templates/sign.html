@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% from "macros.html" import breadcrumbs, specimen %}
+{% set section = "signs" %}
+{% block title %}{{ sign.sign_ref }}{% endblock %}
+{% block content %}
+  {{ breadcrumbs([(url_for("cdpp.signs"), "Signs", "")]) }}
+  <h1 class="mt-3 font-sign text-6xl leading-none wrap-anywhere sm:text-8xl">{{ sign.sign_ref }}</h1>
+  <p class="mt-5 max-w-prose text-lg">
+    {% if instance_count %}
+      {{ count_noun(instance_count, "photograph") }} on {{ count_noun(tablets|length, "tablet") }}.
+      <a href="{{ url_for('cdpp.sign_images', sign_id=sign.id) }}">See all photographs</a>
+    {% else %}
+      There are no photographs of this sign.
+    {% endif %}
+  </p>
+
+  {% if specimens %}
+    <ul class="mt-8 grid grid-cols-3 gap-4 sm:grid-cols-6">
+      {% for instance in specimens %}
+        <li>
+          {% call specimen(instance) %}
+            <a href="{{ url_for('cdpp.tablet', tablet_id=instance.tablet_id) }}">{{ instance.tablet.museum_number }}</a>
+          {% endcall %}
+        </li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+
+  <section aria-labelledby="entries-heading" class="mt-14">
+    <h2 id="entries-heading" class="font-sign text-3xl">Sign-list entries</h2>
+    {% if rows %}
+      <p class="mt-2 max-w-prose text-muted">{{ count_noun(rows|length, "entry", "entries") }}. Sign lists without an entry are not shown.</p>
+      <div class="mt-4 overflow-x-auto border-y border-line" tabindex="0" role="region" aria-labelledby="entries-heading">
+        <table class="min-w-full text-left">
+          <thead>
+            <tr>
+              {% for heading in headings %}
+                <th scope="col" class="px-3 py-2 font-semibold whitespace-nowrap {{ 'sticky left-0 bg-ground' if loop.first }}">{{ heading }}</th>
+              {% endfor %}
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in rows %}
+              <tr class="border-t border-line">
+                {% for value in row %}
+                  <td class="px-3 py-2 whitespace-nowrap {{ 'sticky left-0 bg-ground' if loop.first }} {{ 'font-sign text-lg' if headings[loop.index0] in sign_name_headings }}">{{ value }}</td>
+                {% endfor %}
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <p class="mt-2">The CDP has no sign-list entries for this sign.</p>
+    {% endif %}
+  </section>
+
+  {% if tablets %}
+    <section aria-labelledby="tablets-heading" class="mt-14">
+      <h2 id="tablets-heading" class="font-sign text-3xl">Tablets</h2>
+      <ul class="mt-4 grid grid-cols-[repeat(auto-fill,minmax(15rem,1fr))] gap-x-6 gap-y-2">
+        {% for tablet, count in tablets %}
+          <li>
+            <a href="{{ url_for('cdpp.tablet', tablet_id=tablet.id) }}">{{ tablet.museum_number }}</a>
+            <a href="{{ url_for('cdpp.sign_images', sign_id=sign.id) }}#tablet-{{ tablet.id }}" class="text-sm text-muted">{{ count_noun(count, "photograph") }}</a>
+          </li>
+        {% endfor %}
+      </ul>
+    </section>
+  {% endif %}
+{% endblock %}

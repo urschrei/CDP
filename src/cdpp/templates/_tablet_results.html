@@ -1,0 +1,17 @@
+{% from "macros.html" import pagination, tablet_table %}
+{% if oob %}<span hx-swap-oob="innerHTML:#tablet-status">{{ status }}</span>{% endif %}
+{% if removals %}
+  <ul class="mt-3 flex flex-wrap items-center gap-2" aria-label="Filters in use">
+    {% for label, value, remove_url in removals %}
+      <li class="rounded border border-line px-3 py-1 text-sm">
+        {{ label }}: {{ value }}
+        <a href="{{ remove_url }}" class="ml-2" aria-label="Remove the filter {{ label }}: {{ value }}">Remove</a>
+      </li>
+    {% endfor %}
+    <li><a href="{{ url_for('cdpp.tablets') }}" class="px-2 text-sm">Remove all filters</a></li>
+  </ul>
+{% endif %}
+{% if page.items %}
+  <div class="mt-4">{{ tablet_table(page.items, "Tablets", counts) }}</div>
+  {{ pagination(page, "Pages of tablets") }}
+{% endif %}

@@ -1,0 +1,11 @@
+{% from "macros.html" import specimen %}
+<ul id="specimens" class="mt-6 grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 lg:grid-cols-6">
+  {% for instance in specimens %}
+    <li>
+      {% call specimen(instance) %}
+        <a href="{{ url_for('cdpp.sign', sign_id=instance.sign_id) }}" class="font-sign text-xl wrap-anywhere">{{ instance.sign.sign_ref }}</a>
+        <span class="block text-muted">{{ instance.tablet.museum_number }}</span>
+      {% endcall %}
+    </li>
+  {% endfor %}
+</ul>

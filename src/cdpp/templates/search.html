@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}{{ "Search for " ~ query if query else "Search" }}{% endblock %}
+{% block header_search %}{% endblock %}
+{% block content %}
+  <h1 class="font-sign text-4xl sm:text-5xl">Search</h1>
+
+  <form role="search" action="{{ url_for('cdpp.search') }}" method="get" class="mt-6 max-w-2xl">
+    <label for="search-query" class="block font-semibold">Sign name, museum number, ruler, city or period</label>
+    <div class="mt-2 flex gap-2">
+      <input id="search-query" type="search" name="q" value="{{ query }}" autocomplete="off" spellcheck="false"
+             hx-get="{{ url_for('cdpp.search') }}" hx-trigger="input changed delay:300ms, search"
+             hx-target="#search-results" hx-push-url="true" hx-sync="this:replace" hx-indicator="#search-indicator"
+             class="min-h-12 w-full min-w-0 rounded border border-line bg-ground px-3 text-lg">
+      <button type="submit" class="min-h-12 rounded bg-accent px-5 font-semibold text-ground">Search</button>
+    </div>
+  </form>
+
+  <p class="mt-6 flex flex-wrap gap-x-3 text-muted">
+    <span id="search-status" role="status">{{ status }}</span>
+    <span id="search-indicator" class="htmx-indicator">Searching</span>
+  </p>
+  <div id="search-results" class="mt-6">{% include "_search_results.html" %}</div>
+{% endblock %}

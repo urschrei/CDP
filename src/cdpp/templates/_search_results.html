@@ -1,0 +1,21 @@
+{% from "macros.html" import tablet_table %}
+{% if oob %}<span hx-swap-oob="innerHTML:#search-status">{{ status }}</span>{% endif %}
+{% if unavailable %}
+  <p>While search is not available, browse the <a href="{{ url_for('cdpp.signs') }}">signs</a> or the <a href="{{ url_for('cdpp.tablets') }}">tablets</a>.</p>
+{% endif %}
+{% if signs %}
+  <section aria-labelledby="sign-results-heading">
+    <h2 id="sign-results-heading" class="font-sign text-3xl">Signs</h2>
+    <ul class="mt-4 grid grid-cols-[repeat(auto-fill,minmax(9rem,1fr))] gap-x-6 gap-y-3">
+      {% for sign in signs %}
+        <li><a href="{{ url_for('cdpp.sign', sign_id=sign.id) }}" class="font-sign text-xl wrap-anywhere">{{ sign.sign_ref }}</a></li>
+      {% endfor %}
+    </ul>
+  </section>
+{% endif %}
+{% if tablets %}
+  <section aria-labelledby="tablet-results-heading" class="{{ 'mt-12' if signs }}">
+    <h2 id="tablet-results-heading" class="font-sign text-3xl">Tablets</h2>
+    <div class="mt-4">{{ tablet_table(tablets, "Tablets that match") }}</div>
+  </section>
+{% endif %}

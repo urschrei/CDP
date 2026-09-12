@@ -1,13 +1,14 @@
 """Cuneiform Digital Palaeography Project web application."""
 
 from collections.abc import Mapping
+from datetime import timedelta
 from pathlib import Path
 from typing import Any
 
 from flask import Flask
 
 import cdpp.models  # noqa: F401 (registers the tables on the metadata)
-from cdpp import search
+from cdpp import assets, search, views
 from cdpp.commands import import_dump, reindex
 from cdpp.db import db, migrate
 
@@ -29,6 +30,9 @@ def create_app(config: Mapping[str, Any] | None = None) -> Flask:
         MEILISEARCH_API_KEY=None,
         MEILISEARCH_INDEX_PREFIX="cdpp_",
         MEDIA_ROOT=str(PROJECT_ROOT / "media"),
+        # The static folder contains only built assets. Their URLs change when
+        # their content changes.
+        SEND_FILE_MAX_AGE_DEFAULT=timedelta(days=365),
     )
     app.config.from_prefixed_env("CDPP")
     if config is not None:
@@ -36,7 +40,9 @@ def create_app(config: Mapping[str, Any] | None = None) -> Flask:
 
     db.init_app(app)
     migrate.init_app(app, db)
+    assets.init_app(app)
     search.init_app(app)
+    app.register_blueprint(views.bp)
     app.cli.add_command(import_dump)
     app.cli.add_command(reindex)
     return app

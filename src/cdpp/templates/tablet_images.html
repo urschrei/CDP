@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% from "macros.html" import breadcrumbs, specimen %}
+{% set section = "tablets" %}
+{% block title %}Photographs from {{ tablet.museum_number }}{% endblock %}
+{% block content %}
+  {{ breadcrumbs([
+    (url_for("cdpp.tablets"), "Tablets", ""),
+    (url_for("cdpp.tablet", tablet_id=tablet.id), tablet.museum_number, ""),
+  ]) }}
+  <h1 class="mt-3 text-4xl font-semibold wrap-anywhere sm:text-5xl">{{ tablet.museum_number }}</h1>
+  <p class="mt-4 text-lg">
+    {% if instance_count %}
+      {{ count_noun(instance_count, "photograph") }} of {{ count_noun(groups|length, "sign") }}.
+    {% else %}
+      There are no photographs of signs on this tablet.
+    {% endif %}
+  </p>
+
+  {% if groups|length > 1 %}
+    <nav aria-labelledby="jump-heading" class="mt-6">
+      <h2 id="jump-heading" class="text-sm text-muted">Go to a sign</h2>
+      <ul class="mt-2 flex flex-wrap gap-x-5 gap-y-1">
+        {% for sign, items in groups %}
+          <li><a href="#sign-{{ sign.id }}" class="font-sign text-lg">{{ sign.sign_ref }}</a></li>
+        {% endfor %}
+      </ul>
+    </nav>
+  {% endif %}
+
+  {% for sign, items in groups %}
+    <section id="sign-{{ sign.id }}" aria-labelledby="sign-{{ sign.id }}-heading" class="mt-12 scroll-mt-6">
+      <h2 id="sign-{{ sign.id }}-heading" class="flex flex-wrap items-baseline gap-x-4 border-b border-line pb-2">
+        <a href="{{ url_for('cdpp.sign', sign_id=sign.id) }}" class="font-sign text-3xl wrap-anywhere">{{ sign.sign_ref }}</a>
+        <span class="text-base text-muted">{{ count_noun(items|length, "photograph") }}</span>
+      </h2>
+      <ul class="mt-4 grid grid-cols-2 gap-x-4 gap-y-6 sm:grid-cols-4 lg:grid-cols-6">
+        {% for instance in items %}
+          <li>
+            {% call specimen(instance) %}
+              {{ instance_location(instance) or "Position not recorded" }}
+              {% if instance.function %}<span class="block text-muted">{{ instance.function.name }}</span>{% endif %}
+            {% endcall %}
+          </li>
+        {% endfor %}
+      </ul>
+    </section>
+  {% endfor %}
+{% endblock %}

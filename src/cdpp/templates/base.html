@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}{% endblock %} – Cuneiform Digital Palaeography Project</title>
+    <link rel="stylesheet" href="{{ asset_url('main.css') }}">
+    <script type="module" src="{{ asset_url('main.js') }}"></script>
+  </head>
+  <body class="flex min-h-dvh flex-col bg-ground text-ink" hx-boost="true">
+    <a href="#main" class="sr-only focus:not-sr-only focus:absolute focus:top-3 focus:left-3 focus:z-10 focus:bg-ground focus:px-4 focus:py-2">Skip to content</a>
+
+    <header class="border-b border-line">
+      <div class="mx-auto flex max-w-6xl flex-wrap items-center gap-x-8 gap-y-3 px-4 py-3 sm:px-6">
+        <a href="{{ url_for('cdpp.index') }}" class="font-sign text-xl leading-tight text-ink no-underline hover:underline">Cuneiform Digital Palaeography Project</a>
+
+        <nav aria-label="Main">
+          <ul class="flex gap-6">
+            {% for endpoint, label, name in [("cdpp.signs", "Signs", "signs"), ("cdpp.tablets", "Tablets", "tablets")] %}
+              <li>
+                <a href="{{ url_for(endpoint) }}"
+                   class="inline-flex min-h-11 items-center {{ 'font-semibold text-ink' if section == name }}"
+                   {% if section == name %}aria-current="{{ 'page' if request.endpoint == endpoint else 'true' }}"{% endif %}>{{ label }}</a>
+              </li>
+            {% endfor %}
+          </ul>
+        </nav>
+
+        {% block header_search %}
+          <form role="search" action="{{ url_for('cdpp.search') }}" method="get" class="flex w-full gap-2 sm:ml-auto sm:w-auto">
+            <label for="site-search" class="sr-only">Search signs and tablets</label>
+            <input id="site-search" type="search" name="q" placeholder="Sign, museum number, ruler"
+                   class="min-h-11 w-full min-w-0 rounded border border-line bg-ground px-3 placeholder:text-muted sm:w-72">
+            <button type="submit" class="min-h-11 rounded bg-accent px-4 font-semibold text-ground">Search</button>
+          </form>
+        {% endblock %}
+      </div>
+    </header>
+
+    <main id="main" tabindex="-1" class="mx-auto w-full max-w-6xl flex-1 px-4 py-8 focus:outline-none sm:px-6 sm:py-12">
+      {% block content %}{% endblock %}
+    </main>
+
+    <footer class="border-t border-line">
+      <div class="mx-auto max-w-6xl px-4 py-6 text-sm text-muted sm:px-6">
+        <p>Cite as: Stephan Hügel (2014). <cite>Cuneiform Digital Palaeography Project (CDPP)</cite>. Zenodo. <a href="https://doi.org/10.5281/zenodo.11647">doi:10.5281/zenodo.11647</a></p>
+      </div>
+    </footer>
+  </body>
+</html>

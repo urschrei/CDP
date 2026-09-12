@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% set section = "tablets" %}
+{% block title %}Tablets{% endblock %}
+{% block content %}
+  <h1 class="font-sign text-4xl sm:text-5xl">Tablets</h1>
+
+  <div class="mt-8 grid gap-10 lg:grid-cols-[16rem_minmax(0,1fr)]">
+    <form action="{{ url_for('cdpp.tablets') }}" method="get"
+          hx-get="{{ url_for('cdpp.tablets') }}" hx-trigger="change, submit" hx-target="#tablet-results"
+          hx-push-url="true" hx-indicator="#tablet-indicator"
+          aria-labelledby="filter-heading">
+      <h2 id="filter-heading" class="font-sign text-2xl">Filter</h2>
+      {% for key, value in active.items() if key not in form_keys %}
+        <input type="hidden" name="{{ key }}" value="{{ value }}">
+      {% endfor %}
+      <div class="mt-4 space-y-4">
+        {% for tablet_filter, names in options %}
+          <div>
+            <label for="filter-{{ tablet_filter.key }}" class="block text-sm font-semibold">{{ tablet_filter.label }}</label>
+            <select id="filter-{{ tablet_filter.key }}" name="{{ tablet_filter.key }}"
+                    class="mt-1 min-h-11 w-full rounded border border-line bg-ground px-2">
+              <option value="">Any</option>
+              {% for name in names %}
+                <option {{ "selected" if active.get(tablet_filter.key) == name }}>{{ name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        {% endfor %}
+      </div>
+      <div class="mt-6 flex items-center gap-4">
+        <button type="submit" class="min-h-11 rounded bg-accent px-4 font-semibold text-ground">Apply filters</button>
+        <span id="tablet-indicator" class="htmx-indicator text-sm text-muted">Updating</span>
+      </div>
+    </form>
+
+    <div class="min-w-0">
+      <p id="tablet-status" role="status" class="text-muted">{{ status }}</p>
+      <div id="tablet-results">{% include "_tablet_results.html" %}</div>
+    </div>
+  </div>
+{% endblock %}

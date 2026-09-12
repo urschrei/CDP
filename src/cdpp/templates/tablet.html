@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% from "macros.html" import breadcrumbs, specimen %}
+{% set section = "tablets" %}
+{% block title %}{{ tablet.museum_number }}{% endblock %}
+{% block content %}
+  {{ breadcrumbs([(url_for("cdpp.tablets"), "Tablets", "")]) }}
+  <h1 class="mt-3 text-4xl font-semibold wrap-anywhere sm:text-5xl">{{ tablet.museum_number }}</h1>
+  <p class="mt-4 text-lg">
+    {% if instance_count %}
+      {{ count_noun(instance_count, "photograph") }} of {{ count_noun(sign_count, "sign") }}.
+      <a href="{{ url_for('cdpp.tablet_images', tablet_id=tablet.id) }}">See all photographs</a>
+    {% else %}
+      There are no photographs of signs on this tablet.
+    {% endif %}
+  </p>
+
+  <div class="mt-10 grid gap-12 lg:grid-cols-[minmax(0,22rem)_minmax(0,1fr)]">
+    <div>
+      <section aria-labelledby="details-heading">
+        <h2 id="details-heading" class="font-sign text-2xl">Details</h2>
+        <dl class="mt-4 border-t border-line">
+          {% for detail in details %}
+            <div class="grid grid-cols-[8rem_minmax(0,1fr)] gap-4 border-b border-line py-2">
+              <dt class="text-muted">{{ detail.label }}</dt>
+              <dd>
+                {%- for text, key in detail.values -%}
+                  {%- if key -%}
+                    <a href="{{ url_for('cdpp.tablets', **{key: text}) }}">{{ text }}</a>
+                  {%- else -%}
+                    {{ text }}
+                  {%- endif -%}
+                  {%- if not loop.last %}, {% endif -%}
+                {%- endfor -%}
+              </dd>
+            </div>
+          {% endfor %}
+        </dl>
+      </section>
+
+      {% if specimens %}
+        <section aria-labelledby="specimens-heading" class="mt-10">
+          <h2 id="specimens-heading" class="font-sign text-2xl">A random selection of its signs</h2>
+          <ul class="mt-4 grid grid-cols-2 gap-4">
+            {% for instance in specimens %}
+              <li>
+                {% call specimen(instance) %}
+                  <a href="{{ url_for('cdpp.sign', sign_id=instance.sign_id) }}" class="font-sign text-lg wrap-anywhere">{{ instance.sign.sign_ref }}</a>
+                  <span class="block text-muted">{{ instance_location(instance) }}</span>
+                {% endcall %}
+              </li>
+            {% endfor %}
+          </ul>
+        </section>
+      {% endif %}
+    </div>
+
+    {% if rows %}
+      <section aria-labelledby="instances-heading" class="min-w-0">
+        <h2 id="instances-heading" class="font-sign text-2xl">Signs on this tablet</h2>
+        <div class="mt-4 overflow-x-auto border-y border-line" tabindex="0" role="region" aria-labelledby="instances-heading">
+          <table class="min-w-full text-left text-sm">
+            <thead>
+              <tr>
+                {% for heading in headings %}
+                  <th scope="col" class="px-3 py-2 font-semibold whitespace-nowrap">{{ heading }}</th>
+                {% endfor %}
+              </tr>
+            </thead>
+            <tbody>
+              {% for row in rows %}
+                <tr class="border-t border-line align-baseline">
+                  {% for value in row %}
+                    {% if loop.first %}
+                      <th scope="row" class="px-3 py-2 text-left font-normal">
+                        <a href="{{ url_for('cdpp.sign', sign_id=value.id) }}" class="font-sign text-lg">{{ value.sign_ref }}</a>
+                      </th>
+                    {% else %}
+                      <td class="px-3 py-2">{{ value }}</td>
+                    {% endif %}
+                  {% endfor %}
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    {% endif %}
+  </div>
+{% endblock %}

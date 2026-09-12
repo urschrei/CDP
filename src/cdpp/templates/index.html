@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+{% block content %}
+  <div class="max-w-3xl">
+    <h1 class="font-sign text-4xl leading-tight sm:text-5xl">Cuneiform signs, photographed on their tablets</h1>
+    <p class="mt-5 text-lg leading-relaxed">
+      The project holds {{ stats.instances|thousands }} photographs of individual signs on {{ stats.tablets|thousands }} tablets, and sign-list entries for {{ stats.signs|thousands }} signs.
+      Open a sign to compare how scribes wrote it, or open a tablet to see the signs on it.
+    </p>
+  </div>
+
+  <section aria-labelledby="specimens-heading" class="mt-12">
+    <div class="flex flex-wrap items-center justify-between gap-4 border-b border-line pb-2">
+      <h2 id="specimens-heading" class="font-sign text-2xl">A random selection of signs</h2>
+      <button type="button" hx-get="{{ url_for('cdpp.index') }}" hx-target="#specimens" hx-swap="outerHTML"
+              class="min-h-11 rounded border border-line px-4 text-accent hover:border-accent">Show other signs</button>
+    </div>
+    {% include "_specimens.html" %}
+  </section>
+
+  <p class="mt-12 text-lg">
+    Browse all <a href="{{ url_for('cdpp.signs') }}">{{ stats.signs|thousands }} signs</a>
+    or all <a href="{{ url_for('cdpp.tablets') }}">{{ stats.tablets|thousands }} tablets</a>.
+  </p>
+{% endblock %}

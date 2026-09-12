@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+  <h1 class="font-sign text-4xl sm:text-5xl">{{ title }}</h1>
+  <p class="mt-4 max-w-prose text-lg">{{ message }}</p>
+  <p class="mt-6"><a href="{{ url_for('cdpp.index') }}">Go to the home page</a></p>
+{% endblock %}

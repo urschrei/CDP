@@ -5,6 +5,7 @@ from flask import Flask
 from flask.testing import FlaskClient
 
 from cdpp.search import EXTENSION_KEY, SearchIndex, SearchResults, SearchUnavailable
+from cdpp.views import search_status
 from tests.conftest import Sample
 
 
@@ -211,3 +212,13 @@ def test_instance_images_come_from_the_media_root(
 
     assert client.get("/media/instance/I_9.jpg").data == b"jpeg"
     assert client.get("/media/instance/I_10.jpg").status_code == 404
+
+
+def test_search_status_omits_record_types_without_matches() -> None:
+    results = SearchResults(
+        sign_ids=[], tablet_ids=[7], estimated_signs=0, estimated_tablets=1
+    )
+
+    assert search_status("K_39", results, unavailable=False) == (
+        "1 tablet matches “K_39”."
+    )

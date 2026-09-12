@@ -588,9 +588,10 @@ def search_status(query: str, results: SearchResults | None, unavailable: bool) 
         return "Search is not available because the search service did not respond."
     if results is None or not (results.sign_ids or results.tablet_ids):
         return f"No signs or tablets match “{query}”."
-    signs = count_noun(results.estimated_signs, "sign")
-    tablets = count_noun(results.estimated_tablets, "tablet")
-    status = f"{signs} and {tablets} match “{query}”."
+    counts = [(results.estimated_signs, "sign"), (results.estimated_tablets, "tablet")]
+    parts = [count_noun(count, noun) for count, noun in counts if count]
+    verb = "matches" if sum(count for count, _ in counts) == 1 else "match"
+    status = f"{' and '.join(parts)} {verb} “{query}”."
     if max(results.estimated_signs, results.estimated_tablets) > SEARCH_LIMIT:
         status += f" The first {SEARCH_LIMIT} of each are shown."
     return status

@@ -17,14 +17,16 @@
   </p>
 
   {% if groups|length > 1 %}
-    <nav aria-labelledby="jump-heading" class="mt-6">
-      <h2 id="jump-heading" class="text-sm text-muted">Go to a sign</h2>
-      <ul class="mt-2 flex flex-wrap gap-x-5 gap-y-1">
-        {% for sign, items in groups %}
-          <li><a href="#sign-{{ sign.id }}" class="font-sign text-lg">{{ sign.sign_ref }}</a></li>
-        {% endfor %}
-      </ul>
-    </nav>
+    <details class="mt-6" {{ "open" if groups|length <= 12 }}>
+      <summary class="inline-flex min-h-11 cursor-pointer items-center text-accent">Go to one of the {{ count_noun(groups|length, "sign") }}</summary>
+      <nav aria-label="Signs on this page">
+        <ul class="mt-2 flex flex-wrap gap-x-5 gap-y-1">
+          {% for sign, items in groups %}
+            <li><a href="#sign-{{ sign.id }}" class="font-sign text-lg">{{ sign.sign_ref }}</a></li>
+          {% endfor %}
+        </ul>
+      </nav>
+    </details>
   {% endif %}
 
   {% for sign, items in groups %}

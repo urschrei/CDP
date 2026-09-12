@@ -10,6 +10,7 @@ __pycache__/
 
 # Front-end build
 node_modules/
+frontend/build/
 src/cdpp/static/dist/
 
 # Meilisearch local data

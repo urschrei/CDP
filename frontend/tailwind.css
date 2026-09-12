@@ -1,0 +1,93 @@
+@import "tailwindcss" source(none);
+@source "../src/cdpp/templates";
+
+/*
+  Palette: gypsum ground, basalt ink, lapis accent. Photographs of signs sit
+  on a neutral grey well, so that the colour of the clay is not changed by
+  the colour around it.
+*/
+@theme {
+  --font-sans:
+    "Atkinson Hyperlegible Next Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-sign:
+    "Gentium Book Plus", "Gentium Book", "Gentium Plus", "Noto Serif", Georgia,
+    serif;
+
+  --color-ground: var(--ground);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-well: var(--well);
+  --color-accent: var(--accent);
+}
+
+@layer base {
+  :root {
+    color-scheme: light dark;
+    --ground: #eef0ee;
+    --ink: #1f2427;
+    --muted: #545b61;
+    --line: #c9cdc9;
+    --well: #d9dcd9;
+    --accent: #1f4e9a;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ground: #1b2023;
+      --ink: #e3e6e3;
+      --muted: #a4abb0;
+      --line: #3a4246;
+      --well: #2a3034;
+      --accent: #9dbaf0;
+    }
+  }
+
+  html {
+    background-color: var(--color-ground);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    -webkit-text-size-adjust: 100%;
+  }
+
+  a {
+    color: var(--color-accent);
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.2em;
+  }
+
+  a:hover {
+    text-decoration-thickness: 2px;
+  }
+
+  :focus-visible {
+    outline: 3px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+
+  table {
+    font-variant-numeric: tabular-nums;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    ::before,
+    ::after {
+      animation: none !important;
+      transition: none !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer components {
+  .htmx-indicator {
+    opacity: 0;
+    transition: opacity 150ms ease-in;
+  }
+
+  .htmx-request .htmx-indicator,
+  .htmx-request.htmx-indicator {
+    opacity: 1;
+  }
+}

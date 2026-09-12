@@ -1,0 +1,16 @@
+/*
+  Stylesheet entry. esbuild bundles the fonts and the Tailwind build into
+  src/cdpp/static/dist/main.css. Run "npm run build:css" first.
+
+  The Gentium subsets do not contain the subscript digits (U+2080 to U+2089)
+  of sign names. The browser takes those glyphs from the next font in the
+  --font-sign stack.
+*/
+@import "@fontsource/gentium-book-plus/latin-400.css";
+@import "@fontsource/gentium-book-plus/latin-ext-400.css";
+@import "@fontsource/gentium-book-plus/latin-400-italic.css";
+@import "@fontsource/gentium-book-plus/latin-ext-400-italic.css";
+@import "@fontsource/gentium-book-plus/latin-700.css";
+@import "@fontsource/gentium-book-plus/latin-ext-700.css";
+@import "@fontsource-variable/atkinson-hyperlegible-next/wght.css";
+@import "./build/tailwind.css";

@@ -1,0 +1,27 @@
+{
+  "name": "cdpp-frontend",
+  "version": "0.3.0",
+  "private": true,
+  "type": "module",
+  "description": "Front-end build for the CDPP web application",
+  "scripts": {
+    "build:css": "tailwindcss --input frontend/tailwind.css --output frontend/build/tailwind.css",
+    "build:js": "esbuild frontend/main.js --bundle --minify --sourcemap --target=chrome111,firefox128,safari16.4 --loader:.woff2=file --loader:.woff=file --asset-names=fonts/[name]-[hash] --outdir=src/cdpp/static/dist",
+    "build": "npm run build:css && npm run build:js",
+    "watch:css": "npm run build:css -- --watch=always",
+    "watch:js": "npm run build:js -- --watch=forever",
+    "dev": "npm run build:css && (npm run watch:css & npm run watch:js & wait)",
+    "lint": "eslint --fix ."
+  },
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "@fontsource-variable/atkinson-hyperlegible-next": "5.3.0",
+    "@fontsource/gentium-book-plus": "5.3.0",
+    "@tailwindcss/cli": "4.3.3",
+    "esbuild": "0.28.2",
+    "eslint": "10.10.0",
+    "globals": "17.12.0",
+    "htmx.org": "2.0.10",
+    "tailwindcss": "4.3.3"
+  }
+}

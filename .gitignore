@@ -1,0 +1,19 @@
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+
+# Flask instance folder (SQLite database, local configuration)
+/instance/
+
+# Front-end build
+node_modules/
+src/cdpp/static/dist/
+
+# Meilisearch local data
+data.ms/
+meili_data/
+
+.DS_Store

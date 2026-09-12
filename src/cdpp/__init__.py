@@ -9,7 +9,7 @@ from flask import Flask
 
 import cdpp.models  # noqa: F401 (registers the tables on the metadata)
 from cdpp import assets, search, views
-from cdpp.commands import dump_data, import_dump, load_data, reindex
+from cdpp.commands import dump_data, load_data, reindex
 from cdpp.db import db, migrate
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
@@ -43,6 +43,6 @@ def create_app(config: Mapping[str, Any] | None = None) -> Flask:
     assets.init_app(app)
     search.init_app(app)
     app.register_blueprint(views.bp)
-    for command in (dump_data, load_data, import_dump, reindex):
+    for command in (dump_data, load_data, reindex):
         app.cli.add_command(command)
     return app

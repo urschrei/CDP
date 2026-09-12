@@ -4,7 +4,7 @@ A web application for comparing the forms of cuneiform signs. It holds 11,404 ph
 
 ## Running the site locally
 
-This tutorial installs the application, loads the data, builds the search index and starts a development server.
+This tutorial installs the application, creates the database from the data dump, builds the search index and starts a development server.
 
 ### Prerequisites
 
@@ -27,29 +27,23 @@ This tutorial installs the application, loads the data, builds the search index 
    npm run build
    ```
 
-3. Create the database schema in `instance/cdpp.sqlite3`:
+3. Create the database `instance/cdpp.sqlite3` from the dump in `db_dumps/cdpp.sql`. The command also applies the migrations that are newer than the dump:
 
    ```sh
-   uv run cdpp db upgrade
-   ```
-
-4. Import the records from the MySQL dump. The command prints the number of rows it imports into each table, and then the total:
-
-   ```sh
-   uv run cdpp import-dump
+   uv run cdpp load-data
    ```
 
    ```text
-   Imported 43668 rows from db_dumps/glyph_latest.sql.
+   Loaded db_dumps/cdpp.sql.
    ```
 
-5. In a second terminal, start Meilisearch. It keeps its data in `data.ms` in the current directory:
+4. In a second terminal, start Meilisearch. It keeps its data in `data.ms` in the current directory:
 
    ```sh
    meilisearch --env development --no-analytics
    ```
 
-6. Build the search indexes:
+5. Build the search indexes:
 
    ```sh
    uv run cdpp reindex
@@ -60,26 +54,26 @@ This tutorial installs the application, loads the data, builds the search index 
    Indexed 228 tablets.
    ```
 
-7. Start the development server:
+6. Start the development server:
 
    ```sh
    uv run cdpp run --debug --port 8000
    ```
 
-8. Open <http://127.0.0.1:8000>.
+7. Open <http://127.0.0.1:8000>.
 
 To rebuild the assets when a template or a front-end file changes, run `npm run dev` in a third terminal.
 
 ## How-to guides
 
-### Replacing the data
+### Saving changes to the data
 
-`cdpp import-dump` replaces every record with the contents of a MySQL dump, in one transaction. If a row refers to a record that does not exist, the command stops and changes nothing.
+The dump in `db_dumps/cdpp.sql` is the source of record. When you change records in the database, write the database back to the dump and commit the dump.
 
-1. Import the dump:
+1. Write the database to the dump:
 
    ```sh
-   uv run cdpp import-dump PATH_TO_DUMP
+   uv run cdpp dump-data
    ```
 
 2. Rebuild the search indexes. The indexes do not change when the database changes.
@@ -87,6 +81,16 @@ To rebuild the assets when a template or a front-end file changes, run `npm run 
    ```sh
    uv run cdpp reindex
    ```
+
+### Restoring the database from the dump
+
+> [!WARNING]
+> `--replace` deletes every table in the database. Changes that are not in the dump are lost.
+
+```sh
+uv run cdpp load-data --replace
+uv run cdpp reindex
+```
 
 ### Changing the schema
 
@@ -101,6 +105,12 @@ To rebuild the assets when a template or a front-end file changes, run `npm run 
 
    ```sh
    uv run cdpp db upgrade
+   ```
+
+4. Write the migrated database to the dump:
+
+   ```sh
+   uv run cdpp dump-data
    ```
 
 ### Running the tests and checks
@@ -123,7 +133,7 @@ The test creates indexes with a random prefix and deletes them when it finishes.
 
 ### Deploying with Docker Compose
 
-`compose.yaml` runs the application with gunicorn on port 8000, and Meilisearch with a master key. The database is on the `data` volume. The images in `media/` and the dumps in `db_dumps/` are mounted read-only.
+`compose.yaml` runs the application with gunicorn on port 8000, and Meilisearch with a master key. The database is on the `data` volume. The images in `media/` and the dump in `db_dumps/` are mounted read-only.
 
 1. Set a master key for Meilisearch:
 
@@ -137,11 +147,10 @@ The test creates indexes with a random prefix and deletes them when it finishes.
    docker compose build
    ```
 
-3. Create the schema and import the data:
+3. Create the database from the dump:
 
    ```sh
-   docker compose run --rm app cdpp db upgrade
-   docker compose run --rm app cdpp import-dump
+   docker compose run --rm app cdpp load-data
    ```
 
 4. Start the services:
@@ -165,9 +174,10 @@ Run each command as `uv run cdpp COMMAND`. `cdpp` is the Flask command-line inte
 | Command | Action |
 | --- | --- |
 | `run` | Start the development server. |
+| `load-data [--replace] [PATH]` | Create the database from an SQL dump, then apply newer migrations. `PATH` defaults to `db_dumps/cdpp.sql`. `--replace` deletes the existing tables first. |
+| `dump-data [PATH]` | Write the schema, the records and the migration revision to an SQL dump. `PATH` defaults to `db_dumps/cdpp.sql`. |
 | `db upgrade` | Apply the database migrations. |
 | `db migrate -m MESSAGE` | Generate a migration from changes to the models. |
-| `import-dump [DUMP]` | Replace all records with the contents of a MySQL dump. `DUMP` defaults to `db_dumps/glyph_latest.sql`. |
 | `reindex` | Rebuild the Meilisearch indexes from the database. |
 | `shell` | Start a Python shell with the application context. |
 
@@ -177,7 +187,7 @@ Set these environment variables to change the defaults.
 
 | Variable | Default | Meaning |
 | --- | --- | --- |
-| `CDPP_SQLALCHEMY_DATABASE_URI` | `sqlite:///instance/cdpp.sqlite3`, in the project directory | Database URL. |
+| `CDPP_SQLALCHEMY_DATABASE_URI` | `sqlite:///instance/cdpp.sqlite3`, in the project directory | Database URL. `load-data` and `dump-data` work only with SQLite. |
 | `CDPP_MEILISEARCH_URL` | `http://127.0.0.1:7700` | Meilisearch server address. |
 | `CDPP_MEILISEARCH_API_KEY` | None | Meilisearch key. `cdpp reindex` needs a key that can create and delete indexes. |
 | `CDPP_MEILISEARCH_INDEX_PREFIX` | `cdpp_` | Prefix of the index names. The indexes are `PREFIXsigns` and `PREFIXtablets`. |
@@ -209,18 +219,18 @@ Each filter selects the tablets with a related record of the given name, for exa
 
 | Path | Content |
 | --- | --- |
-| `src/cdpp/` | The application: models, views, filters, search, commands and the dump importer. |
+| `src/cdpp/` | The application: models, views, filters, search and commands. |
 | `src/cdpp/templates/` | Jinja templates. Files with names that start with `_` are fragments that htmx requests. |
 | `frontend/` | Front-end sources. esbuild bundles them, with htmx, the fonts and the Tailwind build. |
 | `migrations/` | Alembic migrations, managed by Flask-Migrate. |
 | `tests/` | pytest tests. |
-| `db_dumps/glyph_latest.sql` | The data, as a MySQL dump. |
+| `db_dumps/cdpp.sql` | The data: an SQLite dump of the schema, the records and the migration revision. |
 | `media/instance/` | Sign photographs. |
 | `utils/`, `csvs/` | Notebooks and spreadsheets from the original preparation of the data. They are not used by the application. |
 
 ## About the architecture
 
-The SQLite database is the source of record. The table and column names are the same as in the original MySQL schema, so the historical dump imports without a mapping step. SQLite compares text byte by byte, as the binary collation of the MySQL database did, so sign names such as `S` and `Š` stay distinct.
+The SQL dump in `db_dumps/cdpp.sql` is the source of record. It is plain text, so version control shows each change to the records and the schema. `cdpp load-data` builds the SQLite database from the dump, and applies the migrations that are newer than the dump. The data come from a MySQL dump of the original site, and the table and column names are still those of the MySQL schema. SQLite compares text byte by byte, as the binary collation of the MySQL database did, so sign names such as `S` and `Š` stay distinct.
 
 Meilisearch holds a copy of the sign names and the tablet details for full-text search. `cdpp reindex` builds each index in a staging index, then swaps it with the live index, so search continues to work during a rebuild. If Meilisearch is not available, the search page tells the user, and the other pages continue to work.
 

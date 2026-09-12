@@ -1,9 +1,10 @@
 from pathlib import Path
 
 import pytest
+from alembic.script import ScriptDirectory
 from flask import Flask
 from flask_migrate import upgrade
-from sqlalchemy import func, inspect, select
+from sqlalchemy import func, inspect, select, text
 
 from cdpp import create_app
 from cdpp.db import db
@@ -69,3 +70,22 @@ def test_load_data_replaces_tables_only_with_the_option(
     with target.app_context():
         count = select(func.count()).select_from(Tablet)
         assert db.session.scalar(count) == 1
+
+
+def test_load_data_migrates_the_project_dump_to_the_latest_revision(
+    tmp_path: Path,
+) -> None:
+    # The project dump has rows that refer to each other, so this test also
+    # checks that migrations can change tables that other tables refer to.
+    dump = Path(__file__).parents[1] / "db_dumps" / "cdpp.sql"
+    target = file_app(tmp_path / "target.sqlite3")
+
+    result = target.test_cli_runner().invoke(args=["load-data", str(dump)])
+
+    assert result.exit_code == 0, result.output
+    with target.app_context():
+        config = target.extensions["migrate"].migrate.get_config()
+        head = ScriptDirectory.from_config(config).get_current_head()
+        revision = db.session.scalar(text("SELECT version_num FROM alembic_version"))
+        assert revision == head
+        assert db.session.scalar(select(func.count()).select_from(Tablet)) == 228

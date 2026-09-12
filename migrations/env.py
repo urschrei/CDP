@@ -88,12 +88,35 @@ def run_migrations_online():
     connectable = get_engine()
 
     with connectable.connect() as connection:
-        context.configure(
-            connection=connection, target_metadata=get_metadata(), **conf_args
-        )
+        sqlite = connection.dialect.name == "sqlite"
+        if sqlite:
+            # SQLite changes a table by copying it to a new table and dropping
+            # the old one. The drop fails while foreign keys are enforced and
+            # other tables refer to the old table.
+            connection.exec_driver_sql("PRAGMA foreign_keys = OFF")
+            connection.commit()
+        try:
+            context.configure(
+                connection=connection, target_metadata=get_metadata(), **conf_args
+            )
 
-        with context.begin_transaction():
-            context.run_migrations()
+            with context.begin_transaction():
+                context.run_migrations()
+
+            if sqlite:
+                violations = connection.exec_driver_sql(
+                    "PRAGMA foreign_key_check"
+                ).fetchall()
+                if violations:
+                    raise RuntimeError(
+                        f"After the migration, {len(violations)} rows break "
+                        "foreign key constraints."
+                    )
+        finally:
+            if sqlite:
+                connection.rollback()
+                connection.exec_driver_sql("PRAGMA foreign_keys = ON")
+                connection.commit()
 
 
 if context.is_offline_mode():

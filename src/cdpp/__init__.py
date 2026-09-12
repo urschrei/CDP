@@ -7,7 +7,8 @@ from typing import Any
 from flask import Flask
 
 import cdpp.models  # noqa: F401 (registers the tables on the metadata)
-from cdpp.commands import import_dump
+from cdpp import search
+from cdpp.commands import import_dump, reindex
 from cdpp.db import db, migrate
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
@@ -35,5 +36,7 @@ def create_app(config: Mapping[str, Any] | None = None) -> Flask:
 
     db.init_app(app)
     migrate.init_app(app, db)
+    search.init_app(app)
     app.cli.add_command(import_dump)
+    app.cli.add_command(reindex)
     return app

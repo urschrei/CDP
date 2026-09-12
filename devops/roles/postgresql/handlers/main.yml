@@ -1,6 +1,0 @@
----
-
-- name: restart postgres
-  action: service postgresql start
-  sudo: True
-  sudo_user: postgres

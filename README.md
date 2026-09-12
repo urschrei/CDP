@@ -224,6 +224,7 @@ Each filter selects the tablets with a related record of the given name, for exa
 | `frontend/` | Front-end sources. esbuild bundles them, with htmx, the fonts and the Tailwind build. |
 | `migrations/` | Alembic migrations, managed by Flask-Migrate. |
 | `tests/` | pytest tests. |
+| `docs/schema-and-data-questions.md` | Open questions about the schema and the data. |
 | `db_dumps/cdpp.sql` | The data: an SQLite dump of the schema, the records and the migration revision. |
 | `media/instance/` | Sign photographs. |
 | `utils/`, `csvs/` | Notebooks and spreadsheets from the original preparation of the data. They are not used by the application. |

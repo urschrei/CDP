@@ -538,6 +538,24 @@ class Instance(Entity):
     language: Mapped[Language | None] = relationship()
 
 
+# Catalogues
+
+
+class CdliArtifact(Entity):
+    """A CDLI catalogue entry whose museum number is the museum number of a tablet."""
+
+    __tablename__ = "cdli_artifact"
+    __table_args__ = (UniqueConstraint("tablet_id", "p_number"),)
+
+    tablet_id: Mapped[int] = reference("tablet.id", ondelete="CASCADE")
+    p_number: Mapped[str] = mapped_column(String(12))
+    designation: Mapped[str] = mapped_column(String(500))
+    museum_no: Mapped[str | None] = mapped_column(String(500))
+    accession_no: Mapped[str | None] = mapped_column(String(500))
+    primary_publication: Mapped[str | None] = mapped_column(String(500))
+    publication_history: Mapped[str | None] = mapped_column(String(2000))
+
+
 # Edits
 
 

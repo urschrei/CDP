@@ -23,6 +23,7 @@ from sqlalchemy.orm import contains_eager, joinedload, selectinload
 from werkzeug.exceptions import HTTPException
 from werkzeug.security import safe_join
 
+from cdpp.catalogues import catalogue_links
 from cdpp.db import db
 from cdpp.filters import FILTERS_BY_KEY, active_filters, filter_options
 from cdpp.images import file_type
@@ -351,6 +352,7 @@ def tablet(tablet_id: int) -> ResponseReturnValue:
         target="tablet-instances",
         tablet=tablet,
         details=tablet_details(tablet),
+        catalogue_links=catalogue_links(tablet.id),
         instance_count=len(instances),
         sign_count=len({instance.sign_id for instance in instances}),
         specimens=random.sample(instances, k=min(4, len(instances))),

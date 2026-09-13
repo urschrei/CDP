@@ -327,3 +327,16 @@ def test_instance_languages_move_to_a_column_and_back(project_app: Flask) -> Non
 
         upgrade()
         assert db.session.execute(by_language).all() == expected
+
+
+def test_cdli_artifact_table_comes_and_goes_with_its_migration(
+    project_app: Flask,
+) -> None:
+    with project_app.app_context():
+        assert inspect(db.engine).has_table("cdli_artifact")
+
+        downgrade(revision="b3f7c1d9e245")
+        assert not inspect(db.engine).has_table("cdli_artifact")
+
+        upgrade()
+        assert inspect(db.engine).has_table("cdli_artifact")

@@ -1,0 +1,11 @@
+{% for label, links in catalogue_links %}
+  <div class="grid grid-cols-[8rem_minmax(0,1fr)] gap-4 border-b border-line py-2">
+    <dt class="text-muted">{{ label }}</dt>
+    <dd>
+      {%- for text, url in links -%}
+        <a href="{{ url }}">{{ text }}</a>
+        {%- if not loop.last %}, {% endif -%}
+      {%- endfor -%}
+    </dd>
+  </div>
+{% endfor %}

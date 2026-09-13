@@ -17,6 +17,7 @@ from cdpp.models import (
     Correspondent,
     Entity,
     Eponym,
+    EponymYear,
     Locality,
     Medium,
     NonRulerCorrespondent,
@@ -27,7 +28,6 @@ from cdpp.models import (
     SignName,
     SubPeriod,
     Tablet,
-    Year,
 )
 from tests.conftest import Sample
 
@@ -150,8 +150,8 @@ def consistent(app: Flask) -> dict[str, int]:
     Each "other_" record is a value that contradicts the others.
     """
     records: dict[str, Entity] = {
-        "period": Period(name="Neo-Assyrian", from_date="911 BC", to_date="612 BC"),
-        "other_period": Period(name="Old Babylonian", from_date="", to_date=""),
+        "period": Period(name="Neo-Assyrian", start_year=-910, end_year=-611),
+        "other_period": Period(name="Old Babylonian"),
         "locality": Locality(area="Assyria"),
         "other_locality": Locality(area="Syria"),
         "eponym": Eponym(name="Sha-Nabu-shu"),
@@ -168,9 +168,10 @@ def consistent(app: Flask) -> dict[str, int]:
             name="Late Old Babylonian", period_id=ids["other_period"]
         ),
         "city": City(name="Nineveh", locality_id=ids["locality"]),
-        "year": Year(year="658 BC", eponym_id=ids["eponym"]),
     }
     db.session.add_all(related.values())
+    # 658 BC.
+    db.session.add(EponymYear(year=-657, eponym_id=ids["eponym"]))
     db.session.flush()
     ids |= {name: record.id for name, record in related.items()}
     tablet = Tablet(
@@ -179,7 +180,7 @@ def consistent(app: Flask) -> dict[str, int]:
         period_id=ids["period"],
         sub_period_id=ids["sub_period"],
         city_id=ids["city"],
-        year_id=ids["year"],
+        year=-657,
         eponym_id=ids["eponym"],
     )
     reign = Reign(
@@ -233,7 +234,10 @@ def consistent(app: Flask) -> dict[str, int]:
                 .values(period_id=ids["other_period"])
             ),
         ),
-        ("year_eponym", lambda ids: update(Year).values(eponym_id=ids["other_eponym"])),
+        (
+            "year_eponym",
+            lambda ids: update(EponymYear).values(eponym_id=ids["other_eponym"]),
+        ),
     ],
 )
 def test_values_stored_twice_cannot_contradict_each_other(
@@ -241,6 +245,18 @@ def test_values_stored_twice_cannot_contradict_each_other(
 ) -> None:
     with pytest.raises(IntegrityError, match=rule):
         db.session.execute(statement(consistent))
+
+
+def test_a_new_eponym_year_cannot_contradict_its_tablets(
+    consistent: dict[str, int],
+) -> None:
+    # 601 BC has no eponym, so the tablet can have any eponym.
+    db.session.execute(update(Tablet).values(year=-600))
+
+    with pytest.raises(IntegrityError, match="year_eponym"):
+        db.session.execute(
+            insert(EponymYear).values(year=-600, eponym_id=consistent["other_eponym"])
+        )
 
 
 def test_changes_that_keep_the_values_consistent_are_allowed(
@@ -254,7 +270,9 @@ def test_changes_that_keep_the_values_consistent_are_allowed(
         update(Tablet).values(city_id=None, locality_id=ids["other_locality"]),
         update(City).values(locality_id=ids["other_locality"]),
         update(Tablet).values(eponym_id=None),
-        update(Year).values(eponym_id=ids["other_eponym"]),
+        update(EponymYear).values(eponym_id=ids["other_eponym"]),
+        # A year without an eponym allows any eponym.
+        update(Tablet).values(year=-600, eponym_id=ids["eponym"]),
         # A change to other columns does not check the rules.
         update(Tablet).values(notes="Checked"),
     ]

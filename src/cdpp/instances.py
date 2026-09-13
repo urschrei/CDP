@@ -58,17 +58,12 @@ TABLET_LABELS = frozenset(
 # The obverse comes before the reverse. Other surfaces come after both.
 SURFACE_ORDER = {"obv": 0, "rev": 1}
 ROMAN_VALUES = {"i": 1, "v": 5, "x": 10, "l": 50}
-YEAR_RE = re.compile(r"(\d+)\s*(BC|AD)", re.IGNORECASE)
 LEADING_NUMBER_RE = re.compile(r"\d+")
 
 
 def period_start(period: Period) -> int:
-    """Return the first year of ``period``, negative for BC, or 0 if it is not known."""
-    match = YEAR_RE.search(period.from_date or "")
-    if match is None:
-        return 0
-    year = int(match[1])
-    return -year if match[2].upper() == "BC" else year
+    """Return the first year of ``period``, or 0 if it is not known."""
+    return period.start_year if period.start_year is not None else 0
 
 
 def roman_number(text: str) -> int:

@@ -43,7 +43,7 @@ def dump_file(tmp_path: Path) -> Path:
     source = file_app(tmp_path / "source.sqlite3")
     with source.app_context():
         upgrade()
-        period = Period(name="Old Babylonian", from_date="1900", to_date="1600")
+        period = Period(name="Old Babylonian")
         db.session.add(
             Tablet(museum_number="A.1", medium=Medium(name="clay"), period=period)
         )
@@ -195,29 +195,36 @@ def test_reigns_of_the_kings_of_alalakh_can_be_removed_and_added_again(
     project_app: Flask,
 ) -> None:
     reigns = text(
-        "SELECT r.rim_ref, ru.name, c.name, p.name, first.year, last.year "
+        "SELECT r.rim_ref, ru.name, c.name, p.name "
         "FROM reign r JOIN ruler ru ON ru.id = r.ruler_id "
         "JOIN dynasty d ON d.id = r.dynasty_id JOIN period p ON p.id = r.period_id "
         "LEFT JOIN city c ON c.id = r.city_id "
-        "LEFT JOIN year first ON first.id = r.start_date "
-        "LEFT JOIN year last ON last.id = r.end_date "
+        "WHERE d.name = 'B.20' ORDER BY r.rim_ref"
+    )
+    # A later migration stores years as numbers: -1469 is 1470 BC.
+    years = text(
+        "SELECT r.start_year, r.end_year FROM reign r "
+        "JOIN dynasty d ON d.id = r.dynasty_id "
         "WHERE d.name = 'B.20' ORDER BY r.rim_ref"
     )
     expected = [
-        ("B.20.1", "Idrimi", "Alalakh", "Middle Babylonian", "1470 BC", None),
-        ("B.20.2", "Addu-nirari", "Alalakh", "Middle Babylonian", None, None),
-        ("B.20.3", "Niqmepuh", "Alalakh", "Middle Babylonian", "1450 BC", "1425 BC"),
-        ("B.20.4", "Ilim-ilimma II", "Alalakh", "Middle Babylonian", "1420 BC", None),
+        ("B.20.1", "Idrimi", "Alalakh", "Middle Babylonian"),
+        ("B.20.2", "Addu-nirari", "Alalakh", "Middle Babylonian"),
+        ("B.20.3", "Niqmepuh", "Alalakh", "Middle Babylonian"),
+        ("B.20.4", "Ilim-ilimma II", "Alalakh", "Middle Babylonian"),
     ]
+    expected_years = [(-1469, None), (None, None), (-1449, -1424), (-1419, None)]
 
     with project_app.app_context():
         assert db.session.execute(reigns).all() == expected
+        assert db.session.execute(years).all() == expected_years
 
         downgrade(revision="e7a2c94b1f05")
         assert db.session.execute(reigns).all() == []
 
         upgrade()
         assert db.session.execute(reigns).all() == expected
+        assert db.session.execute(years).all() == expected_years
 
 
 def test_alalah_merge_and_ruler_name_trim_can_be_undone_and_done_again(
@@ -371,6 +378,45 @@ def test_migrations_create_the_triggers_of_the_models(
 
         upgrade()
         assert db.session.execute(triggers).all() == modelled
+
+
+def test_years_become_numbers_and_back(project_app: Flask) -> None:
+    tablet_years = text(
+        "SELECT museum_number, year FROM tablet WHERE year IS NOT NULL"
+        " ORDER BY museum_number"
+    )
+    old_babylonian = "FROM period WHERE name = 'Old Babylonian'"
+
+    with project_app.app_context():
+        numbers = db.session.execute(tablet_years).all()
+        assert len(numbers) == 21
+        assert ("BM_80270", -1708) in numbers
+        assert db.session.execute(
+            text(f"SELECT start_year, end_year {old_babylonian}")
+        ).one() == (-1799, -1499)
+        assert db.session.scalar(text("SELECT count(*) FROM eponym_year")) == 266
+        reign_years = text("SELECT count(start_year), count(end_year) FROM reign")
+        assert tuple(db.session.execute(reign_years).one()) == (186, 161)
+
+        downgrade(revision="e3b9d1f7a520")
+        assert db.session.scalar(text("SELECT count(*) FROM year")) == 2600
+        assert db.session.scalar(text("SELECT year FROM year WHERE id = 1")) == "1 BC"
+        assert db.session.execute(
+            text(f"SELECT from_date, to_date {old_babylonian}")
+        ).one() == ("1800 BC", "1500 BC")
+        assert (
+            db.session.scalar(
+                text(
+                    "SELECT y.year FROM tablet t JOIN year y ON y.id = t.year_id"
+                    " WHERE t.museum_number = 'BM_80270'"
+                )
+            )
+            == "1709 BC"
+        )
+
+        upgrade()
+        assert db.session.execute(tablet_years).all() == numbers
+        assert tuple(db.session.execute(reign_years).one()) == (186, 161)
 
 
 def test_tablet_localities_move_to_their_cities_and_back(project_app: Flask) -> None:

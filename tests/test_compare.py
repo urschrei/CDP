@@ -105,7 +105,7 @@ def test_sign_page_compares_one_instance_from_each_period(
         Tablet(
             museum_number="B.2",
             medium=Medium(name="bone"),
-            period=Period(name="Old Assyrian", from_date="2000 BC", to_date="1750 BC"),
+            period=Period(name="Old Assyrian", start_year=-1999, end_year=-1749),
             instances=[Instance(sign_id=sample.sign.id, filename="I_3")],
         )
     )

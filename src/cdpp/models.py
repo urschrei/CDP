@@ -188,21 +188,26 @@ class CitySite(Entity):
     city_id: Mapped[int] = reference("city.id")
 
 
-class Year(Entity):
-    __tablename__ = "year"
+class EponymYear(Base):
+    """The eponym of a year. One eponym name can name more than one year.
 
-    year: Mapped[str] = mapped_column(String(14), unique=True)
-    eponym_id: Mapped[int | None] = reference("eponym.id")
+    Years are numbers in astronomical numbering. See cdpp.dates.
+    """
 
-    eponym: Mapped[Eponym | None] = relationship()
+    __tablename__ = "eponym_year"
+
+    year: Mapped[int] = mapped_column(primary_key=True, autoincrement=False)
+    eponym_id: Mapped[int] = reference("eponym.id")
+
+    eponym: Mapped[Eponym] = relationship()
 
 
 class Period(Entity):
     __tablename__ = "period"
 
     name: Mapped[str] = mapped_column(String(150), unique=True)
-    from_date: Mapped[str] = mapped_column(String(50))
-    to_date: Mapped[str] = mapped_column(String(50))
+    start_year: Mapped[int | None]
+    end_year: Mapped[int | None]
 
 
 class SubPeriod(Entity):
@@ -271,8 +276,8 @@ class Reign(Entity):
     ruler_id: Mapped[int] = reference("ruler.id")
     rim_ref: Mapped[str] = mapped_column(String(50))
     city_id: Mapped[int | None] = reference("city.id")
-    start_year_id: Mapped[int | None] = reference("year.id", name="start_date")
-    end_year_id: Mapped[int | None] = reference("year.id", name="end_date")
+    start_year: Mapped[int | None]
+    end_year: Mapped[int | None]
     dynasty_id: Mapped[int | None] = reference("dynasty.id")
     period_id: Mapped[int] = reference("period.id")
     sub_period_id: Mapped[int | None] = reference("sub_period.id")
@@ -298,7 +303,7 @@ class Tablet(Entity):
     sub_period_id: Mapped[int | None] = reference("sub_period.id")
     from_id: Mapped[int | None] = reference("correspondent.id")
     eponym_id: Mapped[int | None] = reference("eponym.id")
-    year_id: Mapped[int | None] = reference("year.id")
+    year: Mapped[int | None]
     absolute_month: Mapped[str | None] = mapped_column(String(10))
     absolute_day: Mapped[str | None] = mapped_column(String(10))
     ancient_year: Mapped[str | None] = mapped_column(String(10))
@@ -327,7 +332,6 @@ class Tablet(Entity):
         secondary=tablet_correspondent,
     )
     eponym: Mapped[Eponym | None] = relationship()
-    year: Mapped[Year | None] = relationship()
     text_vehicle: Mapped[TextVehicle | None] = relationship()
     # The locality of a tablet without a city. See the property locality.
     own_locality: Mapped[Locality | None] = relationship()
@@ -651,11 +655,10 @@ CONSISTENCY_RULES = (
     (
         "tablet_year_eponym",
         "tablet",
-        ("year_id", "eponym_id"),
+        ("year", "eponym_id"),
         ("INSERT", "UPDATE"),
-        "NEW.eponym_id IS NOT NULL"
-        " AND (SELECT eponym_id FROM year WHERE id = NEW.year_id) IS NOT NULL"
-        " AND NEW.eponym_id IS NOT (SELECT eponym_id FROM year WHERE id = NEW.year_id)",
+        "NEW.eponym_id IS NOT NULL AND EXISTS (SELECT 1 FROM eponym_year"
+        " WHERE year = NEW.year AND eponym_id IS NOT NEW.eponym_id)",
         "A tablet must have the eponym of its year.",
     ),
     (
@@ -671,12 +674,11 @@ CONSISTENCY_RULES = (
     ),
     (
         "year_eponym",
-        "year",
-        ("eponym_id",),
-        ("UPDATE",),
-        "NEW.eponym_id IS NOT NULL AND EXISTS (SELECT 1 FROM tablet"
-        " WHERE year_id = NEW.id AND eponym_id IS NOT NULL"
-        " AND eponym_id IS NOT NEW.eponym_id)",
+        "eponym_year",
+        ("year", "eponym_id"),
+        ("INSERT", "UPDATE"),
+        "EXISTS (SELECT 1 FROM tablet WHERE year = NEW.year"
+        " AND eponym_id IS NOT NULL AND eponym_id IS NOT NEW.eponym_id)",
         "A year must have the eponym of its tablets.",
     ),
 )

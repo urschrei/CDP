@@ -11,13 +11,15 @@ from collections.abc import Callable, Mapping
 from dataclasses import dataclass
 from typing import Any
 
-from sqlalchemy import ColumnElement, Select, or_, select
+from sqlalchemy import ColumnElement, Select, false, or_, select
 
+from cdpp.dates import year_number, year_text
 from cdpp.db import db
 from cdpp.models import (
     City,
     Correspondent,
     Eponym,
+    EponymYear,
     Function,
     Genre,
     Instance,
@@ -31,7 +33,6 @@ from cdpp.models import (
     SubPeriod,
     Tablet,
     TextVehicle,
-    Year,
 )
 from cdpp.publications import parse_publication
 
@@ -62,11 +63,30 @@ def _related(
     return TabletFilter(key, label, condition, options)
 
 
-def _eponym(value: str) -> ColumnElement[bool]:
-    return or_(
-        Tablet.eponym.has(Eponym.name == value),
-        Tablet.year.has(Year.eponym.has(Eponym.name == value)),
+def _year(value: str) -> ColumnElement[bool]:
+    try:
+        return Tablet.year == year_number(value)
+    except ValueError:
+        return false()
+
+
+def _year_names() -> list[str]:
+    years = db.session.scalars(
+        select(Tablet.year)
+        .where(Tablet.year.is_not(None))
+        .distinct()
+        .order_by(Tablet.year)
     )
+    return [year_text(year) for year in years if year is not None]
+
+
+def _eponym(value: str) -> ColumnElement[bool]:
+    years = (
+        select(EponymYear.year)
+        .join(Eponym, Eponym.id == EponymYear.eponym_id)
+        .where(Eponym.name == value)
+    )
+    return or_(Tablet.eponym.has(Eponym.name == value), Tablet.year.in_(years))
 
 
 def _sent_from(value: str) -> ColumnElement[bool]:
@@ -139,7 +159,7 @@ FILTERS = (
     _related("period", "Period", Tablet.period, Period.name),
     _related("sub_period", "Sub-period", Tablet.sub_period, SubPeriod.name),
     _related("ruler", "Ruler", Tablet.rulers, Ruler.name, collection=True),
-    _related("year", "Year", Tablet.year, Year.year),
+    TabletFilter("year", "Year", _year, _year_names),
     TabletFilter("eponym", "Eponym", _eponym),
     _related("city", "City", Tablet.city, City.name),
     TabletFilter("locality", "Locality", _locality, _locality_names),

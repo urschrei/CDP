@@ -43,6 +43,7 @@ The rank orders the open questions by importance. Questions whose answers change
 - An instance has one language at most, in the column `instance.language_id`. See [question 8](#8-two-records-of-one-fact).
 - The empty columns `tablet.to_id`, `tablet.language_id` and `tablet.dynasty_id` are removed. The language of a tablet is the language of its sign instances. See [question 8](#8-two-records-of-one-fact).
 - An instance stores its column, line and iteration numbers as text, and the tables `column`, `line` and `iteration` are removed. See [question 10](#10-lookup-tables-for-plain-values).
+- Years are integers in astronomical numbering, and the table `eponym_year` replaces the table `year`. See [question 11](#11-dates-stored-as-text).
 - [Questions for the editors](questions-for-the-editors.md) lists the questions that need the tablets, the photographs or the sign lists.
 
 - Search uses SQLite FTS5 tables, not Meilisearch.
@@ -255,7 +256,11 @@ The other questions are open.
 
 ### Decision
 
-13 September 2026: `ED` and `Early Dynastic` are one period. See [question 7](#7-values-that-contradict-each-other). The other questions are open.
+13 September 2026: `ED` and `Early Dynastic` are one period. See [question 7](#7-values-that-contradict-each-other).
+
+13 September 2026: years are integers in astronomical numbering: 1 BC is 0, and 1244 BC is -1243. Migration f6c2a8e4d913 stores the year of a tablet in `tablet.year`, the first and last years of a reign in `reign.start_year` and `reign.end_year`, and the dates of a period in `period.start_year` and `period.end_year`. The table `year` had a row for each year from 2400 BC to 200 AD. The table `eponym_year` replaces it, and keeps the 266 years that have an eponym. 31 eponym names name more than one year, so a name alone does not give a year. Pages show years as before, for example 1709 BC, and the year filter lists the years in date order. The dates `5000 BC` stay as `-4999` until the editors answer [question 23](questions-for-the-editors.md#23-are-these-period-dates-placeholders). The ancient date columns stay text. The downgrade makes the table `year` again.
+
+The other questions are open.
 
 ## 12. Sign lists and sign names
 

@@ -24,6 +24,7 @@ from werkzeug.exceptions import HTTPException
 from werkzeug.security import safe_join
 
 from cdpp.catalogues import catalogue_links
+from cdpp.dates import year_text
 from cdpp.db import db
 from cdpp.filters import FILTERS_BY_KEY, active_filters, filter_options
 from cdpp.images import file_type
@@ -32,6 +33,7 @@ from cdpp.models import (
     Cdp,
     Correspondent,
     Entity,
+    EponymYear,
     Instance,
     Language,
     OraccSign,
@@ -678,7 +680,10 @@ def instance_row(instance: Instance) -> list[Any]:
 
 
 def tablet_details(tablet: Tablet) -> list[Detail]:
-    eponym = tablet.eponym or (tablet.year.eponym if tablet.year else None)
+    year_eponym = (
+        db.session.get(EponymYear, tablet.year) if tablet.year is not None else None
+    )
+    eponym = tablet.eponym or (year_eponym.eponym if year_eponym else None)
     sender = tablet.sent_from.name if tablet.sent_from else None
     languages = db.session.scalars(
         select(Language.name)
@@ -698,7 +703,10 @@ def tablet_details(tablet: Tablet) -> list[Detail]:
             "Sub-period",
             _linked(tablet.sub_period and tablet.sub_period.name, "sub_period"),
         ),
-        ("Year", _linked(tablet.year and tablet.year.year, "year")),
+        (
+            "Year",
+            _linked(None if tablet.year is None else year_text(tablet.year), "year"),
+        ),
         ("Month", _plain(tablet.absolute_month)),
         ("Day", _plain(tablet.absolute_day)),
         ("Eponym", _linked(eponym and eponym.name, "eponym")),

@@ -60,7 +60,7 @@ class Sample:
 
 @pytest.fixture
 def sample(app: Flask) -> Sample:
-    old_babylonian = Period(name="Old Babylonian", from_date="1900", to_date="1600")
+    old_babylonian = Period(name="Old Babylonian")
     syria = Locality(area="Syria")
     zimri_lim = Ruler(name="Zimri-Lim")
     meszl = SignList(name="MesZL", position=1)

@@ -107,11 +107,9 @@ def test_roman_number(text: str, value: int) -> None:
     assert roman_number(text) == value
 
 
-@pytest.mark.parametrize(
-    ("from_date", "start"), [("1800 BC", -1800), ("75 AD", 75), ("1900", 0)]
-)
-def test_period_start(from_date: str, start: int) -> None:
-    assert period_start(Period(name="Period", from_date=from_date)) == start
+@pytest.mark.parametrize(("start_year", "start"), [(-1799, -1799), (75, 75), (None, 0)])
+def test_period_start(start_year: int | None, start: int) -> None:
+    assert period_start(Period(name="Period", start_year=start_year)) == start
 
 
 def test_positions_sort_by_surface_column_and_line() -> None:

@@ -5,8 +5,8 @@ from flask import Flask
 from sqlalchemy import func, select
 
 from cdpp.db import db
-from cdpp.models import OraccListNumber, OraccSign
-from cdpp.oracc import number_forms, parse_osl
+from cdpp.models import Cdp, OraccListNumber, OraccSign, Sign, SignName
+from cdpp.oracc import number_forms, parse_osl, renderable_cuneiform, sign_glyphs
 
 ASL = """\
 @project osl
@@ -84,6 +84,46 @@ def test_parse_osl_reads_the_unicode_cuneiform() -> None:
 )
 def test_number_forms(number: str, forms: tuple[str, ...]) -> None:
     assert number_forms(number) == forms
+
+
+@pytest.mark.parametrize(
+    ("value", "expected"),
+    [
+        ("𒀀", "𒀀"),
+        ("𒀀𒀊", "𒀀𒀊"),
+        ("X𒀀", None),
+        ("\U000f0085", None),
+        ("", None),
+        (None, None),
+    ],
+)
+def test_renderable_cuneiform_needs_characters_that_the_font_has(
+    value: str | None, expected: str | None
+) -> None:
+    assert renderable_cuneiform(value) == expected
+
+
+def test_sign_glyphs_use_the_sign_name_then_the_oracc_names(app: Flask) -> None:
+    db.session.add_all(
+        [
+            OraccSign(oid="o1", name="A", cuneiform="𒀀"),
+            OraccSign(oid="o2", name="|A.A|", cuneiform="𒀀𒀀"),
+            OraccSign(oid="o3", name="TWO", cuneiform="𒀭"),
+            OraccSign(oid="o4", name="TWO", cuneiform="𒁀"),
+            OraccSign(oid="o5", name="PRIVATE", cuneiform="\U000f0085"),
+        ]
+    )
+    by_name = Sign(sign_ref="A")
+    by_record = Sign(
+        sign_ref="AA", cdp_records=[Cdp(names=[SignName(source="oracc", name="|A.A|")])]
+    )
+    signs = [by_name, by_record, Sign(sign_ref="TWO"), Sign(sign_ref="PRIVATE")]
+    db.session.add_all([*signs, Sign(sign_ref="NONE")])
+    db.session.commit()
+
+    glyphs = sign_glyphs(sign.id for sign in db.session.scalars(select(Sign)))
+
+    assert glyphs == {by_name.id: "𒀀", by_record.id: "𒀀𒀀"}
 
 
 def test_import_oracc_signs_replaces_the_snapshot(app: Flask, tmp_path: Path) -> None:

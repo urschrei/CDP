@@ -16,7 +16,7 @@ from urllib.parse import quote
 from sqlalchemy import delete, select, tuple_
 
 from cdpp.db import db
-from cdpp.models import OraccListNumber, OraccSign, SignListEntry
+from cdpp.models import Cdp, OraccListNumber, OraccSign, Sign, SignListEntry, SignName
 
 OSL_URL = "https://raw.githubusercontent.com/oracc/osl/master/00lib/osl.asl"
 # The citation URL that OSL gives on each sign page.
@@ -25,6 +25,13 @@ PAGE_URL = "http://oracc.org/osl/signlist/{oid}"
 HEADING_RE = re.compile(r"@(sign|form)(-?)\s+(\S+)")
 LIST_NUMBER_RE = re.compile(r"([A-Z]+)(\d.*)")
 NUMBER_RE = re.compile(r"(\d+)(.*)")
+# The ranges of Unicode cuneiform that Noto Sans Cuneiform has.
+CUNEIFORM_RANGES = (
+    (0x12000, 0x123FF),
+    (0x12400, 0x1246E),
+    (0x12470, 0x12474),
+    (0x12480, 0x12543),
+)
 
 
 @dataclass
@@ -187,3 +194,59 @@ def signs_named(names: Iterable[str]) -> dict[str, OraccSign]:
     for oracc_sign in db.session.scalars(statement):
         found[oracc_sign.name].append(oracc_sign)
     return {name: signs[0] for name, signs in found.items() if len(signs) == 1}
+
+
+def renderable_cuneiform(value: str | None) -> str | None:
+    """Return ``value`` if the cuneiform font has all its characters, else None.
+
+    OSL writes some signs with characters of the private use area, and writes X
+    for a part that Unicode does not have.
+    """
+    if not value:
+        return None
+    for char in value:
+        if not any(low <= ord(char) <= high for low, high in CUNEIFORM_RANGES):
+            return None
+    return value
+
+
+def sign_glyphs(sign_ids: Iterable[int]) -> dict[int, str]:
+    """Map the IDs of signs to their Unicode cuneiform.
+
+    A sign has cuneiform if OSL gives one value for the name of the sign, or,
+    if OSL has no value for that name, one value for the ORACC names of the CDP
+    records of the sign. The font must have all the characters of the value.
+    """
+    ids = set(sign_ids)
+    if not ids:
+        return {}
+    by_name: dict[int, set[str]] = defaultdict(set)
+    statement = (
+        select(Sign.id, OraccSign.cuneiform)
+        .join(OraccSign, OraccSign.name == Sign.sign_ref)
+        .where(Sign.id.in_(ids), OraccSign.cuneiform.is_not(None))
+    )
+    for sign_id, cuneiform in db.session.execute(statement):
+        if cuneiform:
+            by_name[sign_id].add(cuneiform)
+    by_records: dict[int, set[str]] = defaultdict(set)
+    statement = (
+        select(Cdp.sign_id, OraccSign.cuneiform)
+        .join(SignName, SignName.cdp_id == Cdp.id)
+        .join(OraccSign, OraccSign.name == SignName.name)
+        .where(
+            Cdp.sign_id.in_(ids),
+            SignName.source == "oracc",
+            OraccSign.cuneiform.is_not(None),
+        )
+    )
+    for sign_id, cuneiform in db.session.execute(statement):
+        if cuneiform:
+            by_records[sign_id].add(cuneiform)
+
+    glyphs: dict[int, str] = {}
+    for sign_id in ids:
+        values = by_name[sign_id] or by_records[sign_id]
+        if len(values) == 1 and (glyph := renderable_cuneiform(next(iter(values)))):
+            glyphs[sign_id] = glyph
+    return glyphs

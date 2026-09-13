@@ -1,11 +1,14 @@
-{% from "macros.html" import tablet_table %}
+{% from "macros.html" import cuneiform, tablet_table %}
 {% if oob %}<span hx-swap-oob="innerHTML:#search-status">{{ status }}</span>{% endif %}
 {% if signs %}
   <section aria-labelledby="sign-results-heading">
     <h2 id="sign-results-heading" class="font-sign text-3xl">Signs</h2>
     <ul class="mt-4 grid grid-cols-[repeat(auto-fill,minmax(9rem,1fr))] gap-x-6 gap-y-3">
       {% for sign in signs %}
-        <li><a href="{{ url_for('cdpp.sign', sign_id=sign.id) }}" class="font-sign text-xl wrap-anywhere">{{ sign.sign_ref }}</a></li>
+        <li>
+          <a href="{{ url_for('cdpp.sign', sign_id=sign.id) }}" class="font-sign text-xl wrap-anywhere">{{ sign.sign_ref }}</a>
+          {% if glyphs and glyphs.get(sign.id) %}{{ cuneiform(glyphs[sign.id], sign.sign_ref, "ml-1 text-xl") }}{% endif %}
+        </li>
       {% endfor %}
     </ul>
   </section>

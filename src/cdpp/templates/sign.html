@@ -1,10 +1,16 @@
 {% extends "base.html" %}
-{% from "macros.html" import breadcrumbs, specimen %}
+{% from "macros.html" import breadcrumbs, cuneiform, specimen %}
 {% set section = "signs" %}
 {% block title %}{{ sign.sign_ref }}{% endblock %}
 {% block content %}
   {{ breadcrumbs([(url_for("cdpp.signs"), "Signs", "")]) }}
   <h1 class="mt-3 font-sign text-6xl leading-none wrap-anywhere sm:text-8xl">{{ sign.sign_ref }}</h1>
+  {% if glyph %}
+    <figure class="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2">
+      {{ cuneiform(glyph, sign.sign_ref, "text-6xl leading-none") }}
+      <figcaption class="max-w-sm text-sm text-muted">The sign in Unicode cuneiform, as the Oracc Sign List gives it, in the font Noto Sans Cuneiform. The font draws one standard form, not a form from a tablet.</figcaption>
+    </figure>
+  {% endif %}
   <p class="mt-5 max-w-prose text-lg">
     {% if instance_count %}
       {{ count_noun(instance_count, "photograph") }} on {{ count_noun(tablets|length, "tablet") }}.
@@ -44,7 +50,9 @@
               <tr class="border-t border-line">
                 {% for value in row %}
                   <td class="px-3 py-2 whitespace-nowrap {{ 'sticky left-0 bg-ground' if loop.first }} {{ 'font-sign text-lg' if headings[loop.index0] in sign_name_headings }}">
-                    {%- if value.url -%}
+                    {%- if value.cuneiform and value.text -%}
+                      {{ cuneiform(value.text, value.label, "text-2xl leading-none") }}
+                    {%- elif value.url -%}
                       <a href="{{ value.url }}">{{ value.text }}<span class="sr-only"> in the Oracc Sign List</span></a>
                     {%- else -%}
                       {{ value.text }}

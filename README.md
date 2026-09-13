@@ -282,11 +282,15 @@ Search uses two SQLite FTS5 tables with the trigram tokenizer: `search_sign` hol
 
 On a sign page, a sign-list number links to the [Oracc Sign List](https://oracc.museum.upenn.edu/osl/) (OSL) if exactly one OSL sign or form has the same number in that list. An ORACC name links to OSL if exactly one OSL sign or form has that name. After each of these links, a second link leads to the page of the same sign or form in the electronic Babylonian Library (eBL), if OSL records one. The links come from a snapshot of OSL in the tables `oracc_sign` and `oracc_list_number`, so a page does not depend on Oracc. [docs/schema-and-data-questions.md](docs/schema-and-data-questions.md) lists the sign lists that have links, and the open questions about them.
 
+### Unicode cuneiform
+
+A sign page, the list of signs and the search results show a sign in Unicode cuneiform if the snapshot of OSL gives one value for the name of the sign, or, if it has no value for that name, one value for the ORACC names of the CDP records of the sign. In the table of CDP records, the column **Unicode** shows the cuneiform of each ORACC name. The font Noto Sans Cuneiform draws one standard form of each sign, not a form from a tablet. OSL writes some signs with characters of the private use area, or with X for a part that Unicode does not have. The pages do not show those values, because the font cannot draw them.
+
 ### Pages and htmx
 
 The server renders every page. htmx updates parts of pages without a full reload: the tablet list when a filter changes, the search results while the user types, the table of signs on a tablet page when the JJT notes are hidden or shown, the edit form in a row of that table, and the random selection of signs on the home page. A request from htmx names its target element in the `HX-Target` header, and the server then returns only the fragment for that element. Links and forms also work without JavaScript: without it, the edit form opens on a page of its own. Only the button that shows other signs on the home page needs JavaScript.
 
-Sign names are set in Gentium Book Plus, and the interface in Atkinson Hyperlegible Next. The font subsets do not contain subscript digits, so the browser takes those characters from another font.
+Sign names are set in Gentium Book Plus, the interface in Atkinson Hyperlegible Next, and Unicode cuneiform in Noto Sans Cuneiform. The browser loads the cuneiform font only for a page that shows cuneiform. The font subsets do not contain subscript digits, so the browser takes those characters from another font.
 
 ## Citation
 

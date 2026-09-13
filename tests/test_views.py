@@ -286,6 +286,23 @@ def test_tablet_page_without_jjt_notes_has_no_notes_link(
     assert "JJT notes" not in html
 
 
+def test_signs_show_their_unicode_cuneiform(
+    client: FlaskClient, sample: Sample
+) -> None:
+    db.session.add(OraccSign(oid="o0000001", name="AŠ", cuneiform="𒀸"))
+    db.session.commit()
+    glyph = 'role="img" aria-label="AŠ in Unicode cuneiform">𒀸</span>'
+
+    sign_page = page(client, f"/signs/{sample.sign.id}")
+
+    assert sign_page.count(glyph) == 2
+    assert "in the font Noto Sans Cuneiform" in sign_page
+    assert ">Unicode</th>" in sign_page
+    assert glyph in page(client, "/signs")
+    assert glyph in page(client, "/search?q=aš")
+    assert "𒀸" not in page(client, f"/signs/{sample.sign_without_records.id}")
+
+
 def test_search_status_omits_record_types_without_matches() -> None:
     results = SearchResults(sign_ids=[], tablet_ids=[7], sign_count=0, tablet_count=1)
 

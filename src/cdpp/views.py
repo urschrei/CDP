@@ -36,7 +36,13 @@ from cdpp.models import (
     SignListEntry,
     Tablet,
 )
-from cdpp.oracc import list_number_signs, oracc_page_url, signs_named
+from cdpp.oracc import (
+    list_number_signs,
+    oracc_page_url,
+    renderable_cuneiform,
+    sign_glyphs,
+    signs_named,
+)
 from cdpp.search import SearchResults, search_records
 
 bp = Blueprint("cdpp", __name__)
@@ -54,6 +60,7 @@ CDP_FIELDS = (
     ("form_description", "Form description"),
     ("description", "Description"),
     ("oracc", "ORACC"),
+    ("cuneiform", "Unicode"),
     ("cdli", "CDLI archaic"),
     ("notes", "Notes"),
 )
@@ -181,6 +188,7 @@ def signs() -> ResponseReturnValue:
         page=page,
         with_images=with_images,
         counts=instance_counts(Instance.sign_id, [sign.id for sign in page.items]),
+        glyphs=sign_glyphs(sign.id for sign in page.items),
         total=db.session.scalar(count.select_from(Sign)) or 0,
         total_with_images=db.session.scalar(
             select(func.count(func.distinct(Instance.sign_id)))
@@ -238,6 +246,7 @@ def sign(sign_id: int) -> ResponseReturnValue:
     return render_template(
         "sign.html",
         sign=sign,
+        glyph=sign_glyphs([sign.id]).get(sign.id),
         tablets=tablets,
         instance_count=sum(count for _, count in tablets),
         specimens=specimens,
@@ -410,6 +419,7 @@ def search() -> ResponseReturnValue:
         query=query,
         signs=signs,
         tablets=tablets,
+        glyphs=sign_glyphs(sign.id for sign in signs),
         status=search_status(query, results),
     )
 
@@ -541,11 +551,17 @@ def omit_empty_columns[T](
 
 @dataclass(frozen=True)
 class Cell:
-    """A table cell. ``url`` leads to the Oracc Sign List, ``ebl_url`` to eBL."""
+    """A table cell. ``url`` leads to the Oracc Sign List, ``ebl_url`` to eBL.
+
+    A cell of Unicode cuneiform has ``cuneiform`` set, and the name of the sign
+    in ``label``.
+    """
 
     text: str
     url: str | None = None
     ebl_url: str | None = None
+    cuneiform: bool = False
+    label: str = ""
 
     def __bool__(self) -> bool:
         return bool(self.text)
@@ -564,6 +580,11 @@ def record_cells(
         if field == "oracc":
             name = record.name_from("oracc") or ""
             cells.append(linked_cell(name, oracc_signs.get(name)))
+        elif field == "cuneiform":
+            name = record.name_from("oracc") or ""
+            oracc_sign = oracc_signs.get(name)
+            glyph = renderable_cuneiform(oracc_sign.cuneiform if oracc_sign else None)
+            cells.append(Cell(glyph or "", cuneiform=True, label=name))
         elif field in NAME_SOURCES:
             cells.append(Cell(record.name_from(field) or ""))
         else:

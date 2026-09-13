@@ -11,6 +11,10 @@
   </nav>
 {% endmacro %}
 
+{% macro cuneiform(glyph, sign_ref, class="") %}
+  <span class="font-cuneiform {{ class }}" lang="und-Xsux" role="img" aria-label="{{ sign_ref }} in Unicode cuneiform">{{ glyph }}</span>
+{% endmacro %}
+
 {% macro specimen(instance) %}
   <figure>
     <div class="flex aspect-square items-center justify-center bg-well p-3">

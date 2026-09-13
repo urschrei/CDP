@@ -351,6 +351,7 @@ The migrations changed three things in the data:
 - On a sign page, a sign-list number links to the OSL page of the sign or form that has the same number in that list, if exactly one sign or form has it. OSL writes numbers with at least three digits, as in `MZL001`, so the lookup also tries the number with zeros in front.
 - An ORACC name links to the OSL page of the sign or form with that name, if exactly one has it. It also links to the eBL page that OSL records for that sign or form. OSL records 2,504 eBL pages.
 - A linked sign-list number also links to the eBL page that OSL records for its sign or form: 10,956 of the 11,350 linked numbers have one. 3,199 CDP records have at least one eBL link. 175 of them have eBL links only from their numbers.
+- The snapshot holds the Unicode cuneiform of 3,344 OSL signs and forms. The pages show it in Noto Sans Cuneiform for 1,746 of the 3,440 signs, including 352 of the 413 signs with photographs, and for 2,965 of the 3,285 ORACC names. 348 of the 3,344 values contain characters that the font does not have: characters of the private use area, X for a part that Unicode does not have, or characters outside the cuneiform blocks of the font.
 - In 795 records, a number leads to a different eBL page from the ORACC name of the record. The difference can be an error in the name or in a number, or OSL can give the number to a form of the sign.
 
 | Sign list | OSL abbreviation | Entries | Entries with a link | Entries with several OSL matches |

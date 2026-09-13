@@ -373,22 +373,27 @@ class Sign(Entity):
     )
 
 
-class Description(Entity):
-    __tablename__ = "description"
-
-    sign_ref: Mapped[str] = mapped_column(String(150), unique=True, index=True)
+# The values of SignName.source.
+NAME_SOURCES = ("description", "oracc", "cdli")
 
 
-class Oracc(Entity):
-    __tablename__ = "oracc"
+class SignName(Entity):
+    """The name of the sign of a CDP record in one of NAME_SOURCES.
 
-    sign_ref: Mapped[str] = mapped_column(String(150), unique=True, index=True)
+    Each source was a separate table in the original schema.
+    """
 
+    __tablename__ = "sign_name"
+    __table_args__ = (
+        UniqueConstraint("cdp_id", "source"),
+        CheckConstraint("source IN ('description', 'oracc', 'cdli')", name="source"),
+    )
 
-class Cdli(Entity):
-    __tablename__ = "cdli"
+    cdp_id: Mapped[int] = reference("cdp.id", ondelete="CASCADE")
+    source: Mapped[str] = mapped_column(String(20))
+    name: Mapped[str] = mapped_column(String(150), index=True)
 
-    sign_ref: Mapped[str] = mapped_column(String(150), unique=True, index=True)
+    cdp: Mapped[Cdp] = relationship(back_populates="names")
 
 
 class SignList(Entity):
@@ -407,30 +412,27 @@ class Cdp(Entity):
     __tablename__ = "cdp"
 
     sign_id: Mapped[int] = reference("sign.id", onupdate="CASCADE", ondelete="CASCADE")
-    description_id: Mapped[int | None] = reference(
-        "description.id", onupdate="CASCADE", ondelete="CASCADE"
-    )
-    oracc_id: Mapped[int | None] = reference(
-        "oracc.id", onupdate="CASCADE", ondelete="CASCADE"
-    )
-    cdli_id: Mapped[int | None] = reference(
-        "cdli.id", onupdate="CASCADE", ondelete="CASCADE"
-    )
     form_name: Mapped[str | None] = mapped_column(String(5))
     variant_name: Mapped[str | None] = mapped_column(String(5))
     form_description: Mapped[str | None] = mapped_column(String(50))
     notes: Mapped[str | None] = mapped_column(String(50))
 
     sign: Mapped[Sign] = relationship(back_populates="cdp_records")
-    description: Mapped[Description | None] = relationship()
-    oracc: Mapped[Oracc | None] = relationship()
-    cdli: Mapped[Cdli | None] = relationship()
+    names: Mapped[list[SignName]] = relationship(
+        lazy="raise_on_sql",
+        back_populates="cdp",
+        cascade="all, delete-orphan",
+    )
     sign_list_entries: Mapped[list[SignListEntry]] = relationship(
         lazy="raise_on_sql",
         back_populates="cdp",
         cascade="all, delete-orphan",
         order_by="SignListEntry.sign_list_id",
     )
+
+    def name_from(self, source: str) -> str | None:
+        """Return the name of the sign in ``source``, or None."""
+        return next((name.name for name in self.names if name.source == source), None)
 
 
 class SignListEntry(Entity):

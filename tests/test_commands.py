@@ -8,7 +8,7 @@ from sqlalchemy import func, inspect, select, text
 
 from cdpp import create_app
 from cdpp.db import db
-from cdpp.models import Medium, Period, SignListEntry, Tablet
+from cdpp.models import Medium, Period, SignListEntry, SignName, Tablet
 
 
 def file_app(database: Path) -> Flask:
@@ -91,3 +91,5 @@ def test_load_data_migrates_the_project_dump_to_the_latest_revision(
         assert db.session.scalar(select(func.count()).select_from(Tablet)) == 228
         entries = select(func.count()).select_from(SignListEntry)
         assert db.session.scalar(entries) == 16989
+        names = select(func.count()).select_from(SignName)
+        assert db.session.scalar(names) == 10549

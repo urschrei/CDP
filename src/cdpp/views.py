@@ -25,13 +25,11 @@ from werkzeug.exceptions import HTTPException
 from cdpp.db import db
 from cdpp.filters import FILTERS_BY_KEY, active_filters, filter_options
 from cdpp.models import (
-    Cdli,
+    NAME_SOURCES,
     Cdp,
     Correspondent,
-    Description,
     Entity,
     Instance,
-    Oracc,
     Sign,
     SignList,
     Tablet,
@@ -181,9 +179,7 @@ def sign(sign_id: int) -> ResponseReturnValue:
         sign_id,
         options=[
             selectinload(Sign.cdp_records).options(
-                joinedload(Cdp.description),
-                joinedload(Cdp.oracc),
-                joinedload(Cdp.cdli),
+                selectinload(Cdp.names),
                 selectinload(Cdp.sign_list_entries),
             )
         ],
@@ -505,10 +501,9 @@ def omit_empty_columns[T](
 
 
 def cdp_value(record: Cdp, field: str) -> str:
-    value = getattr(record, field)
-    if isinstance(value, Description | Oracc | Cdli):
-        return value.sign_ref
-    return value or ""
+    if field in NAME_SOURCES:
+        return record.name_from(field) or ""
+    return getattr(record, field) or ""
 
 
 def sign_list_numbers(record: Cdp, sign_lists: Sequence[SignList]) -> list[str]:

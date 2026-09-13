@@ -146,25 +146,14 @@ def sign_documents() -> list[dict[str, Any]]:
     statement = (
         select(Sign)
         .order_by(Sign.id)
-        .options(
-            selectinload(Sign.cdp_records).options(
-                selectinload(Cdp.description),
-                selectinload(Cdp.oracc),
-                selectinload(Cdp.cdli),
-            )
-        )
+        .options(selectinload(Sign.cdp_records).selectinload(Cdp.names))
     )
     return [sign_document(sign) for sign in db.session.scalars(statement)]
 
 
 def sign_document(sign: Sign) -> dict[str, Any]:
     """Describe a sign by its CDP name and its names in other sign lists."""
-    names = {
-        other.sign_ref
-        for record in sign.cdp_records
-        for other in (record.description, record.oracc, record.cdli)
-        if other is not None
-    }
+    names = {name.name for record in sign.cdp_records for name in record.names}
     names.discard(sign.sign_ref)
     return {"id": sign.id, "sign_ref": sign.sign_ref, "references": sorted(names)}
 

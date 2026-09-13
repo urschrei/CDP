@@ -12,19 +12,18 @@ from cdpp.models import (
     Cdp,
     City,
     Correspondent,
-    Description,
     Genre,
     Instance,
     Language,
     Line,
     Locality,
     Medium,
-    Oracc,
     Period,
     Ruler,
     Sign,
     SignList,
     SignListEntry,
+    SignName,
     Surface,
     Tablet,
 )
@@ -75,8 +74,10 @@ def sample(app: Flask) -> Sample:
         cdp_records=[
             Cdp(
                 form_name="a",
-                oracc=Oracc(sign_ref="AŠ"),
-                description=Description(sign_ref="horizontal wedge"),
+                names=[
+                    SignName(source="oracc", name="AŠ"),
+                    SignName(source="description", name="horizontal wedge"),
+                ],
                 sign_list_entries=[SignListEntry(sign_list=meszl, number="1")],
             ),
             Cdp(

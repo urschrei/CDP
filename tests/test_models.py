@@ -13,6 +13,7 @@ from cdpp.models import (
     NonRulerCorrespondent,
     Ruler,
     Sign,
+    SignName,
     Tablet,
 )
 from tests.conftest import Sample
@@ -75,6 +76,7 @@ def test_correspondent_name_is_the_same_in_python_and_in_sql(app: Flask) -> None
         (Sign, "instances"),
         (Sign, "cdp_records"),
         (Cdp, "sign_list_entries"),
+        (Cdp, "names"),
         (Instance, "languages"),
     ],
     ids=lambda value: value if isinstance(value, str) else value.__name__,
@@ -87,3 +89,11 @@ def test_unloaded_collections_raise_instead_of_querying(
 
     with pytest.raises(InvalidRequestError, match="raise_on_sql"):
         getattr(record, collection)
+
+
+def test_sign_name_source_must_be_a_known_source(app: Flask) -> None:
+    record = Cdp(sign=Sign(sign_ref="A"), names=[SignName(source="other", name="A")])
+    db.session.add(record)
+
+    with pytest.raises(IntegrityError, match="ck_sign_name_source"):
+        db.session.flush()

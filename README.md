@@ -315,3 +315,5 @@ Stephan Hügel (2014). Cuneiform Digital Palaeography Project (CDPP) v0.2. Zenod
 The code is available under the MIT licence. The licence of the data is not settled. See [LICENCE.md](LICENCE.md). The snapshot of the Oracc Sign List in the dump is in the public domain, under the CC0 licence of `osl.asl`.
 
 The snapshot of catalogue entries in the table `cdli_artifact` comes from the [Cuneiform Digital Library Initiative](https://cdli.earth) (CDLI), through its [data repository](https://github.com/cdli-gh/data). Its re-use follows the [CDLI terms of use](https://cdli.earth/terms-of-use), which ask for a citation of CDLI.
+
+The snapshot of Oracc texts in the table `oracc_text` keeps project names and text IDs from the catalogues of the [Oracc](https://oracc.museum.upenn.edu) JSON archives of SAAo, RIAo, RINAP, RIBo and DCCLT, which are released under CC0. The Oracc editions that tablet pages link to are released under CC BY-SA 3.0.

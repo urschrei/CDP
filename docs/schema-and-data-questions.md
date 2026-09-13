@@ -48,7 +48,7 @@ The rank orders the open questions by importance. Questions whose answers change
 - Search uses SQLite FTS5 tables, not Meilisearch.
 - Editors can change the surface, column, line, iteration, function and language of a sign instance. Each save records a change set in the append-only tables `change_set` and `change`, with the editor's name from a cookie. Undo records a new change set. There is no sign-in.
 - When editors use the site, the database is the source of record. The dump in `db_dumps/cdpp.sql` is a snapshot, and `cdpp backup` copies the database.
-- A snapshot of CDLI catalogue entries gives links from tablet pages. The publications in the data do not change. See [Links to catalogues](#links-to-catalogues).
+- Snapshots of CDLI catalogue entries and of Oracc texts give links from tablet pages. The publications in the data do not change. See [Links to catalogues](#links-to-catalogues).
 
 ## 6. Empty columns and tables
 
@@ -404,7 +404,7 @@ Of the 3,285 ORACC names, 3,135 link to OSL, and 3,024 of those also link to eBL
 - The match compares keys made of the letters and the numbers of a museum number, without zeros in front of the numbers. `81_2-4_287` and `1881-02-04, 0287` have the same key. The collection names `OIM`, `Ashm` and `UM` in front of a CDLI number are optional, and so are letters in a registration number, as in `1891-05-09 Bu, 0003`.
 - The publications in the data do not change.
 
-| The key of the tablet is in | Tablets |
+| The key of the tablet is in the CDLI entry, in | Tablets |
 | --- | --- |
 | The museum number of the object | 159 |
 | The museum number of a join | 12 |
@@ -412,6 +412,11 @@ Of the 3,285 ORACC names, 3,135 link to OSL, and 3,024 of those also link to eBL
 | The accession number, where the museum number names a different object | 1 (K_15272) |
 
 If a tablet has matches of more than one kind, only the matches of the kind higher in the table are kept. For example, K_39 matches `K 00039 + K 00153` (P365272) by accession number, and not USC 6594, whose accession number is `K039`.
+
+- `cdpp import-oracc-texts` loads a snapshot of the Oracc texts whose catalogue entries have the museum number of a tablet. The sources are the Oracc JSON archives of SAAo, RIAo, RINAP, RIBo and DCCLT. The table `oracc_text` keeps the project and the text ID of each text. A tablet page links to the Oracc page of each text.
+- An Oracc text matches a tablet if its museum number, its accession number or an exemplar of a composite text has the key of the tablet. 110 tablets match 111 texts: 27 SAAo texts, 17 RIAo composite texts for 16 tablets, and 67 DCCLT texts. No RINAP or RIBo text matches. VAT_9653 is an exemplar of two RIAo texts, Adad-narari I 01 and 02.
+- The archive of a project contains the editions of the project, but not the editions of its subprojects, such as `saao/saa08` and `dcclt/nineveh`. The page of a text of the project is empty if the project has no edition of it. Thus 6 DCCLT texts without an edition have no link. On 14 September 2026, the Oracc pages of all linked texts had content.
+- The Oracc match does not use the CDLI P-numbers. For K_5422_a, CDLI gives P345979, but the Oracc catalogue gives P345979 the accession number `K 05422B`, and its Oracc page is empty.
 
 ### Findings
 
@@ -439,9 +444,12 @@ These tablets have no CDLI entry:
 
 The [CDLI terms of use](https://cdli.earth/terms-of-use) let users copy, aggregate and re-use the text of CDLI pages according to academic practice, with a citation of CDLI. The terms limit images to non-commercial use. The snapshot contains no images. The CDLI data repository has no licence file.
 
+The catalogues in the Oracc JSON archives are released under CC0. The snapshot keeps only project names and text IDs from them. The Oracc editions that the links lead to are released under CC BY-SA 3.0.
+
 ### Not done
 
-- **Refresh:** the snapshot does not update itself. Run `cdpp import-cdli`, then `cdpp dump-data`. The default source is the file of August 2022. The CDLI site has later changes, but its API gives one entry at a time.
+- **Refresh:** the snapshots do not update themselves. Run `cdpp import-cdli` or `cdpp import-oracc-texts`, then `cdpp dump-data`. The default source is the file of August 2022. The CDLI site has later changes, but its API gives one entry at a time.
+- **Editions of subprojects:** the archives do not show if a subproject has an edition of a text. A text of a subproject can have an empty page, as P345979 shows. A later import can add such a text.
 
 ### Questions
 

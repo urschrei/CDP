@@ -33,6 +33,7 @@ from cdpp.models import (
     Correspondent,
     Entity,
     Instance,
+    Language,
     OraccSign,
     Sign,
     SignList,
@@ -686,8 +687,14 @@ def instance_row(instance: Instance) -> list[Any]:
 
 def tablet_details(tablet: Tablet) -> list[Detail]:
     eponym = tablet.eponym or (tablet.year.eponym if tablet.year else None)
-    recipients = [*tablet.recipients, *([tablet.sent_to] if tablet.sent_to else [])]
     sender = tablet.sent_from.name if tablet.sent_from else None
+    languages = db.session.scalars(
+        select(Language.name)
+        .join(Instance, Instance.language_id == Language.id)
+        .where(Instance.tablet_id == tablet.id)
+        .distinct()
+        .order_by(Language.name)
+    ).all()
     publication = parse_publication(tablet.publication or "")
     entries: list[tuple[str, DetailValues]] = [
         (
@@ -699,7 +706,6 @@ def tablet_details(tablet: Tablet) -> list[Detail]:
             "Sub-period",
             _linked(tablet.sub_period and tablet.sub_period.name, "sub_period"),
         ),
-        ("Dynasty", _linked(tablet.dynasty and tablet.dynasty.name, "dynasty")),
         ("Year", _linked(tablet.year and tablet.year.year, "year")),
         ("Month", _plain(tablet.absolute_month)),
         ("Day", _plain(tablet.absolute_day)),
@@ -715,7 +721,11 @@ def tablet_details(tablet: Tablet) -> list[Detail]:
         ("Sent from", _linked(sender, "sent_from")),
         (
             "Sent to",
-            [(name, "sent_to") for recipient in recipients if (name := recipient.name)],
+            [
+                (name, "sent_to")
+                for recipient in tablet.recipients
+                if (name := recipient.name)
+            ],
         ),
         (
             "Text vehicle",
@@ -723,7 +733,10 @@ def tablet_details(tablet: Tablet) -> list[Detail]:
         ),
         ("Genre", _linked(tablet.genre and tablet.genre.name, "genre")),
         ("Function", _linked(tablet.function and tablet.function.name, "function")),
-        ("Language", _linked(tablet.language and tablet.language.name, "language")),
+        (
+            "Language" if len(languages) == 1 else "Languages",
+            [(name, "language") for name in languages],
+        ),
         (
             "Script type",
             _linked(tablet.script_type and tablet.script_type.script, "script_type"),

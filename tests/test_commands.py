@@ -329,6 +329,22 @@ def test_instance_languages_move_to_a_column_and_back(project_app: Flask) -> Non
         assert db.session.execute(by_language).all() == expected
 
 
+def test_empty_tablet_columns_go_and_come_back(project_app: Flask) -> None:
+    removed = {"to_id", "language_id", "dynasty_id"}
+
+    def columns() -> set[str]:
+        return {column["name"] for column in inspect(db.engine).get_columns("tablet")}
+
+    with project_app.app_context():
+        assert not removed & columns()
+
+        downgrade(revision="f2b6d8a4c1e7")
+        assert removed <= columns()
+
+        upgrade()
+        assert not removed & columns()
+
+
 def test_cdli_artifact_table_comes_and_goes_with_its_migration(
     project_app: Flask,
 ) -> None:

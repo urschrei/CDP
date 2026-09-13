@@ -41,6 +41,7 @@ The rank orders the open questions by importance. Questions whose answers change
 - Tables of instances show defaults in italics. Pages show primes as `′`, and line and column numbers without zeros in front. See [question 10](#10-lookup-tables-for-plain-values).
 - The JJT notes stay in the database, and tablet pages show them. A link hides or shows them. See [question 10](#10-lookup-tables-for-plain-values).
 - An instance has one language at most, in the column `instance.language_id`. See [question 8](#8-two-records-of-one-fact).
+- The empty columns `tablet.to_id`, `tablet.language_id` and `tablet.dynasty_id` are removed. The language of a tablet is the language of its sign instances. See [question 8](#8-two-records-of-one-fact).
 - [Questions for the editors](questions-for-the-editors.md) lists the questions that need the tablets, the photographs or the sign lists.
 
 - Search uses SQLite FTS5 tables, not Meilisearch.
@@ -52,7 +53,7 @@ The rank orders the open questions by importance. Questions whose answers change
 
 ### Findings
 
-- These `tablet` columns are empty in all 228 rows: `city_site_id`, `to_id`, `language_id`, `dynasty_id`, `sub_locality_id`, `function_id` and `reign_id`.
+- These `tablet` columns are empty in all 228 rows: `city_site_id`, `sub_locality_id`, `function_id` and `reign_id`. The columns `to_id`, `language_id` and `dynasty_id` were also empty, and are removed. See [question 8](#8-two-records-of-one-fact).
 - The tables `city_site`, `sub_locality` and `subperiod_dynasty` have no rows.
 - The table `reign` has 591 rows. No tablet refers to a reign, and the application does not read the table.
 - A ruler can have more than one reign. For example, Ashurbanipal has the Assyrian reign `A.0.113` and the Babylonian reign `B.6.32`. The notes that came with `csvs/ruler_name_matching.xlsx` say that the tablets of Esarhaddon and Ashurbanipal belong to the Assyrian reign. Only `tablet.reign_id` can record this.
@@ -129,6 +130,8 @@ After the correction, no tablet or reign has a sub-period of a different period,
 ### Decision
 
 13 September 2026: an instance has one language at most. Migration f7a1c3e5b920 stores it in the column `instance.language_id` and removes `instance_language`. Its downgrade restores the table. The recipients and the instances without a language are open: see [Questions for the editors](questions-for-the-editors.md).
+
+13 September 2026: migration 73708b382e0f removes the empty columns `tablet.to_id`, `tablet.language_id` and `tablet.dynasty_id`. It stops if a tablet has a value in one of them. `tablet_correspondent` keeps the recipients. The language filter and the tablet page use the languages of the sign instances of a tablet. The dynasty filter and the dynasty on tablet pages are removed, because no tablet had a dynasty. The downgrade restores the empty columns.
 
 ## 9. Duplicate sign-list entries
 

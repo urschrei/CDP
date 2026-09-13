@@ -1,8 +1,10 @@
 """Filters for the tablet list.
 
 Most filters select the tablets that have a related record with a given name.
-The series filter selects the tablets whose publication is in a given series.
-Tablet pages link to filtered lists, and the tablet list has a filter form.
+The language filter selects the tablets with a sign instance in a given
+language. The series filter selects the tablets whose publication is in a given
+series. Tablet pages link to filtered lists, and the tablet list has a filter
+form.
 """
 
 from collections.abc import Callable, Mapping
@@ -15,10 +17,10 @@ from cdpp.db import db
 from cdpp.models import (
     City,
     Correspondent,
-    Dynasty,
     Eponym,
     Function,
     Genre,
+    Instance,
     Language,
     Locality,
     Medium,
@@ -72,10 +74,19 @@ def _sent_from(value: str) -> ColumnElement[bool]:
 
 
 def _sent_to(value: str) -> ColumnElement[bool]:
-    return or_(
-        Tablet.sent_to.has(Correspondent.name == value),
-        Tablet.recipients.any(Correspondent.name == value),
-    )
+    return Tablet.recipients.any(Correspondent.name == value)
+
+
+def _language(value: str) -> ColumnElement[bool]:
+    return Tablet.instances.any(Instance.language.has(Language.name == value))
+
+
+_language_names = (
+    select(Language.name)
+    .join(Instance, Instance.language_id == Language.id)
+    .distinct()
+    .order_by(Language.name)
+)
 
 
 def _publication_series() -> dict[int, str]:
@@ -106,7 +117,6 @@ def _series_names() -> list[str]:
 FILTERS = (
     _related("period", "Period", Tablet.period, Period.name),
     _related("sub_period", "Sub-period", Tablet.sub_period, SubPeriod.name),
-    _related("dynasty", "Dynasty", Tablet.dynasty, Dynasty.name),
     _related("ruler", "Ruler", Tablet.rulers, Ruler.name, collection=True),
     _related("year", "Year", Tablet.year, Year.year),
     TabletFilter("eponym", "Eponym", _eponym),
@@ -117,7 +127,7 @@ FILTERS = (
     _related("genre", "Genre", Tablet.genre, Genre.name),
     _related("text_vehicle", "Text vehicle", Tablet.text_vehicle, TextVehicle.name),
     _related("function", "Function", Tablet.function, Function.name),
-    _related("language", "Language", Tablet.language, Language.name),
+    TabletFilter("language", "Language", _language, _language_names),
     _related("script_type", "Script type", Tablet.script_type, ScriptType.script),
     _related("medium", "Medium", Tablet.medium, Medium.name),
     _related("method", "Method", Tablet.method, Method.name),

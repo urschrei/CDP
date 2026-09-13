@@ -287,9 +287,9 @@ The paginated pages take a `page` parameter.
 
 ### Tablet filters
 
-Each filter selects the tablets with a related record of the given name, for example `/tablets?period=Old%20Babylonian&medium=clay`. `series` selects the tablets whose publication is in the given series, for example `/tablets?series=SAA`.
+Each filter selects the tablets with a related record of the given name, for example `/tablets?period=Old%20Babylonian&medium=clay`. `language` selects the tablets with a sign instance in the given language. `series` selects the tablets whose publication is in the given series, for example `/tablets?series=SAA`.
 
-`city`, `dynasty`, `eponym`, `function`, `genre`, `language`, `locality`, `medium`, `method`, `period`, `ruler`, `script_type`, `sent_from`, `sent_to`, `series`, `sub_period`, `text_vehicle`, `year`
+`city`, `eponym`, `function`, `genre`, `language`, `locality`, `medium`, `method`, `period`, `ruler`, `script_type`, `sent_from`, `sent_to`, `series`, `sub_period`, `text_vehicle`, `year`
 
 ### Project layout
 

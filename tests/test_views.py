@@ -110,7 +110,8 @@ def test_tablet_page_links_details_to_filtered_lists(
     assert 'href="/tablets?ruler=Zimri-Lim"' in html
     assert 'href="/tablets?sent_from=Zimri-Lim"' in html
     assert 'href="/tablets?city=Mari"' in html
-    assert "Akkadian" in html
+    # The language of a tablet is the language of its sign instances.
+    assert 'href="/tablets?language=Akkadian"' in html
     assert "2 photographs of 1 sign" in html
 
 
@@ -134,6 +135,7 @@ def test_tablet_images_are_grouped_by_sign(client: FlaskClient, sample: Sample) 
         ("medium=stone", "BM_12345", "A.1"),
         ("sent_from=Zimri-Lim", "A.1", "BM_12345"),
         ("period=Old+Babylonian&medium=clay", "A.1", "BM_12345"),
+        ("language=Akkadian", "A.1", "BM_12345"),
     ],
 )
 def test_tablet_filters(

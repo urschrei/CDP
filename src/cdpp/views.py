@@ -21,9 +21,11 @@ from flask.typing import ResponseReturnValue
 from sqlalchemy import func, select
 from sqlalchemy.orm import contains_eager, joinedload, selectinload
 from werkzeug.exceptions import HTTPException
+from werkzeug.security import safe_join
 
 from cdpp.db import db
 from cdpp.filters import FILTERS_BY_KEY, active_filters, filter_options
+from cdpp.images import file_type
 from cdpp.models import (
     NAME_SOURCES,
     Cdp,
@@ -426,7 +428,13 @@ def search() -> ResponseReturnValue:
 
 @bp.get("/media/instance/<path:filename>")
 def instance_image(filename: str) -> Response:
-    return send_from_directory(media_root(), filename, max_age=IMAGE_MAX_AGE)
+    # The file names end in .jpg, but most files are GIF images. Send the type
+    # that the file contains.
+    path = safe_join(str(media_root()), filename)
+    mimetype = file_type(Path(path)) if path and Path(path).is_file() else None
+    return send_from_directory(
+        media_root(), filename, max_age=IMAGE_MAX_AGE, mimetype=mimetype
+    )
 
 
 # Errors

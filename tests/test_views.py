@@ -31,12 +31,12 @@ def htmx(target: str) -> dict[str, str]:
 def test_home_page_shows_only_specimens_with_image_files(
     app: Flask, client: FlaskClient, sample: Sample
 ) -> None:
-    (Path(app.config["MEDIA_ROOT"]) / "instance" / "I_1.jpg").write_bytes(b"jpeg")
+    (Path(app.config["MEDIA_ROOT"]) / "instance" / "I_1.png").write_bytes(b"png")
 
     html = page(client, "/")
 
-    assert "/media/instance/I_1.jpg" in html
-    assert "/media/instance/I_2.jpg" not in html
+    assert "/media/instance/I_1.png" in html
+    assert "/media/instance/I_2.png" not in html
 
 
 def test_home_page_returns_only_the_specimens_to_htmx(
@@ -182,10 +182,10 @@ def test_search_returns_only_the_results_to_htmx(
 def test_instance_images_come_from_the_media_root(
     app: Flask, client: FlaskClient
 ) -> None:
-    (Path(app.config["MEDIA_ROOT"]) / "instance" / "I_9.jpg").write_bytes(b"jpeg")
+    (Path(app.config["MEDIA_ROOT"]) / "instance" / "I_9.png").write_bytes(b"png")
 
-    assert client.get("/media/instance/I_9.jpg").data == b"jpeg"
-    assert client.get("/media/instance/I_10.jpg").status_code == 404
+    assert client.get("/media/instance/I_9.png").data == b"png"
+    assert client.get("/media/instance/I_10.png").status_code == 404
 
 
 def test_sign_page_links_numbers_and_names_to_the_oracc_sign_list(

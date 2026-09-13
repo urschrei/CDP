@@ -10,7 +10,7 @@ from cdpp.instances import COMPARISON_LIMIT, comparison_ids
 from cdpp.models import Instance, Medium, Period, Tablet
 from tests.conftest import Sample
 
-GIF = b"GIF89a" + struct.pack("<HH", 30, 20) + b"\x00" * 10
+PNG = b"\x89PNG\r\n\x1a\n" + b"\x00\x00\x00\rIHDR" + struct.pack(">II", 30, 20)
 
 
 def instance_ids() -> dict[str, int]:
@@ -39,13 +39,13 @@ def test_comparison_ids_stop_at_the_limit() -> None:
 def test_comparison_shows_the_instances_in_order_at_one_scale(
     app: Flask, client: FlaskClient, sample: Sample
 ) -> None:
-    (Path(app.config["MEDIA_ROOT"]) / "instance" / "I_1.jpg").write_bytes(GIF)
+    (Path(app.config["MEDIA_ROOT"]) / "instance" / "I_1.png").write_bytes(PNG)
     first, second = instance_ids()["I_1"], instance_ids()["I_2"]
 
     html = page(client, f"/compare?instances={second},{first},{second},999&scale=4")
 
     assert "<title>Comparison of 2 instances" in html
-    assert html.index("/media/instance/I_2.jpg") < html.index("/media/instance/I_1.jpg")
+    assert html.index("/media/instance/I_2.png") < html.index("/media/instance/I_1.png")
     assert 'width="120" height="80"' in html
     assert "Old Babylonian" in html
     assert f'href="/compare?instances={first}&amp;scale=4"' in html

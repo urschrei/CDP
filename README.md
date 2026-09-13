@@ -304,12 +304,14 @@ Each filter selects the tablets with a related record of the given name, for exa
 | `docs/schema-and-data-questions.md` | Open questions about the schema and the data. |
 | `docs/questions-for-the-editors.md` | Questions for the editors of the data, with the tablets, signs and photographs that each question is about. |
 | `db_dumps/cdpp.sql` | A snapshot of the data: an SQLite dump of the schema, the records, the change sets and the migration revision. |
-| `media/instance/` | Sign photographs. |
+| `media/instance/` | Sign photographs, as PNG images. |
+| `media/photograph-conversion.csv` | The size and the SHA-256 of each photograph before and after the conversion to PNG. |
 | `Dockerfile`, `compose.yaml` | The application image, and a Docker Compose service that runs it. |
 | `deploy/start.sh` | Start script of the image: prepares the database on `/data`, then starts gunicorn. |
 | `fly.toml` | Fly.io configuration. |
 | `utils/`, `csvs/` | Notebooks and spreadsheets from the original preparation of the data. They are not used by the application. |
 | `utils/restore_2013_values.py` | Writes the CSV files of the migration that restores the values that the import of 2014 did not copy. |
+| `utils/convert_photographs.py` | Converted the photographs from GIF and JPEG images to PNG images, without a change to their pixels. |
 
 ## About the architecture
 
@@ -355,7 +357,7 @@ A sign page, the list of signs and the search results show a sign in Unicode cun
 
 ### Photographs, instance pages and comparisons
 
-The photographs have the extension `.jpg`, but most of them are GIF images. The application reads the first bytes of each file, and sends the photograph with the type of its content. On Fly.io, the file server of the machine sends the photographs with the type `image/jpeg` and without cache headers. Browsers identify an image by its content, so they show the GIF images. An instance page and a comparison read the width and the height from the header of the file, and set the size of the enlarged image from them.
+The photographs are PNG images. The original files were GIF and JPEG images with the extension `.jpg`. `utils/convert_photographs.py` converted them in September 2026: each GIF image became an 8-bit PNG image with the same palette, pixel values and transparent colour, and each JPEG image became a 24-bit PNG image with its decoded pixels. `media/photograph-conversion.csv` records the size and the SHA-256 of each original file and each PNG file, and the version history keeps the original files. On Fly.io, the file server of the machine sends the photographs without cache headers. An instance page and a comparison read the width and the height from the header of the file, and set the size of the enlarged image from them.
 
 On an instance page, the instances of the same sign are in the order of the period, from the first year of the period, then of the museum number, then of the position. The order of positions is the surface (obverse, reverse, then the other surfaces), the column as a Roman numeral, and the line. An instance without a surface or a column sorts with the default, obverse and column i.
 

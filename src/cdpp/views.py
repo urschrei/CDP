@@ -21,13 +21,11 @@ from flask.typing import ResponseReturnValue
 from sqlalchemy import func, select
 from sqlalchemy.orm import contains_eager, joinedload, selectinload
 from werkzeug.exceptions import HTTPException
-from werkzeug.security import safe_join
 
 from cdpp.catalogues import catalogue_links
 from cdpp.dates import year_text
 from cdpp.db import db
 from cdpp.filters import FILTERS_BY_KEY, active_filters, filter_options
-from cdpp.images import file_type
 from cdpp.models import (
     NAME_SOURCES,
     Cdp,
@@ -130,7 +128,7 @@ def page_url(page: int) -> str:
 
 @bp.app_template_global()
 def image_url(instance: Instance) -> str:
-    return url_for("cdpp.instance_image", filename=f"{instance.filename}.jpg")
+    return url_for("cdpp.instance_image", filename=photograph_path(instance).name)
 
 
 def position_text(number: str) -> str:
@@ -432,13 +430,7 @@ def search() -> ResponseReturnValue:
 
 @bp.get("/media/instance/<path:filename>")
 def instance_image(filename: str) -> Response:
-    # The file names end in .jpg, but most files are GIF images. Send the type
-    # that the file contains.
-    path = safe_join(str(media_root()), filename)
-    mimetype = file_type(Path(path)) if path and Path(path).is_file() else None
-    return send_from_directory(
-        media_root(), filename, max_age=IMAGE_MAX_AGE, mimetype=mimetype
-    )
+    return send_from_directory(media_root(), filename, max_age=IMAGE_MAX_AGE)
 
 
 # Errors
@@ -500,6 +492,10 @@ def media_root() -> Path:
     return Path(current_app.config["MEDIA_ROOT"]) / "instance"
 
 
+def photograph_path(instance: Instance) -> Path:
+    return media_root() / f"{instance.filename}.png"
+
+
 def random_specimens(limit: int) -> list[Instance]:
     """Return instances in random order, omitting those without an image file."""
     candidates = db.session.scalars(
@@ -508,8 +504,7 @@ def random_specimens(limit: int) -> list[Instance]:
         .order_by(func.random())
         .limit(limit * 2)
     )
-    root = media_root()
-    return [i for i in candidates if (root / f"{i.filename}.jpg").is_file()][:limit]
+    return [i for i in candidates if photograph_path(i).is_file()][:limit]
 
 
 def instance_counts(column: Any, ids: list[int]) -> dict[int, int]:

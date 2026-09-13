@@ -12,7 +12,7 @@ from cdpp.instances import period_start, position_key, roman_number
 from cdpp.models import Instance, Period, Surface
 from tests.conftest import Sample
 
-GIF = b"GIF89a" + struct.pack("<HH", 30, 20) + b"\x00" * 10
+PNG = b"\x89PNG\r\n\x1a\n" + b"\x00\x00\x00\rIHDR" + struct.pack(">II", 30, 20)
 
 
 def instance_ids() -> dict[str, int]:
@@ -30,7 +30,7 @@ def page(client: FlaskClient, url: str) -> str:
 def test_instance_page_shows_the_photograph_at_twice_its_size(
     app: Flask, client: FlaskClient, sample: Sample
 ) -> None:
-    (Path(app.config["MEDIA_ROOT"]) / "instance" / "I_1.jpg").write_bytes(GIF)
+    (Path(app.config["MEDIA_ROOT"]) / "instance" / "I_1.png").write_bytes(PNG)
     url = f"/instances/{instance_ids()['I_1']}"
 
     html = page(client, url)

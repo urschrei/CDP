@@ -2,7 +2,7 @@
 
 These questions need the tablets, the photographs or the sign lists to answer. The data alone cannot answer them. Write each answer under its question.
 
-A path such as `/tablets/487` is a page of the CDP site: add it to the address of the site. A path such as `/media/instance/I_1103765344552.jpg` is a photograph of a sign. [Schema and data questions](schema-and-data-questions.md) records the findings behind the questions.
+A path such as `/tablets/487` is a page of the CDP site: add it to the address of the site. A path such as `/media/instance/I_1103765344552.png` is a photograph of a sign. [Schema and data questions](schema-and-data-questions.md) records the findings behind the questions.
 
 The list describes the data on 13 September 2026.
 
@@ -245,38 +245,38 @@ Only signs on seal impressions have no line. These 32 signs are not on seal impr
 
 | Tablet | Page | Sign | Surface | Column | Photograph |
 | --- | --- | --- | --- | --- | --- |
-| 82_5-22_130 | `/tablets/470` | GI | | | `/media/instance/I_1103765344552.jpg` |
-| BM_113352 | `/tablets/536` | AŠ | be | | `/media/instance/I_1191939762718.jpg` |
-| BM_113352 | `/tablets/536` | 1+A₂ | be | | `/media/instance/I_1191941745890.jpg` |
-| BM_113352 | `/tablets/536` | UGU | be | | `/media/instance/I_1191940222953.jpg` |
-| BM_113352 | `/tablets/536` | TI | be | | `/media/instance/I_1192027642156.jpg` |
-| BM_113352 | `/tablets/536` | MES | be | | `/media/instance/I_1191942314562.jpg` |
-| BM_113352 | `/tablets/536` | HI | be | | `/media/instance/I_1191940416343.jpg` |
-| BM_113352 | `/tablets/536` | A₂ | be | | `/media/instance/I_1192028450593.jpg` |
-| BM_38120 | `/tablets/502` | GI | | | `/media/instance/I_1157290734984.jpg` |
-| BM_38622 | `/tablets/652` | NU | rev | iv | `/media/instance/I_1172577198625.jpg` |
-| BM_68332 | `/tablets/628` | AK | catchline | iv | `/media/instance/I_1163694228984.jpg` |
-| BM_68332 | `/tablets/628` | LUM | catchline | iv | `/media/instance/I_1163694716046.jpg` |
-| BM_68332 | `/tablets/628` | E | catchline | iv | `/media/instance/I_1163694423015.jpg` |
-| K_12032 | `/tablets/484` | NU | catchline | | `/media/instance/I_1172767678968.jpg` |
-| K_14895 | `/tablets/473` | GAR | a | | `/media/instance/I_1152728581140.jpg` |
-| K_14895 | `/tablets/473` | GIŠ | a | | `/media/instance/I_1152729746968.jpg` |
-| K_14895 | `/tablets/473` | ZA | a | | `/media/instance/I_1152729058828.jpg` |
-| K_197 | `/tablets/481` | AK | rev | iv | `/media/instance/I_1160573865046.jpg` |
-| K_197 | `/tablets/481` | HI | rev | iv | `/media/instance/I_1160576040000.jpg` |
-| K_197 | `/tablets/481` | TE | rev | iv | `/media/instance/I_1160574638937.jpg` |
-| K_197 | `/tablets/481` | MAN | rev | iv | `/media/instance/I_1160575490359.jpg` |
-| K_197 | `/tablets/481` | KUR | rev | iv | `/media/instance/I_1160575661281.jpg` |
-| K_197 | `/tablets/481` | KI | rev | iv | `/media/instance/I_1160576280390.jpg` |
-| K_197 | `/tablets/481` | E | rev | iv | `/media/instance/I_1160574764078.jpg` |
-| K_197 | `/tablets/481` | A | rev | iv | `/media/instance/I_1160574383796.jpg` |
-| K_197 | `/tablets/481` | A | rev | iv | `/media/instance/I_1160575134609.jpg` |
-| K_39 | `/tablets/483` | DIVIDING_SIGN | aas | | `/media/instance/I_1169136552843.jpg` |
-| K_39 | `/tablets/483` | UM | rev | iv | `/media/instance/I_1171399651781.jpg` |
-| K_39 | `/tablets/483` | UL | rev | iv | `/media/instance/I_1171388146765.jpg` |
-| K_39 | `/tablets/483` | NU | rev | iv | `/media/instance/I_1171399386796.jpg` |
-| K_39 | `/tablets/483` | E₂ | colophon | | `/media/instance/I_1171570112134.jpg` |
-| K_39 | `/tablets/483` | AN | rev | iv | `/media/instance/I_1171399219125.jpg` |
+| 82_5-22_130 | `/tablets/470` | GI | | | `/media/instance/I_1103765344552.png` |
+| BM_113352 | `/tablets/536` | AŠ | be | | `/media/instance/I_1191939762718.png` |
+| BM_113352 | `/tablets/536` | 1+A₂ | be | | `/media/instance/I_1191941745890.png` |
+| BM_113352 | `/tablets/536` | UGU | be | | `/media/instance/I_1191940222953.png` |
+| BM_113352 | `/tablets/536` | TI | be | | `/media/instance/I_1192027642156.png` |
+| BM_113352 | `/tablets/536` | MES | be | | `/media/instance/I_1191942314562.png` |
+| BM_113352 | `/tablets/536` | HI | be | | `/media/instance/I_1191940416343.png` |
+| BM_113352 | `/tablets/536` | A₂ | be | | `/media/instance/I_1192028450593.png` |
+| BM_38120 | `/tablets/502` | GI | | | `/media/instance/I_1157290734984.png` |
+| BM_38622 | `/tablets/652` | NU | rev | iv | `/media/instance/I_1172577198625.png` |
+| BM_68332 | `/tablets/628` | AK | catchline | iv | `/media/instance/I_1163694228984.png` |
+| BM_68332 | `/tablets/628` | LUM | catchline | iv | `/media/instance/I_1163694716046.png` |
+| BM_68332 | `/tablets/628` | E | catchline | iv | `/media/instance/I_1163694423015.png` |
+| K_12032 | `/tablets/484` | NU | catchline | | `/media/instance/I_1172767678968.png` |
+| K_14895 | `/tablets/473` | GAR | a | | `/media/instance/I_1152728581140.png` |
+| K_14895 | `/tablets/473` | GIŠ | a | | `/media/instance/I_1152729746968.png` |
+| K_14895 | `/tablets/473` | ZA | a | | `/media/instance/I_1152729058828.png` |
+| K_197 | `/tablets/481` | AK | rev | iv | `/media/instance/I_1160573865046.png` |
+| K_197 | `/tablets/481` | HI | rev | iv | `/media/instance/I_1160576040000.png` |
+| K_197 | `/tablets/481` | TE | rev | iv | `/media/instance/I_1160574638937.png` |
+| K_197 | `/tablets/481` | MAN | rev | iv | `/media/instance/I_1160575490359.png` |
+| K_197 | `/tablets/481` | KUR | rev | iv | `/media/instance/I_1160575661281.png` |
+| K_197 | `/tablets/481` | KI | rev | iv | `/media/instance/I_1160576280390.png` |
+| K_197 | `/tablets/481` | E | rev | iv | `/media/instance/I_1160574764078.png` |
+| K_197 | `/tablets/481` | A | rev | iv | `/media/instance/I_1160574383796.png` |
+| K_197 | `/tablets/481` | A | rev | iv | `/media/instance/I_1160575134609.png` |
+| K_39 | `/tablets/483` | DIVIDING_SIGN | aas | | `/media/instance/I_1169136552843.png` |
+| K_39 | `/tablets/483` | UM | rev | iv | `/media/instance/I_1171399651781.png` |
+| K_39 | `/tablets/483` | UL | rev | iv | `/media/instance/I_1171388146765.png` |
+| K_39 | `/tablets/483` | NU | rev | iv | `/media/instance/I_1171399386796.png` |
+| K_39 | `/tablets/483` | E₂ | colophon | | `/media/instance/I_1171570112134.png` |
+| K_39 | `/tablets/483` | AN | rev | iv | `/media/instance/I_1171399219125.png` |
 
 Answer:
 

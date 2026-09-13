@@ -27,7 +27,7 @@ from cdpp.views import (
     DEFAULT_SURFACE,
     JJT_NOTES_HEADING,
     in_rank_order,
-    media_root,
+    photograph_path,
     position,
     position_text,
     tablet_details,
@@ -136,7 +136,7 @@ def requested_scale() -> int:
 
 
 def photograph_size(instance: Instance) -> tuple[int, int] | None:
-    path = media_root() / f"{instance.filename}.jpg"
+    path = photograph_path(instance)
     return image_size(path.read_bytes()) if path.is_file() else None
 
 

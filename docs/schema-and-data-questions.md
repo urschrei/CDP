@@ -13,13 +13,14 @@ The rank orders the open questions by importance. Questions whose answers change
 | 1 | [Values that the 2014 import did not copy](#values-that-the-2014-import-did-not-copy) | Done; questions open |
 | 2 | [9. Duplicate sign-list entries](#9-duplicate-sign-list-entries) | Partly done; 8 groups open |
 | 3 | [Links to online sign lists](#links-to-online-sign-lists) | Partly done; questions open |
-| 4 | [10. Lookup tables for plain values](#10-lookup-tables-for-plain-values) | Partly done; questions open |
-| 5 | [8. Two records of one fact](#8-two-records-of-one-fact) | Partly done; questions open |
-| 6 | [Rulers, reigns and cities](#rulers-reigns-and-cities) | Done; questions open |
-| 7 | [7. Values that contradict each other](#7-values-that-contradict-each-other) | Done; one question open |
-| 8 | [11. Dates stored as text](#11-dates-stored-as-text) | Partly done; questions open |
-| 9 | [6. Empty columns and tables](#6-empty-columns-and-tables) | Open |
-| 10 | [12. Sign lists and sign names](#12-sign-lists-and-sign-names) | Done; one question open |
+| 4 | [Links to catalogues](#links-to-catalogues) | Partly done; questions open |
+| 5 | [10. Lookup tables for plain values](#10-lookup-tables-for-plain-values) | Partly done; questions open |
+| 6 | [8. Two records of one fact](#8-two-records-of-one-fact) | Partly done; questions open |
+| 7 | [Rulers, reigns and cities](#rulers-reigns-and-cities) | Done; questions open |
+| 8 | [7. Values that contradict each other](#7-values-that-contradict-each-other) | Done; one question open |
+| 9 | [11. Dates stored as text](#11-dates-stored-as-text) | Partly done; questions open |
+| 10 | [6. Empty columns and tables](#6-empty-columns-and-tables) | Open |
+| 11 | [12. Sign lists and sign names](#12-sign-lists-and-sign-names) | Done; one question open |
 
 ## Decisions made
 
@@ -47,6 +48,7 @@ The rank orders the open questions by importance. Questions whose answers change
 - Search uses SQLite FTS5 tables, not Meilisearch.
 - Editors can change the surface, column, line, iteration, function and language of a sign instance. Each save records a change set in the append-only tables `change_set` and `change`, with the editor's name from a cookie. Undo records a new change set. There is no sign-in.
 - When editors use the site, the database is the source of record. The dump in `db_dumps/cdpp.sql` is a snapshot, and `cdpp backup` copies the database.
+- A snapshot of CDLI catalogue entries gives links from tablet pages. The publications in the data do not change. See [Links to catalogues](#links-to-catalogues).
 
 ## 6. Empty columns and tables
 
@@ -391,3 +393,57 @@ Of the 3,285 ORACC names, 3,135 link to OSL, and 3,024 of those also link to eBL
 - **LaBaSi:** LaBaSi has sign pages with MesZL numbers, but its addresses use internal IDs, and it states no licence for its data.
 - **eBL:** would eBL agree to the use of its API, to link numbers that OSL does not have?
 - **Uncertain titles:** the full titles of the HA, Emar and Hinke lists are not confirmed. OSL identifies KWU as Schneider, *Die Keilschriftzeichen der Wirtschaftsurkunden von Ur III*.
+
+## Links to catalogues
+
+### Done
+
+- `cdpp import-cdli` loads a snapshot of the catalogue entries of the [Cuneiform Digital Library Initiative](https://cdli.earth) (CDLI) whose museum or accession number is the museum number of a tablet. The source is `cdli_cat.csv` in the [CDLI data repository](https://github.com/cdli-gh/data), last updated in August 2022. The table `cdli_artifact` keeps the P-number, the designation, the museum and accession numbers, the primary publication and the publication history of each entry.
+- 220 of the 228 tablets match one entry each. The matches have 216 P-numbers: three seal impressions share an entry with their tablets, and N_5129 and N_6013 are parts of one join (P229543).
+- A tablet page links to the CDLI page of its entry.
+- The match compares keys made of the letters and the numbers of a museum number, without zeros in front of the numbers. `81_2-4_287` and `1881-02-04, 0287` have the same key. The collection names `OIM`, `Ashm` and `UM` in front of a CDLI number are optional, and so are letters in a registration number, as in `1891-05-09 Bu, 0003`.
+- The publications in the data do not change.
+
+| The key of the tablet is in | Tablets |
+| --- | --- |
+| The museum number of the object | 159 |
+| The museum number of a join | 12 |
+| The accession number, where the museum number is `BM —` | 48 |
+| The accession number, where the museum number names a different object | 1 (K_15272) |
+
+If a tablet has matches of more than one kind, only the matches of the kind higher in the table are kept. For example, K_39 matches `K 00039 + K 00153` (P365272) by accession number, and not USC 6594, whose accession number is `K039`.
+
+### Findings
+
+- For most matched tablets, the publication in the data and a CDLI publication give the same edition in different forms, for example `SAA 8, 70` and `Hunger, SAA 08, 070`, or `RIME.4.3.6.12` and `RIME 4.03.06.12Sumerian, ex. 06`.
+- For 15 tablets, the data and CDLI give different numbers. See questions [9](questions-for-the-editors.md#9-which-ruler-is-on-these-tablets), [10](questions-for-the-editors.md#10-are-these-publication-numbers-correct) and [25](questions-for-the-editors.md#25-which-numbers-are-correct) for the editors.
+- For other tablets, CDLI gives a different edition from the data, and no conflict: CT 12 and CT 19 for tablets that the data cite from MSL 16, CT 55 to CT 57 for Bongenaar (1997), and CCT 3 and CCT 4 for Larsen, OACT and MVAG 35,3.
+- CDLI has no publication for five tablets that have one in the data: BM_131447 (Wiseman (1953) no. 3), BM_131477 (no. 70), BM_131506 (no. 128), K_14443 (MSL 16 p. 74) and K_14895 (MSL 16 p. 49).
+- 43 tablets have no publication. CDLI gives a primary publication for 32 of them, and `unpublished unassigned ?` for 9. See [question 26](questions-for-the-editors.md#26-which-publication-does-each-of-these-tablets-have).
+- The publications in the data have many forms, for example `RIME.4.3.6.12`, `SAA 8, 70`, `MSL 14 p. 19: Bo, 20: Co`, `Jeyes (1989) no. 11` and `King, BBS pp. 120-127, pls. XCVIII-CII`. Most RIMA numbers have no volume, as in `RIMA.0.76.1`, but VA_Ass_3221_c has `RIMA.1.0.60.1`.
+
+These tablets have no CDLI entry:
+
+| Tablet | Page | Publication |
+| --- | --- | --- |
+| BM_113352 | `/tablets/536` | unpublished |
+| BM_40819 | `/tablets/630` | none |
+| BM_59592 | `/tablets/499` | Bongenaar (1997) |
+| BM_68332 | `/tablets/628` | none |
+| UET_6/3_378 | `/tablets/608` | Alster (1997) p. 328 |
+| UET_6/3_452 | `/tablets/607` | Alster (1997) p. 328 |
+| W_18202_25 | `/tablets/662` | AUWE 5, 129 |
+| Wx17 | `/tablets/535` | AUWE 5, 68 |
+
+### Licence
+
+The [CDLI terms of use](https://cdli.earth/terms-of-use) let users copy, aggregate and re-use the text of CDLI pages according to academic practice, with a citation of CDLI. The terms limit images to non-commercial use. The snapshot contains no images. The CDLI data repository has no licence file.
+
+### Not done
+
+- **Refresh:** the snapshot does not update itself. Run `cdpp import-cdli`, then `cdpp dump-data`. The default source is the file of August 2022. The CDLI site has later changes, but its API gives one entry at a time.
+
+### Questions
+
+- Must the data take the CDLI publications of the tablets that have no publication? See [question 26](questions-for-the-editors.md#26-which-publication-does-each-of-these-tablets-have).
+- Must the publications in the data have one form? A form with a series, a volume, a text or page number and a siglum would let the tablet list filter by series.

@@ -174,7 +174,7 @@ The publication number of each tablet is the number of a different reign from th
 | BM_91082 | `/tablets/569` | RIME.4.4.3.1 | Sin-gamil (Diniktum), E.4.13.2 | Sin-gamil (Uruk), E.4.4.3 |
 | BM_96952 | `/tablets/549` | RIME.4.3.6.11 | Samsu-iluna, E.4.3.7 | Hammu-rapi (Babylon), E.4.3.6 |
 
-For BM_91082, the comment in `csvs/ruler_name_matching.xlsx` also gives Uruk.
+For BM_91082, the comment in `csvs/ruler_name_matching.xlsx` also gives Uruk. CDLI gives `RIME 4.04.03.x2001, ex. 01` for BM_91082 (P429914), and the same number as the data for BM_96952 (P431849).
 
 Answer:
 
@@ -189,6 +189,8 @@ The rulers are kings of Ur III, but the publication numbers begin with RIME 4, t
 | BM_90015 | `/tablets/585` | RIME.4.1.1.33 | Ur-Nammu |
 | BM_90016 | `/tablets/586` | RIME.4.1.1.35 | Ur-Nammu |
 | BM_90017 | `/tablets/568` | RIME.4.1.2.39 | Shulgi |
+
+For all five tablets, CDLI gives RIME 3/2.1.1 or RIME 3/2.1.2 with the same text number, for example `RIME 3/2.01.01.33, ex. 03` for BM_90010 (P226645).
 
 Answer:
 
@@ -398,5 +400,94 @@ Answer:
 ### 24. Are the unused years needed?
 
 The data have 2,600 years. Tablets and reigns refer to 320 of them.
+
+Answer:
+
+## Publications
+
+The CDLI values come from the snapshot of the CDLI catalogue. See [Links to catalogues](schema-and-data-questions.md#links-to-catalogues).
+
+### 25. Which numbers are correct?
+
+The publication in the data and the CDLI entry with the same museum number give different volume, page, text or siglum numbers.
+
+| Tablet | Page | Publication | CDLI entry | CDLI publication |
+| --- | --- | --- | --- | --- |
+| BM_22468 | `/tablets/512` | RIME.3/1.1.7.18 | P232470 | RIME 3/1.01.07.017, ex. 02 |
+| BM_87235 | `/tablets/511` | RIME.3/1.1.7.39 | P233922 | RIME 3/1.01.07.038, ex. 01 |
+| BM_14030 | `/tablets/542` | UF 10 (1978) 124 no. 5 | P405411 | UF 10, 142 05 |
+| BM_14070 | `/tablets/543` | UF 10 (1978) 124 no. 15 | P405421 | UF 10, 147 15 |
+| BM_14082 | `/tablets/544` | UF 10 (1978) 124 no. 24 | P405430 | UF 10, 151 24 |
+| BM_37857 | `/tablets/629` | MSL 16 p. 74 | P349927 | MSL 16, 075, BM 037857 |
+| BM_40127 | `/tablets/472` | MSL 16 p. 49 | P349930 | MSL 16, 345, BM 040127 |
+| CBS_15412 | `/tablets/593` | MSL 14 p. 29: Bh | P227844 | MSL 14, 019 Bh |
+| CBS_7087 | `/tablets/597` | MSL 14 p. 19: Bw | P229408 | MSL 14, 019 Cf |
+
+The seal impressions BM_14030_seal and BM_14070_seal have the same publications as their tablets. N_5087 (`/tablets/601`) also has `MSL 14 p. 19: Bw`, and CDLI gives Bw for N_5087.
+
+Answer:
+
+### 26. Which publication does each of these tablets have?
+
+These 43 tablets have no publication. The table gives the primary publication and the publication history of the CDLI entry with the same museum number. `unpublished unassigned ?` is the CDLI value for an entry without a publication. CDLI has no entry for BM_40819 and BM_68332.
+
+| Tablet | Page | CDLI entry | CDLI primary publication | CDLI publication history |
+| --- | --- | --- | --- | --- |
+| BM_40819 | `/tablets/630` | none |  |  |
+| BM_68332 | `/tablets/628` | none |  |  |
+| CBS_10180 | `/tablets/605` | P265430 | MSL 12, 212 F' |  |
+| CBS_10365 | `/tablets/632` | P230213 | unpublished unassigned ? |  |
+| CBS_12515 | `/tablets/633` | P227685 | MSL 12, 032 U'' | OIP 011, p.16 (unpub. dup.); Veldhuis EEN 297 |
+| CBS_13667 | `/tablets/634` | P230617 | Farmer's Instructions p.173. |  |
+| CBS_14108 | `/tablets/635` | P227768 | PBS 11/3, 068 | MSL 12, 030 C' |
+| CBS_15100 | `/tablets/636` | P227804 | MSL 14, 022 Es |  |
+| CBS_2256 | `/tablets/615` | P227890 | OIP 011, 005 (CBS 02256) | MSL 12, 030 B', 192 X, 10, 199 |
+| CBS_4812 | `/tablets/637` | P227961 | OIP 011, p. 014, CBS 04812 + | Civil Farmer's Instructions p.173; Veldhuis EEN 311; MSL 09, 051 S06, CBS 06755 |
+| CBS_4819 | `/tablets/666` | P227968 | OIP 011, 114 | MSL 12, 030 L' |
+| CBS_6591 | `/tablets/638` | P227953 | OIP 011, 105 + 109 + 148 | MSL 12, 029 L + 031 Y'; MSL 05, 169 (on OIP 011, 148). |
+| CBS_6972 | `/tablets/616` | P229096 | OIP 011, 253 | MSL 8/1 (V14) rev. only. |
+| CBS_7074 | `/tablets/639` | P229436 | PBS 12, 56 | MSL 12, 030 M'; MSL 14, 22 Eo |
+| CBS_7877 | `/tablets/641` | P250418 | unpublished unassigned ? |  |
+| CBS_7993 | `/tablets/642` | P231711 | unpublished unassigned ? |  |
+| CBS_8066 | `/tablets/617` | P229421 | MSL 14, 020 Cx, CBS 08066 | MSL 12, 030 G' |
+| CBS_8298 | `/tablets/618` | P230006 | OIP 011, 137 | Veldhuis EEN 311 |
+| CBS_9847 | `/tablets/643` | P228068 | EEN 297, CBS 09847+ | OIP 011, p.16 (unpub. dup.) |
+| K_4600 | `/tablets/477` | P385978 | CT 19, pl. 39, K 04600 |  |
+| N_4577 | `/tablets/644` | P228281 | unpublished unassigned ? |  |
+| N_4909 | `/tablets/645` | P231175 | CDLI Literary 000821, ex. 034 | Veldhuis, Niek, JAOS 120 (2000) 399 |
+| N_5044 | `/tablets/619` | P231241 | unpublished unassigned ? | Peterson, ZA 101, 261 |
+| N_5047 | `/tablets/646` | P231244 | unpublished unassigned ? |  |
+| N_5129 | `/tablets/620` | P229543 | MSL 12, 032 + MSL 13, 013 J, 014 R, C1 |  |
+| N_5169 | `/tablets/647` | P228396 | MSL 12, 030 S' |  |
+| N_5384 | `/tablets/648` | P228454 | unpublished unassigned ? |  |
+| N_5458 | `/tablets/649` | P228471 | MSL 12, 031 P'' | MSL 13, 065 F1 (pub as 5448) |
+| N_5553 | `/tablets/621` | P228494 | MSL 11, 094 Y |  |
+| N_5910 | `/tablets/650` | P229535 | MSL 12, 031 F'' |  |
+| N_5914 | `/tablets/622` | P230947 | unpublished unassigned ? |  |
+| N_6006 | `/tablets/651` | P230059 | EEN 315, N 6006 |  |
+| N_6013 | `/tablets/623` | P229543 | MSL 12, 032 + MSL 13, 013 J, 014 R, C1 |  |
+| N_6228 | `/tablets/658` | P229389 | MSL 14, 018 Ao |  |
+| Rm2_25 | `/tablets/482` | P386427 | CT 12, pl. 39, Rm 2, 025 |  |
+| UM_29_15_513 | `/tablets/654` | P228646 | MSL 12, 032 Z'' |  |
+| UM_29_15_888 | `/tablets/624` | P228687 | MSL 12, 031 H'' | MSL 14, p. 21 Dj |
+| UM_29_15_938 | `/tablets/653` | P228689 | MSL 12, 031 Q'' |  |
+| UM_29_15_939 | `/tablets/655` | P228690 | MSL 14, 022 Eg |  |
+| UM_29_15_964 | `/tablets/625` | P228692 | MSL 12, 030 D' |  |
+| UM_29_16_610 | `/tablets/659` | P228789 | MSL 12, 029 M |  |
+| UM_55_21_392 | `/tablets/656` | P228927 | unpublished unassigned ? |  |
+| UM_55_21_418 | `/tablets/657` | P228859 | MSL 12, 031 C'' |  |
+
+Answer:
+
+### 27. What are the museum numbers of these tablets?
+
+No CDLI entry has these numbers. UET 6/3 is a volume of texts, not a collection.
+
+| Tablet | Page | Publication |
+| --- | --- | --- |
+| UET_6/3_378 | `/tablets/608` | Alster (1997) p. 328 |
+| UET_6/3_452 | `/tablets/607` | Alster (1997) p. 328 |
+| W_18202_25 | `/tablets/662` | AUWE 5, 129 |
+| Wx17 | `/tablets/535` | AUWE 5, 68 |
 
 Answer:

@@ -18,7 +18,7 @@ from tests.conftest import Sample
 @pytest.fixture
 def live_index() -> Iterator[SearchIndex]:
     url = os.environ.get("CDPP_TEST_MEILISEARCH_URL")
-    if url is None:
+    if not url:
         pytest.skip("set CDPP_TEST_MEILISEARCH_URL to test against Meilisearch")
     api_key = os.environ.get("CDPP_TEST_MEILISEARCH_API_KEY")
     index = SearchIndex(url, api_key, prefix=f"test_{uuid.uuid4().hex}_")

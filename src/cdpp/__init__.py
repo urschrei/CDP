@@ -10,6 +10,7 @@ from flask import Flask
 import cdpp.models  # noqa: F401 (registers the tables on the metadata)
 from cdpp import access, assets, editor, history, instances, views
 from cdpp.catalogues import import_cdli, import_oracc_texts
+from cdpp.cdli_comparison import check_cdli
 from cdpp.commands import backup, dump_data, import_oracc_signs, load_data, reindex
 from cdpp.db import db, migrate
 
@@ -49,6 +50,7 @@ def create_app(config: Mapping[str, Any] | None = None) -> Flask:
         import_oracc_signs,
         import_cdli,
         import_oracc_texts,
+        check_cdli,
         reindex,
     )
     for command in commands:

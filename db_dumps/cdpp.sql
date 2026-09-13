@@ -4,7 +4,7 @@ CREATE TABLE alembic_version (
 	version_num VARCHAR(32) NOT NULL, 
 	CONSTRAINT alembic_version_pkc PRIMARY KEY (version_num)
 );
-INSERT INTO "alembic_version" VALUES('73708b382e0f');
+INSERT INTO "alembic_version" VALUES('c2e8f4a6b019');
 CREATE TABLE author (
 	name VARCHAR(75) NOT NULL, 
 	id INTEGER NOT NULL, 
@@ -71774,4 +71774,15 @@ CREATE INDEX ix_tablet_sub_locality_id ON tablet (sub_locality_id);
 CREATE INDEX ix_tablet_from_id ON tablet (from_id);
 CREATE INDEX ix_tablet_sub_period_id ON tablet (sub_period_id);
 CREATE INDEX ix_tablet_function_id ON tablet (function_id);
+CREATE TRIGGER tablet_sub_period_insert BEFORE INSERT ON tablet FOR EACH ROW WHEN NEW.sub_period_id IS NOT NULL AND NEW.period_id IS NOT (SELECT period_id FROM sub_period WHERE id = NEW.sub_period_id) BEGIN SELECT RAISE(ABORT, 'tablet_sub_period: The sub-period of a tablet must belong to the period of the tablet.'); END;
+CREATE TRIGGER tablet_sub_period_update BEFORE UPDATE OF period_id, sub_period_id ON tablet FOR EACH ROW WHEN NEW.sub_period_id IS NOT NULL AND NEW.period_id IS NOT (SELECT period_id FROM sub_period WHERE id = NEW.sub_period_id) BEGIN SELECT RAISE(ABORT, 'tablet_sub_period: The sub-period of a tablet must belong to the period of the tablet.'); END;
+CREATE TRIGGER reign_sub_period_insert BEFORE INSERT ON reign FOR EACH ROW WHEN NEW.sub_period_id IS NOT NULL AND NEW.period_id IS NOT (SELECT period_id FROM sub_period WHERE id = NEW.sub_period_id) BEGIN SELECT RAISE(ABORT, 'reign_sub_period: The sub-period of a reign must belong to the period of the reign.'); END;
+CREATE TRIGGER reign_sub_period_update BEFORE UPDATE OF period_id, sub_period_id ON reign FOR EACH ROW WHEN NEW.sub_period_id IS NOT NULL AND NEW.period_id IS NOT (SELECT period_id FROM sub_period WHERE id = NEW.sub_period_id) BEGIN SELECT RAISE(ABORT, 'reign_sub_period: The sub-period of a reign must belong to the period of the reign.'); END;
+CREATE TRIGGER tablet_city_locality_insert BEFORE INSERT ON tablet FOR EACH ROW WHEN (SELECT locality_id FROM city WHERE id = NEW.city_id) IS NOT NULL AND NEW.locality_id IS NOT (SELECT locality_id FROM city WHERE id = NEW.city_id) BEGIN SELECT RAISE(ABORT, 'tablet_city_locality: A tablet must have the locality of its city.'); END;
+CREATE TRIGGER tablet_city_locality_update BEFORE UPDATE OF city_id, locality_id ON tablet FOR EACH ROW WHEN (SELECT locality_id FROM city WHERE id = NEW.city_id) IS NOT NULL AND NEW.locality_id IS NOT (SELECT locality_id FROM city WHERE id = NEW.city_id) BEGIN SELECT RAISE(ABORT, 'tablet_city_locality: A tablet must have the locality of its city.'); END;
+CREATE TRIGGER tablet_year_eponym_insert BEFORE INSERT ON tablet FOR EACH ROW WHEN NEW.eponym_id IS NOT NULL AND (SELECT eponym_id FROM year WHERE id = NEW.year_id) IS NOT NULL AND NEW.eponym_id IS NOT (SELECT eponym_id FROM year WHERE id = NEW.year_id) BEGIN SELECT RAISE(ABORT, 'tablet_year_eponym: A tablet must have the eponym of its year.'); END;
+CREATE TRIGGER tablet_year_eponym_update BEFORE UPDATE OF year_id, eponym_id ON tablet FOR EACH ROW WHEN NEW.eponym_id IS NOT NULL AND (SELECT eponym_id FROM year WHERE id = NEW.year_id) IS NOT NULL AND NEW.eponym_id IS NOT (SELECT eponym_id FROM year WHERE id = NEW.year_id) BEGIN SELECT RAISE(ABORT, 'tablet_year_eponym: A tablet must have the eponym of its year.'); END;
+CREATE TRIGGER sub_period_period_update BEFORE UPDATE OF period_id ON sub_period FOR EACH ROW WHEN EXISTS (SELECT 1 FROM tablet WHERE sub_period_id = NEW.id AND period_id IS NOT NEW.period_id) OR EXISTS (SELECT 1 FROM reign WHERE sub_period_id = NEW.id AND period_id IS NOT NEW.period_id) BEGIN SELECT RAISE(ABORT, 'sub_period_period: A sub-period must have the period of its tablets and reigns.'); END;
+CREATE TRIGGER city_locality_update BEFORE UPDATE OF locality_id ON city FOR EACH ROW WHEN NEW.locality_id IS NOT NULL AND EXISTS (SELECT 1 FROM tablet WHERE city_id = NEW.id AND locality_id IS NOT NEW.locality_id) BEGIN SELECT RAISE(ABORT, 'city_locality: A city must have the locality of its tablets.'); END;
+CREATE TRIGGER year_eponym_update BEFORE UPDATE OF eponym_id ON year FOR EACH ROW WHEN NEW.eponym_id IS NOT NULL AND EXISTS (SELECT 1 FROM tablet WHERE year_id = NEW.id AND eponym_id IS NOT NULL AND eponym_id IS NOT NEW.eponym_id) BEGIN SELECT RAISE(ABORT, 'year_eponym: A year must have the eponym of its tablets.'); END;
 COMMIT;

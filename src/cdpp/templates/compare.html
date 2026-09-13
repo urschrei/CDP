@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% from "_scale.html" import scale_nav %}
+{% block title %}{% if items %}Comparison of {{ count_noun(items|length, "instance") }}{% else %}Comparison{% endif %}{% endblock %}
+{% block content %}
+  <div class="flex flex-wrap items-end justify-between gap-x-6 gap-y-3">
+    <h1 class="text-4xl font-semibold">{{ self.title() }}</h1>
+    {% if items %}{{ scale_nav(scale_links, scale) }}{% endif %}
+  </div>
+
+  {% if items %}
+    <ul class="mt-8 flex flex-wrap items-start gap-x-6 gap-y-10">
+      {% for item in items %}
+        {% set instance = item.instance %}
+        <li class="max-w-full">
+          <figure>
+            <div class="max-w-full overflow-auto bg-well p-3">
+              <a href="{{ item.url }}" class="block">
+                <img src="{{ image_url(instance) }}"
+                     alt="Photograph of {{ instance.sign.sign_ref }} on {{ instance.tablet.museum_number }}"
+                     {% if item.size %}width="{{ item.size[0] * scale }}" height="{{ item.size[1] * scale }}"{% endif %}
+                     class="block max-w-none">
+              </a>
+            </div>
+            <figcaption class="mt-2 grid justify-items-start text-sm leading-snug">
+              <a href="{{ url_for('cdpp.sign', sign_id=instance.sign_id) }}" class="font-sign text-lg">{{ instance.sign.sign_ref }}</a>
+              <a href="{{ url_for('cdpp.tablet', tablet_id=instance.tablet_id) }}">{{ instance.tablet.museum_number }}</a>
+              <span class="text-muted">{{ instance.tablet.period.name }}</span>
+              <span class="text-muted">{{ instance_location(instance) or "Position not recorded" }}</span>
+              <a href="{{ item.remove_url }}" class="inline-flex min-h-11 items-center">Remove<span class="sr-only"> {{ instance.sign.sign_ref }} on {{ instance.tablet.museum_number }}</span></a>
+            </figcaption>
+          </figure>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p class="mt-4">No instances.</p>
+  {% endif %}
+{% endblock %}

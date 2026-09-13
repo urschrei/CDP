@@ -17,7 +17,7 @@
 
 {% macro specimen(instance) %}
   <figure>
-    <a href="{{ url_for('instances.instance', instance_id=instance.id) }}" class="flex aspect-square items-center justify-center bg-well p-3">
+    <a href="{{ instance_url(instance) }}" class="flex aspect-square items-center justify-center bg-well p-3">
       <img src="{{ image_url(instance) }}"
            alt="Photograph of {{ instance.sign.sign_ref }} on {{ instance.tablet.museum_number }}"
            loading="lazy" decoding="async" class="max-h-full max-w-full object-contain">

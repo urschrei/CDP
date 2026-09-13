@@ -15,6 +15,10 @@
     {% if instance_count %}
       {{ count_noun(instance_count, "photograph") }} on {{ count_noun(tablets|length, "tablet") }}.
       <a href="{{ url_for('cdpp.sign_images', sign_id=sign.id) }}">See all photographs</a>
+      {% if tablets|map(attribute="0.period_id")|unique|list|length > 1 %}
+        <span aria-hidden="true" class="text-muted">·</span>
+        <a href="{{ url_for('instances.compare', sign=sign.id) }}">Compare periods</a>
+      {% endif %}
     {% else %}
       There are no photographs of this sign.
     {% endif %}

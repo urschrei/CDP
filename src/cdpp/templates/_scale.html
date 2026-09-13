@@ -1,0 +1,13 @@
+{% macro scale_nav(links, scale) %}
+  <nav aria-label="Scale">
+    <ul class="flex gap-1">
+      {% for option, href in links %}
+        <li>
+          <a href="{{ href }}"
+             class="inline-flex min-h-11 min-w-11 items-center justify-center px-2 {{ 'bg-ink text-ground no-underline' if option == scale }}"
+             {% if option == scale %}aria-current="true"{% endif %}>{{ "Actual size" if option == 1 else option ~ "×" }}</a>
+        </li>
+      {% endfor %}
+    </ul>
+  </nav>
+{% endmacro %}

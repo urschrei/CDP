@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% from "macros.html" import breadcrumbs, cuneiform, specimen %}
+{% from "_scale.html" import scale_nav %}
 {% set sign = instance.sign %}
 {% set tablet = instance.tablet %}
 {% set section = "tablets" %}
@@ -21,17 +22,7 @@
       </div>
       <figcaption class="mt-3 flex flex-wrap items-center justify-between gap-x-6 gap-y-2 text-sm">
         <span class="text-muted">{{ instance.filename }}{% if size %}, {{ size[0] }} × {{ size[1] }} px{% endif %}</span>
-        <nav aria-label="Scale">
-          <ul class="flex gap-1">
-            {% for option in scales %}
-              <li>
-                <a href="{{ url_for('instances.instance', instance_id=instance.id, scale=option) }}"
-                   class="inline-flex min-h-11 min-w-11 items-center justify-center px-2 {{ 'bg-ink text-ground no-underline' if option == scale }}"
-                   {% if option == scale %}aria-current="true"{% endif %}>{{ "Actual size" if option == 1 else option ~ "×" }}</a>
-              </li>
-            {% endfor %}
-          </ul>
-        </nav>
+        {{ scale_nav(scale_links, scale) }}
       </figcaption>
     </figure>
 
@@ -62,6 +53,8 @@
         <p class="mt-4 flex flex-wrap gap-x-6 gap-y-2">
           <a href="{{ url_for('editor.edit_instance', instance_id=instance.id) }}" class="inline-flex min-h-11 items-center">Edit</a>
           <a href="{{ url_for('history.instance_history', instance_id=instance.id) }}" class="inline-flex min-h-11 items-center">History</a>
+          {% if toggle_url %}<a href="{{ toggle_url }}" class="inline-flex min-h-11 items-center">{{ toggle_label }}</a>{% endif %}
+          {% if compare %}<a href="{{ compare_url }}" class="inline-flex min-h-11 items-center">Compare {{ count_noun(compare|length, "instance") }}</a>{% endif %}
         </p>
         {% if change_set %}
           <p class="mt-1 text-sm text-muted">Last changed by {{ change_set.author }}, <a href="{{ url_for('history.change_set', change_set_id=change_set.id) }}"><time datetime="{{ change_set.created_at.isoformat() }}Z">{{ change_set.created_at|utc_time }}</time></a></p>
@@ -105,7 +98,7 @@
         <ul class="mt-2 flex flex-wrap gap-x-6 gap-y-1">
           {% for rel, other in [("prev", previous), ("next", following)] if other %}
             <li>
-              <a href="{{ url_for('instances.instance', instance_id=other.id) }}" rel="{{ rel }}" class="inline-flex min-h-11 items-center">
+              <a href="{{ instance_url(other) }}" rel="{{ rel }}" class="inline-flex min-h-11 items-center">
                 {{- "Previous" if rel == "prev" else "Next" }}: {{ other.tablet.museum_number if label == "museum" else other.sign.sign_ref -}}
               </a>
             </li>

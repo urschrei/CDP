@@ -47,7 +47,8 @@ def test_history_of_an_unedited_instance_says_so(
 ) -> None:
     html = page(client, f"/instances/{first_instance().id}/history")
 
-    assert "No one has edited this sign on this tablet." in html
+    assert "No one has edited this instance." in html
+    assert "This history lists the changes to this instance only." in html
 
 
 def test_history_shows_each_change_with_its_old_and_new_value(
@@ -59,6 +60,7 @@ def test_history_shows_each_change_with_its_old_and_new_value(
     html = page(client, f"/instances/{instance_id}/history")
 
     assert f">Change set {change_set_id}</a>" in html
+    assert ">Instance of AŠ on A.1</a>" in html
     assert "From the photograph" in html
     assert ">New line number</td>" in html
     assert ">Line</td>" in html

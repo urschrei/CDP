@@ -1,15 +1,27 @@
 {% extends "base.html" %}
-{% from "macros.html" import breadcrumbs %}
+{% from "macros.html" import breadcrumbs, specimen %}
 {% from "_change_set.html" import change_set_entry %}
 {% set section = "tablets" %}
-{% block title %}History of {{ instance.sign.sign_ref }} on {{ instance.tablet.museum_number }}{% endblock %}
+{% block title %}History of an instance of {{ instance.sign.sign_ref }} on {{ instance.tablet.museum_number }}{% endblock %}
 {% block content %}
   {{ breadcrumbs([
     (url_for("cdpp.tablets"), "Tablets", ""),
     (url_for("cdpp.tablet", tablet_id=instance.tablet_id), instance.tablet.museum_number, ""),
   ]) }}
-  <h1 class="mt-3 text-4xl font-semibold wrap-anywhere">History of <span class="font-sign">{{ instance.sign.sign_ref }}</span> on {{ instance.tablet.museum_number }}</h1>
-  <p class="mt-4"><a href="{{ url_for('editor.edit_instance', instance_id=instance.id) }}">Edit this sign</a></p>
+  <h1 class="mt-3 text-4xl font-semibold wrap-anywhere">History of an instance of <span class="font-sign">{{ instance.sign.sign_ref }}</span> on {{ instance.tablet.museum_number }}</h1>
+
+  <div class="mt-6 flex flex-wrap items-start gap-6">
+    <div class="w-40">
+      {% call specimen(instance) %}
+        {{ instance_location(instance) or "Position not recorded" }}
+      {% endcall %}
+    </div>
+    <div class="grid max-w-prose gap-3">
+      <p>An instance is one occurrence of a sign on a tablet, with its own photograph. This history lists the changes to this instance only.</p>
+      <p><a href="{{ url_for('editor.edit_instance', instance_id=instance.id) }}">Edit this instance</a></p>
+    </div>
+  </div>
+
   {% if entries %}
     <div class="mt-8 border-b border-line">
       {% for entry in entries %}
@@ -17,6 +29,6 @@
       {% endfor %}
     </div>
   {% else %}
-    <p class="mt-8 max-w-prose">No one has edited this sign on this tablet. Values from the original data have no history.</p>
+    <p class="mt-8 max-w-prose">No one has edited this instance. Its values come from the original data.</p>
   {% endif %}
 {% endblock %}

@@ -250,9 +250,9 @@ def edit_instance(instance_id: int) -> ResponseReturnValue:
     sign = instance.sign.sign_ref
     if inline:
         saved = (
-            f"Saved the change to {sign}."
+            f"Saved the change to this instance of {sign}."
             if change_set
-            else f"{sign}: no values changed."
+            else f"No values changed for this instance of {sign}."
         )
         response = make_response(
             render_template(

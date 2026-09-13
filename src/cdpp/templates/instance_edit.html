@@ -1,13 +1,13 @@
 {% extends "base.html" %}
 {% from "macros.html" import breadcrumbs, specimen %}
 {% set section = "tablets" %}
-{% block title %}Edit {{ instance.sign.sign_ref }} on {{ instance.tablet.museum_number }}{% endblock %}
+{% block title %}Edit an instance of {{ instance.sign.sign_ref }} on {{ instance.tablet.museum_number }}{% endblock %}
 {% block content %}
   {{ breadcrumbs([
     (url_for("cdpp.tablets"), "Tablets", ""),
     (url_for("cdpp.tablet", tablet_id=instance.tablet_id), instance.tablet.museum_number, ""),
   ]) }}
-  <h1 class="mt-3 text-4xl font-semibold wrap-anywhere">Edit <span class="font-sign">{{ instance.sign.sign_ref }}</span> on {{ instance.tablet.museum_number }}</h1>
+  <h1 class="mt-3 text-4xl font-semibold wrap-anywhere">Edit an instance of <span class="font-sign">{{ instance.sign.sign_ref }}</span> on {{ instance.tablet.museum_number }}</h1>
 
   <div class="mt-8 grid gap-10 lg:grid-cols-[16rem_minmax(0,1fr)]">
     <div>

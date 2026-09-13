@@ -124,7 +124,8 @@ def change_line(change: Change) -> ChangeLine:
     if change.table_name == "instance":
         instance = db.session.get(Instance, change.record_id)
         if instance is not None:
-            subject = f"{instance.sign.sign_ref} on {instance.tablet.museum_number}"
+            sign, tablet = instance.sign.sign_ref, instance.tablet.museum_number
+            subject = f"Instance of {sign} on {tablet}"
             subject_url = url_for("history.instance_history", instance_id=instance.id)
     return ChangeLine(
         subject,

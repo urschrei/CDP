@@ -114,7 +114,7 @@ def test_save_for_htmx_returns_the_table_with_the_new_value(
     html = response.get_data(as_text=True)
     assert response.status_code == 200
     assert 'id="tablet-instances"' in html
-    assert "Saved the change to AŠ." in html
+    assert "Saved the change to this instance of AŠ." in html
     assert ">3′</td>" in html
 
 
@@ -155,6 +155,23 @@ def test_invalid_save_for_htmx_replaces_the_form_row(
     assert response.headers["HX-Reswap"] == "outerHTML"
 
 
+def test_edit_form_says_that_it_changes_one_instance(
+    client: FlaskClient, sample: Sample
+) -> None:
+    url = f"/instances/{instance_id()}/edit?columns=5"
+
+    row = client.get(url, headers=htmx(f"instance-{instance_id()}"))
+    page = client.get(url)
+
+    for html in (row.get_data(as_text=True), page.get_data(as_text=True)):
+        assert "This form changes only this instance of" in html
+        assert "It does not change the sign or its other instances." in html
+    assert 'alt="Photograph of this instance of AŠ on A.1"' in row.get_data(
+        as_text=True
+    )
+    assert "<title>Edit an instance of AŠ on A.1" in page.get_data(as_text=True)
+
+
 def test_save_after_another_save_shows_the_saved_values(
     client: FlaskClient, sample: Sample
 ) -> None:
@@ -170,7 +187,7 @@ def test_save_after_another_save_shows_the_saved_values(
     response = client.post(f"/instances/{instance_id()}/edit", data=stale)
 
     assert response.status_code == 409
-    assert "Someone saved a change to this sign" in response.get_data(as_text=True)
+    assert "Someone saved a change to this instance" in response.get_data(as_text=True)
     assert saved_line() is None
     assert change_set_count() == 1
 

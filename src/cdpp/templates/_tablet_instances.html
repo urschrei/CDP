@@ -26,7 +26,7 @@
           {% for heading in headings %}
             <th scope="col" class="px-3 py-2 font-semibold whitespace-nowrap">{{ heading }}</th>
           {% endfor %}
-          <th scope="col" class="px-3 py-2"><span class="sr-only">Edit</span></th>
+          <th scope="col" class="px-3 py-2"><span class="sr-only">Edit instance</span></th>
         </tr>
       </thead>
       <tbody>
@@ -51,7 +51,7 @@
             <td class="px-3 py-2 text-right">
               {% set edit_url = url_for("editor.edit_instance", instance_id=instance_id, columns=headings|length + 1, notes=None if show_notes else "hide") %}
               <a href="{{ edit_url }}" hx-get="{{ edit_url }}" hx-target="#instance-{{ instance_id }}" hx-swap="outerHTML"
-                 {% if instance_id == saved_instance_id %}autofocus{% endif %}>Edit<span class="sr-only"> {{ row[0].sign_ref }}</span></a>
+                 {% if instance_id == saved_instance_id %}autofocus{% endif %}>Edit<span class="sr-only"> this instance of {{ row[0].sign_ref }}</span></a>
             </td>
           </tr>
         {% endfor %}

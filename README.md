@@ -1,6 +1,6 @@
 # Cuneiform Digital Palaeography Project (CDPP)
 
-A web application for comparing the forms of cuneiform signs. It holds 11,404 photographs of individual signs on 228 tablets, and sign-list entries for 3,440 signs. Editors can change the positions of the signs on the tablets, and the application records each change. It is a Flask application with an SQLite database, full-text search with SQLite FTS5, and a front end built with htmx, Tailwind CSS and esbuild.
+A web application for comparing the forms of cuneiform signs. It holds 11,404 photographs of individual signs on 228 tablets, and sign-list entries for 3,440 signs. Editors can change the position and reading of each sign instance, that is, each occurrence of a sign on a tablet, and the application records each change. It is a Flask application with an SQLite database, full-text search with SQLite FTS5, and a front end built with htmx, Tailwind CSS and esbuild.
 
 ## Running the site locally
 
@@ -49,19 +49,21 @@ To rebuild the assets when a template or a front-end file changes, run `npm run 
 
 ## How-to guides
 
-### Editing the position of a sign
+### Editing a sign instance
 
-1. Open a tablet, and find the sign in the table **Signs on this tablet**.
-2. In the row of the sign, select **Edit**.
+A sign instance is one occurrence of a sign on a tablet, with its own photograph. An edit changes only that instance: the sign, and its instances on this and other tablets, do not change.
+
+1. Open the tablet. In the table **Signs on this tablet**, each row is one instance.
+2. In the row of the instance, select **Edit**. The form shows the photograph of the instance.
 3. Change the surface, column, line, iteration, function or language. Leave a field empty if the source gives no value.
 4. Enter your name. The site keeps it for your next edit. Optionally, enter a comment, for example the reason for the change.
 5. Select **Save**.
 
-If someone saved a change to the sign after you opened the form, the form shows the saved values instead. Make your change again, then save.
+If someone saved a change to the instance after you opened the form, the form shows the saved values instead. Make your change again, then save.
 
 ### Undoing a change
 
-1. Select **Changes** in the navigation, or **History of this sign** in the edit form.
+1. Select **Changes** in the navigation, or **History of this instance** in the edit form.
 2. Select the change set.
 3. Enter your name, and select **Undo change set**.
 
@@ -274,7 +276,7 @@ The site has no sign-in. A cookie keeps the editor's name, and the site refuses 
 
 ### Search
 
-Search uses two SQLite FTS5 tables with the trigram tokenizer: `search_sign` holds the name of each sign and its names in other sign lists, and `search_tablet` holds the details of each tablet. The tables hold the text in a normalised form, Unicode NFKC and then case folding, so `gir3` finds GIR₃, and `S` and `Š` stay distinct. A search finds the records with a field that contains the query. An exact value ranks first, then a value that starts with the query, then a value that contains it. The trigram index cannot find a query shorter than three characters, so a shorter query reads all the rows. The search tables are derived from the other tables, so they are not in the models, the migrations or the dump. `cdpp load-data` and `cdpp reindex` make them, and a search makes them if they do not exist. The edit forms change only the positions of signs, which the search tables do not contain.
+Search uses two SQLite FTS5 tables with the trigram tokenizer: `search_sign` holds the name of each sign and its names in other sign lists, and `search_tablet` holds the details of each tablet. The tables hold the text in a normalised form, Unicode NFKC and then case folding, so `gir3` finds GIR₃, and `S` and `Š` stay distinct. A search finds the records with a field that contains the query. An exact value ranks first, then a value that starts with the query, then a value that contains it. The trigram index cannot find a query shorter than three characters, so a shorter query reads all the rows. The search tables are derived from the other tables, so they are not in the models, the migrations or the dump. `cdpp load-data` and `cdpp reindex` make them, and a search makes them if they do not exist. The edit forms change only sign instances, which the search tables do not contain.
 
 ### Links to sign lists
 

@@ -2,7 +2,7 @@
 
 This document tracks the questions about the database schema and the data that need a decision before the schema can change. The numbers are those of the review of the models. When you make a decision, record it with its date in the section of the question, and update the status table.
 
-The findings describe the data in `db_dumps/cdpp.sql` on 13 September 2026.
+Unless a section says otherwise, the findings describe the data in `db_dumps/cdpp.sql` on 13 September 2026.
 
 ## Status
 
@@ -14,8 +14,8 @@ The findings describe the data in `db_dumps/cdpp.sql` on 13 September 2026.
 | [9. Duplicate sign-list entries](#9-duplicate-sign-list-entries) | Open |
 | [10. Lookup tables for plain values](#10-lookup-tables-for-plain-values) | Open |
 | [11. Dates stored as text](#11-dates-stored-as-text) | Open |
-| [12. Sign lists and sign names](#12-sign-lists-and-sign-names) | Open |
-| [Links to online sign lists](#links-to-online-sign-lists) | To explore |
+| [12. Sign lists and sign names](#12-sign-lists-and-sign-names) | Done; one question open |
+| [Links to online sign lists](#links-to-online-sign-lists) | Partly done; questions open |
 
 ## Decisions made
 
@@ -27,6 +27,8 @@ The findings describe the data in `db_dumps/cdpp.sql` on 13 September 2026.
 - `Correspondent.name` is available in SQL queries.
 - A read of an unloaded collection raises an error instead of querying the database.
 - `tablet.timestamp` is removed. It held only the two times of the import in 2012.
+- The sign-list numbers of CDP records are in the tables `sign_list` and `sign_list_entry`, and the description, ORACC and CDLI names are in the table `sign_name`. See [question 12](#12-sign-lists-and-sign-names).
+- A snapshot of the Oracc Sign List gives links from sign pages. See [Links to online sign lists](#links-to-online-sign-lists).
 
 ## 6. Empty columns and tables
 
@@ -35,18 +37,19 @@ The findings describe the data in `db_dumps/cdpp.sql` on 13 September 2026.
 - These `tablet` columns are empty in all 228 rows: `city_site_id`, `to_id`, `language_id`, `dynasty_id`, `sub_locality_id`, `function_id` and `reign_id`.
 - The tables `city_site`, `sub_locality` and `subperiod_dynasty` have no rows.
 - The table `reign` has 587 rows. No tablet refers to a reign, and the application does not read the table.
-- These `cdp` columns are empty in all 4,776 rows: `form_name`, `variant_name`, `form_description`, `notes`, and the sign-list columns `UET_2`, `ARM_XV`, `Clay_BE_A_14`, `Koenig_AfO_Bei_16`, `Ranke_BE_A_61`, `Schroeder_VS_12`, `Clay_BE_A_10`, `Schroder_VS_15` and `Fossey_pp`.
+- These `cdp` columns are empty in all 4,776 rows: `form_name`, `variant_name`, `form_description` and `notes`.
+- These sign lists have no entries: UET 2, ARM XV, Clay BE A 14, Koenig AfO Bei 16, Ranke BE A 61, Schroeder VS 12, Clay BE A 10, Schroder VS 15 and Fossey pp. Each was an empty column of `cdp` before the normalisation of question 12.
 - The application does not read `period.from_date`, `period.to_date`, `text_vehicle.bm_catalogue`, `text_vehicle.cdli` or `reign.rim_ref`.
 
 ### Questions
 
-- Will anyone enter data into these columns and tables?
+- Will anyone enter data into these columns, tables and sign lists?
 - Is the reign data needed, for example to show the reign of the ruler of a tablet?
 
 ### Options
 
-- Remove the empty columns and tables. The filters and the tablet details become shorter.
-- Keep the columns and tables that are for future data entry, and remove the others.
+- Remove the empty columns, tables and sign lists. The filters and the tablet details become shorter.
+- Keep those that are for future data entry, and remove the others.
 
 ### Decision
 
@@ -100,7 +103,7 @@ Open.
 
 ### Findings
 
-- 227 of the 4,776 `cdp` rows are copies of another row, in all columns except `id`.
+- 227 of the 4,776 `cdp` rows are copies of another row, in all columns except `id`. The copies have the same names and the same sign-list numbers as their originals.
 - Nothing in the data makes a copy different from its original.
 
 ### Questions
@@ -109,7 +112,7 @@ Open.
 
 ### Options
 
-- Remove the copies, and add a unique constraint on the columns of an entry.
+- Remove the copies, and add a constraint that prevents new copies.
 - Keep the copies, and add the information that makes them different.
 
 ### Decision
@@ -166,37 +169,74 @@ Open.
 
 ## 12. Sign lists and sign names
 
-### Findings
+### Findings before the change
 
-- `cdp` has one column for each of 22 sign lists. To add a sign list, a migration must add a column, and the code must change.
+- `cdp` had one column for each of 22 sign lists. To add a sign list, a migration had to add a column, and the code had to change.
 - Sign-list references are not always numbers, for example `556b` and `10+127`.
-- The tables `description`, `oracc` and `cdli` have the same structure: an ID and a `sign_ref`.
-- 1,891 names are in both `description` and `oracc`.
-- In 2,359 `cdp` rows, the `description` name is the same as the sign name. In 1,000 rows, the `oracc` name is the same as the sign name.
-
-### Questions
-
-- What does the table `description` hold? Its values look like sign names, for example `ILIMMU`, not like descriptions.
-- Are the ORACC and CDLI names the names of the sign in those projects?
-
-### Options
-
-- Replace the sign-list columns with a table `sign_list`, with one row for each list, and a table `sign_list_entry`, with one row for each reference as text.
-- Replace `description`, `oracc` and `cdli` with one table of names, with a column for the source of each name.
+- The tables `description`, `oracc` and `cdli` had the same structure: an ID and a `sign_ref`.
+- 1,891 names were in both `description` and `oracc`.
+- In 2,359 `cdp` rows, the `description` name was the same as the sign name. In 1,000 rows, the `oracc` name was the same as the sign name.
 
 ### Decision
 
-Open.
+13 September 2026: normalise both.
+
+- `sign_list` has one row for each of the 22 sign lists, with its name and its position in tables. `sign_list_entry` has one row for each number of a CDP record in a sign list: 16,989 rows. The number is text.
+- `sign_name` has one row for each name of a CDP record, with the source of the name: `description`, `oracc` or `cdli`. It has 10,549 rows. A record has one name from each source at most.
+- Both migrations have a downgrade that restores the former columns and tables.
+
+The migrations changed three things in the data:
+
+- They removed the spaces at the ends of three KWU numbers.
+- They did not copy the KWU value of record 3099 (sign MAŠMIN), which held only three spaces.
+- They did not copy the CDLI name `NA`, which no record used. It is probably a marker for a missing value from the spreadsheets of the original import.
+
+### Question still open
+
+- What does the source `description` hold? Its values look like sign names, for example `ILIMMU`, not like descriptions. If they are sign names, rename the source.
 
 ## Links to online sign lists
 
-Link each sign-list reference to its entry in the sign list, where the list is online and its entries have stable addresses.
+### Done
 
-### Questions
+- `cdpp import-oracc-signs` loads a snapshot of the [Oracc Sign List](https://oracc.museum.upenn.edu/osl/) (OSL) from its source file `osl.asl`, which is in the public domain under CC0. The snapshot is in the tables `oracc_sign` and `oracc_list_number`. The snapshot of 13 September 2026 has 4,262 signs and forms, with 6,311 list numbers.
+- `sign_list.oracc_list` holds the OSL abbreviation of 11 sign lists.
+- On a sign page, a sign-list number links to the OSL page of the sign or form that has the same number in that list, if exactly one sign or form has it. OSL writes numbers with at least three digits, as in `MZL001`, so the lookup also tries the number with zeros in front.
+- An ORACC name links to the OSL page of the sign or form with that name, if exactly one has it. It also links to the eBL page that OSL records for that sign or form. OSL records 2,504 eBL pages.
 
-- Which of the 22 sign lists are online, and which of them have an address for each entry?
-- Do the ORACC and CDLI names give addresses in those projects?
+| Sign list | OSL abbreviation | Entries | Entries with a link | Entries with several OSL matches |
+| --- | --- | --- | --- | --- |
+| MesZL | MZL | 2,219 | 1,933 | 38 |
+| ELLes | ELLES | 1,013 | 1,000 | 2 |
+| ZATU | ZATU | 1,408 | 17 | 0 |
+| LAK | LAK | 1,480 | 1,426 | 5 |
+| RSP | RSP | 1,203 | 1,113 | 9 |
+| HZL | HZL | 1,228 | 988 | 101 |
+| HA | SLLHA | 1,928 | 1,431 | 157 |
+| aBZL | ABZL | 1,462 | 1,262 | 121 |
+| REC | REC | 484 | 11 | 0 |
+| Labat | SLLHA | 1,575 | 1,114 | 139 |
+| KWU | KWU | 1,316 | 1,055 | 18 |
 
-### Depends on
+Of the 3,285 ORACC names, 3,135 link to OSL, and 3,024 of those also link to eBL.
 
-- [Question 12](#12-sign-lists-and-sign-names). A `sign_list` table can hold the address pattern of each list.
+### Not done
+
+- **Several matches:** a number that more than one OSL sign or form has gets no link. Often this is a sign and one of its forms. The snapshot could record the sign of each form, and the page could then link to the sign.
+- **Forms that OSL does not use:** numbers such as `172?`, `556_8`, `10+127` and `439, 465` have no link.
+- **ZATU and REC:** OSL records only 17 ZATU numbers and 16 REC numbers. No other online source with a page for each entry was found. The CDLI list of proto-cuneiform signs on GitHub has an image for each sign name, under CC BY, but no page to link to. LAK and REC are available only as scans of the whole book on archive.org.
+- **Emar and Hinke:** no online source was found.
+- **eBL lookup by number:** eBL has a public API that finds a sign by list and number, for example `https://www.ebl.lmu.de/api/signs?listsName=MZL&listsNumber=839`. The site notice of eBL reserves all rights, so the application uses only the eBL links that OSL records.
+- **CDLI archaic names:** no links. CDLI has no page for each sign.
+- **Sign headings:** no link. Only 354 of the 3,440 sign names of the CDP are also OSL names.
+- **Refresh:** the snapshot does not update itself. Run `cdpp import-oracc-signs`, then `cdpp dump-data`.
+
+### Questions about sources
+
+- **Which list is aBZL?** It was thought to be Borger's *Assyrisch-babylonische Zeichenliste* (ABZ, numbers 1 to 598). The data suggest Mittermayer's *Altbabylonische Zeichenliste*, which OSL calls ABZL (numbers 1 to 480, and 900 to 904). The highest aBZL number in the data is 480. Where our record has an ORACC or sign name, 94 % of the aBZL numbers that OSL has belong to a sign with the same name. OSL has no ABZ numbers. The links use ABZL. Please check against the source of the data.
+- **Are HA and Labat the SLLHA numbering?** Both columns link to SLLHA. OSL defines SLLHA from Deimel's *Šumerisches Lexikon*, Labat's *Manuel d'épigraphie akkadienne* and Ellermeier and Studt's *Handbuch Assur*. Of the numbers that OSL has, 89 % of HA numbers and 85 % of Labat numbers belong to a sign with the same name. This is near the rates of lists whose identity is certain: MesZL 78 %, LAK 85 %, HZL 92 %. In 1,227 of the 1,436 records with both numbers, the HA and the Labat numbers are the same. This decision is provisional. To change it, change `sign_list.oracc_list` for HA or Labat, then run `cdpp dump-data`.
+- **Name agreement understates the match:** the rates above count a match only when the OSL name is the same as our name. Many differences are two names for one sign, for example `1` and `DIŠ`, or `|3(N57).PIRIG~b1|` and `|GIR₃×(LU.IGI)|`. A specialist check of a sample of the differences would give better rates.
+- **Unverified sources:** the sign pages of the Hethitologie Portal Mainz (for HZL) and the Ebla Digital Archives (for ELLes) did not respond. They may have pages for entries.
+- **LaBaSi:** LaBaSi has sign pages with MesZL numbers, but its addresses use internal IDs, and it states no licence for its data.
+- **eBL:** would eBL agree to the use of its API, to link numbers that OSL does not have?
+- **Uncertain titles:** the full titles of the HA, Emar and Hinke lists are not confirmed. OSL identifies KWU as Schneider, *Die Keilschriftzeichen der Wirtschaftsurkunden von Ur III*.

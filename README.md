@@ -92,6 +92,22 @@ uv run cdpp load-data --replace
 uv run cdpp reindex
 ```
 
+### Updating the Oracc Sign List snapshot
+
+The links from sign pages to the Oracc Sign List use a snapshot of the list in the database.
+
+1. Import the current `osl.asl` from the OSL repository:
+
+   ```sh
+   uv run cdpp import-oracc-signs
+   ```
+
+2. Write the database to the dump:
+
+   ```sh
+   uv run cdpp dump-data
+   ```
+
 ### Changing the schema
 
 1. Change the models in `src/cdpp/models.py`.
@@ -176,6 +192,7 @@ Run each command as `uv run cdpp COMMAND`. `cdpp` is the Flask command-line inte
 | `run` | Start the development server. |
 | `load-data [--replace] [PATH]` | Create the database from an SQL dump, then apply newer migrations. `PATH` defaults to `db_dumps/cdpp.sql`. `--replace` deletes the existing tables first. |
 | `dump-data [PATH]` | Write the schema, the records and the migration revision to an SQL dump. `PATH` defaults to `db_dumps/cdpp.sql`. |
+| `import-oracc-signs [SOURCE]` | Replace the snapshot of the Oracc Sign List with the signs in `osl.asl`. `SOURCE` is a path or a URL, and defaults to the file in the [OSL repository](https://github.com/oracc/osl). |
 | `db upgrade` | Apply the database migrations. |
 | `db migrate -m MESSAGE` | Generate a migration from changes to the models. |
 | `reindex` | Rebuild the Meilisearch indexes from the database. |
@@ -235,6 +252,8 @@ The SQL dump in `db_dumps/cdpp.sql` is the source of record. It is plain text, s
 
 Meilisearch holds a copy of the sign names and the tablet details for full-text search. `cdpp reindex` builds each index in a staging index, then swaps it with the live index, so search continues to work during a rebuild. If Meilisearch is not available, the search page tells the user, and the other pages continue to work.
 
+On a sign page, a sign-list number links to the [Oracc Sign List](https://oracc.museum.upenn.edu/osl/) (OSL) if exactly one OSL sign or form has the same number in that list. An ORACC name links to OSL if exactly one OSL sign or form has that name, and to the electronic Babylonian Library (eBL) if OSL records an eBL page for it. The links come from a snapshot of OSL in the tables `oracc_sign` and `oracc_list_number`, so a page does not depend on Oracc. [docs/schema-and-data-questions.md](docs/schema-and-data-questions.md) lists the sign lists that have links, and the open questions about them.
+
 The server renders every page. htmx updates parts of pages without a full reload: the tablet list when a filter changes, the search results while the user types, and the random selection of signs on the home page. A request from htmx names its target element in the `HX-Target` header, and the server then returns only the fragment for that element. Links and forms also work without JavaScript. Only the button that shows other signs on the home page needs it.
 
 Sign names are set in Gentium Book Plus, and the interface in Atkinson Hyperlegible Next. The font subsets do not contain subscript digits, so the browser takes those characters from another font.
@@ -248,4 +267,4 @@ Stephan Hügel (2014). Cuneiform Digital Palaeography Project (CDPP) v0.2. Zenod
 
 ## Licence
 
-The code is available under the MIT licence. The licence of the data is not settled. See [LICENCE.md](LICENCE.md).
+The code is available under the MIT licence. The licence of the data is not settled. See [LICENCE.md](LICENCE.md). The snapshot of the Oracc Sign List in the dump is in the public domain, under the CC0 licence of `osl.asl`.

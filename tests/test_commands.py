@@ -372,6 +372,68 @@ def test_migrations_create_the_triggers_of_the_models(
         assert db.session.execute(triggers).all() == modelled
 
 
+def test_positions_move_to_instance_columns_and_back(project_app: Flask) -> None:
+    counts = (3685, 11323, 436)
+    numbers = text(
+        "SELECT count(column_number), count(line_number), count(iteration_number)"
+        " FROM instance"
+    )
+    references = text(
+        "SELECT count(column_id), count(line_id), count(iteration_id) FROM instance"
+    )
+    changes = text("SELECT kind, table_name, field, old_value, new_value FROM change")
+    change_triggers = text(
+        "SELECT count(*) FROM sqlite_schema"
+        " WHERE type = 'trigger' AND name LIKE 'change%'"
+    )
+
+    with project_app.app_context():
+        assert tuple(db.session.execute(numbers).one()) == counts
+        assert not inspect(db.engine).has_table("line")
+
+        downgrade(revision="c2e8f4a6b019")
+        assert tuple(db.session.execute(references).one()) == counts
+        line_id, line = db.session.execute(
+            text("SELECT id, number FROM line WHERE number LIKE '%''' LIMIT 1")
+        ).one()
+        # A change set of the former schema adds a line record and refers to it.
+        change_set_id = db.session.execute(
+            text(
+                "INSERT INTO change_set (author, created_at)"
+                " VALUES ('JJT', '2026-09-13 12:00:00') RETURNING id"
+            )
+        ).scalar_one()
+        db.session.execute(
+            text(
+                "INSERT INTO change (change_set_id, kind, table_name, record_id,"
+                " field, old_value, new_value) VALUES"
+                " (:change_set, 'insert', 'line', :line_id, 'number', 'null', :line),"
+                " (:change_set, 'update', 'instance', 1, 'line_id', 'null', :line_id)"
+            ),
+            {"change_set": change_set_id, "line_id": line_id, "line": f'"{line}"'},
+        )
+        db.session.commit()
+
+        upgrade()
+        assert tuple(db.session.execute(numbers).one()) == counts
+        assert db.session.execute(changes).all() == [
+            ("update", "instance", "line", "null", f'"{line}"')
+        ]
+        assert db.session.scalar(change_triggers) == 4
+
+        downgrade(revision="c2e8f4a6b019")
+        new_line_id = db.session.scalar(
+            text("SELECT id FROM line WHERE number = :line"), {"line": line}
+        )
+        assert db.session.execute(changes).all() == [
+            ("update", "instance", "line_id", "null", new_line_id)
+        ]
+        assert db.session.scalar(change_triggers) == 4
+
+        upgrade()
+        assert tuple(db.session.execute(numbers).one()) == counts
+
+
 def test_cdli_artifact_table_comes_and_goes_with_its_migration(
     project_app: Flask,
 ) -> None:

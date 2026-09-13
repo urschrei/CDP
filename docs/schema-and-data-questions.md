@@ -42,6 +42,7 @@ The rank orders the open questions by importance. Questions whose answers change
 - The JJT notes stay in the database, and tablet pages show them. A link hides or shows them. See [question 10](#10-lookup-tables-for-plain-values).
 - An instance has one language at most, in the column `instance.language_id`. See [question 8](#8-two-records-of-one-fact).
 - The empty columns `tablet.to_id`, `tablet.language_id` and `tablet.dynasty_id` are removed. The language of a tablet is the language of its sign instances. See [question 8](#8-two-records-of-one-fact).
+- An instance stores its column, line and iteration numbers as text, and the tables `column`, `line` and `iteration` are removed. See [question 10](#10-lookup-tables-for-plain-values).
 - [Questions for the editors](questions-for-the-editors.md) lists the questions that need the tablets, the photographs or the sign lists.
 
 - Search uses SQLite FTS5 tables, not Meilisearch.
@@ -225,6 +226,8 @@ The notes of the editor of the instance data say:
 - The position under a photograph, for example "Rev, column iii, line 6′", contains only recorded values.
 - Pages show each apostrophe in a line or column number as a prime (`′`, U+2032), and remove the zeros in front of a number, for example `1′` for `01'`. The database keeps the values as they are, so data entry can use the apostrophe.
 - The working notes in `instance.jjt_notes` stay in the database. The editors of the data are the users of the site, so the table of instances on a tablet page shows the notes in the column "JJT notes (2012)". A link above the table hides or shows the column. The address of the page without the column has `notes=hide`.
+
+13 September 2026: migration d8a1f3c5e742 stores the column, line and iteration numbers in the columns `instance.column_number`, `instance.line_number` and `instance.iteration_number`, and removes the tables `column`, `line` and `iteration`. The 176 line numbers, 10 column numbers and 10 iteration numbers that no instance used are gone. An edit stores the number that the editor enters, and no longer adds a lookup record. The migration converts the changes that refer to the former records, and removes the changes that inserted them. The downgrade makes the tables again from the numbers, but not the changes that inserted them.
 
 The other questions are open.
 

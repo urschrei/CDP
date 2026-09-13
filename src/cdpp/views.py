@@ -148,10 +148,10 @@ def instance_location(instance: Instance) -> str:
     parts = []
     if instance.surface is not None:
         parts.append(instance.surface.name)
-    if instance.column is not None:
-        parts.append(f"column {position_text(instance.column.number)}")
-    if instance.line is not None:
-        parts.append(f"line {position_text(instance.line.number)}")
+    if instance.column:
+        parts.append(f"column {position_text(instance.column)}")
+    if instance.line:
+        parts.append(f"line {position_text(instance.line)}")
     text = ", ".join(parts)
     return text[:1].upper() + text[1:]
 
@@ -272,8 +272,6 @@ def sign_images(sign_id: int) -> ResponseReturnValue:
             .options(
                 contains_eager(Instance.tablet),
                 joinedload(Instance.surface),
-                joinedload(Instance.column),
-                joinedload(Instance.line),
                 joinedload(Instance.function),
             )
             .order_by(Tablet.museum_number, Instance.id)
@@ -542,10 +540,7 @@ def tablet_instances(tablet_id: int) -> list[Instance]:
             .options(
                 contains_eager(Instance.sign),
                 joinedload(Instance.surface),
-                joinedload(Instance.column),
-                joinedload(Instance.line),
                 joinedload(Instance.function),
-                joinedload(Instance.iteration),
                 joinedload(Instance.language),
             )
             .order_by(Sign.sign_ref, Instance.id)
@@ -670,15 +665,12 @@ def instance_row(instance: Instance) -> list[Any]:
         instance.sign,
         position(instance.surface.name if instance.surface else None, DEFAULT_SURFACE),
         position(
-            position_text(instance.column.number) if instance.column else None,
+            position_text(instance.column) if instance.column else None,
             DEFAULT_COLUMN,
         ),
-        position_text(instance.line.number) if instance.line else "",
+        position_text(instance.line) if instance.line else "",
         instance.function.name if instance.function else "",
-        position(
-            instance.iteration.number if instance.iteration else None,
-            DEFAULT_ITERATION,
-        ),
+        position(instance.iteration, DEFAULT_ITERATION),
         instance.language.name if instance.language else "",
         instance.jjt_notes or "",
         instance.notes or "",

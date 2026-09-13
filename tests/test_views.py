@@ -6,7 +6,7 @@ from flask.testing import FlaskClient
 from sqlalchemy import update
 
 from cdpp.db import db
-from cdpp.models import Instance, Line, OraccListNumber, OraccSign, SignList, Surface
+from cdpp.models import Instance, OraccListNumber, OraccSign, SignList, Surface
 from cdpp.search import SearchResults
 from cdpp.views import (
     Cell,
@@ -280,7 +280,7 @@ def test_position_text_removes_leading_zeros_and_shows_primes(
 
 
 def test_instance_location_shows_the_line_as_pages_show_it() -> None:
-    instance = Instance(surface=Surface(name="rev"), line=Line(number="03'"))
+    instance = Instance(surface=Surface(name="rev"), line="03'")
 
     assert instance_location(instance) == "Rev, line 3′"
 

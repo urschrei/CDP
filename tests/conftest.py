@@ -15,7 +15,6 @@ from cdpp.models import (
     Genre,
     Instance,
     Language,
-    Line,
     Locality,
     Medium,
     Period,
@@ -64,7 +63,6 @@ def sample(app: Flask) -> Sample:
     old_babylonian = Period(name="Old Babylonian", from_date="1900", to_date="1600")
     syria = Locality(area="Syria")
     zimri_lim = Ruler(name="Zimri-Lim")
-    line_1 = Line(number="1")
     meszl = SignList(name="MesZL", position=1)
     zatu = SignList(name="ZATU", position=3)
     lak = SignList(name="LAK", position=4)
@@ -100,11 +98,11 @@ def sample(app: Flask) -> Sample:
             Instance(
                 sign=sign,
                 surface=Surface(name="obverse"),
-                line=line_1,
+                line="1",
                 filename="I_1",
                 language=Language(name="Akkadian"),
             ),
-            Instance(sign=sign, line=line_1, filename="I_2"),
+            Instance(sign=sign, line="1", filename="I_2"),
         ],
     )
     tablet_without_instances = Tablet(

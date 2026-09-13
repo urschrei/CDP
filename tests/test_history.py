@@ -3,7 +3,7 @@ from sqlalchemy import select
 
 from cdpp.db import db
 from cdpp.editing import fingerprint, save
-from cdpp.models import ChangeSet, Instance, Line
+from cdpp.models import ChangeSet, Instance
 from tests.conftest import Sample
 
 
@@ -14,21 +14,12 @@ def first_instance() -> Instance:
 def set_line(number: str | None, author: str = "JJT") -> int:
     """Set the line of the first instance, and return the ID of the change set."""
     instance = first_instance()
-    seen = fingerprint(instance, ["line_id"])
-    inserted = []
-    line_id = None
-    if number is not None:
-        line = Line(number=number)
-        db.session.add(line)
-        db.session.flush()
-        inserted, line_id = [line], line.id
     change_set = save(
         instance,
-        {"line_id": line_id},
+        {"line": number},
         author=author,
-        seen=seen,
+        seen=fingerprint(instance, ["line"]),
         comment="From the photograph",
-        inserted=inserted,
     )
     assert change_set is not None
     change_set_id = change_set.id
@@ -62,7 +53,6 @@ def test_history_shows_each_change_with_its_old_and_new_value(
     assert f">Change set {change_set_id}</a>" in html
     assert ">Instance of AŠ on A.1</a>" in html
     assert "From the photograph" in html
-    assert ">New line number</td>" in html
     assert ">Line</td>" in html
     assert ">1</td>" in html
     assert ">3′</td>" in html
@@ -92,9 +82,7 @@ def test_undo_sets_the_old_value_and_records_a_new_change_set(
     ).one()
     assert response.location.endswith(f"/changes/{undo.id}?undone={change_set_id}")
     db.session.expire_all()
-    line = first_instance().line
-    assert line is not None
-    assert line.number == "1"
+    assert first_instance().line == "1"
     html = page(client, f"/changes/{change_set_id}")
     assert "Undone by" in html
     assert "Undo this change set" not in html

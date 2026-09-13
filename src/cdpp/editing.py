@@ -11,7 +11,7 @@ from collections.abc import Mapping, Sequence
 from datetime import UTC, datetime
 from typing import Any
 
-from sqlalchemy import inspect, select
+from sqlalchemy import select
 
 from cdpp.db import Base, db
 from cdpp.models import Change, ChangeSet, Entity
@@ -54,13 +54,11 @@ def save(
     author: str,
     seen: str,
     comment: str | None = None,
-    inserted: Sequence[Entity] = (),
 ) -> ChangeSet | None:
     """Set ``values`` on ``record``, record a change set, and commit.
 
     ``seen`` is the fingerprint of the fields of ``values`` when the editor
-    loaded the record. ``inserted`` are new lookup records that ``values``
-    refer to. Flush them first, so that they have IDs.
+    loaded the record.
 
     If no value changes, commit nothing and return None. If the record changed
     after the editor loaded it, commit nothing and raise EditConflict.
@@ -78,19 +76,6 @@ def save(
         return None
 
     change_set = ChangeSet(author=author, created_at=utc_now(), comment=comment)
-    for entity in inserted:
-        for attribute in inspect(type(entity)).column_attrs:
-            if attribute.key != "id":
-                change_set.changes.append(
-                    Change(
-                        kind="insert",
-                        table_name=type(entity).__tablename__,
-                        record_id=entity.id,
-                        field=attribute.key,
-                        old_value=None,
-                        new_value=getattr(entity, attribute.key),
-                    )
-                )
     for field, value in changed.items():
         change_set.changes.append(
             Change(
@@ -113,9 +98,8 @@ def revert(
 ) -> ChangeSet:
     """Undo ``change_set`` with a new change set, and commit.
 
-    New lookup records that ``change_set`` inserted stay, because other
-    records can refer to them. If a later change set changed a value that
-    ``change_set`` set, commit nothing and raise RevertConflict.
+    If a later change set changed a value that ``change_set`` set, commit
+    nothing and raise RevertConflict.
     """
     updates = db.session.scalars(
         select(Change)

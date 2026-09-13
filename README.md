@@ -321,9 +321,9 @@ When editors use the site, the database is the source of record, and its change 
 
 ### Edits and change sets
 
-Each save of an edit form is one transaction. It changes the record, and writes a row to `change_set` (the editor's name, the time in UTC and an optional comment) and a row to `change` for each value that it changes (the table, the record, the field, and the old and new values as JSON). A new column, line or iteration number is a new lookup record, and the change set records it as an insert. Triggers refuse to update or delete rows of `change_set` and `change`, so a change set cannot change after it is written.
+Each save of an edit form is one transaction. It changes the record, and writes a row to `change_set` (the editor's name, the time in UTC and an optional comment) and a row to `change` for each value that it changes (the table, the record, the field, and the old and new values as JSON). Triggers refuse to update or delete rows of `change_set` and `change`, so a change set cannot change after it is written.
 
-An edit form contains a digest of the values that it shows. If the digest of the saved values is different when the form is saved, someone saved a change after the form was loaded, and the save stops. Undo writes a new change set that sets each value back to its old value, and refers to the change set that it undoes. Undo stops if a later change set changed one of the values. New lookup records stay after an undo, because other records can refer to them.
+An edit form contains a digest of the values that it shows. If the digest of the saved values is different when the form is saved, someone saved a change after the form was loaded, and the save stops. Undo writes a new change set that sets each value back to its old value, and refers to the change set that it undoes. Undo stops if a later change set changed one of the values.
 
 The site has no user accounts. If `CDPP_PASSWORD` is set, each request must give that password. A cookie keeps the editor's name, and the site refuses a form that a page on another site sends.
 

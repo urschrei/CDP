@@ -25,14 +25,10 @@ from sqlalchemy import select
 from cdpp.db import db
 from cdpp.editing import EditConflict, fingerprint, save
 from cdpp.models import (
-    Entity,
     Function,
     Instance,
-    Iteration,
     Language,
-    Line,
     Surface,
-    TextColumn,
 )
 from cdpp.views import htmx_target, instance_table, position_text
 
@@ -45,9 +41,9 @@ COMMENT_LENGTH = 500
 # The instance fields that the form edits, in the order of the form.
 INSTANCE_FIELDS = (
     "surface_id",
-    "column_id",
-    "line_id",
-    "iteration_id",
+    "column",
+    "line",
+    "iteration",
     "function_id",
     "language_id",
 )
@@ -109,9 +105,9 @@ def current_values(instance: Instance) -> dict[str, str]:
     """Return the values of the form for ``instance``, as the editor sees them."""
     return {
         "surface_id": str(instance.surface_id or ""),
-        "column": position_text(instance.column.number) if instance.column else "",
-        "line": position_text(instance.line.number) if instance.line else "",
-        "iteration": instance.iteration.number if instance.iteration else "",
+        "column": position_text(instance.column) if instance.column else "",
+        "line": position_text(instance.line) if instance.line else "",
+        "iteration": instance.iteration or "",
         "function_id": str(instance.function_id or ""),
         "language_id": str(instance.language_id or ""),
     }
@@ -119,12 +115,8 @@ def current_values(instance: Instance) -> dict[str, str]:
 
 def parse_instance_form(
     form: Mapping[str, str],
-) -> tuple[dict[str, Any], list[Entity], dict[str, str]]:
-    """Return the new field values, the new lookup records, and the errors.
-
-    A column, line or iteration number that is not in the data yet becomes a
-    new lookup record.
-    """
+) -> tuple[dict[str, Any], dict[str, str]]:
+    """Return the new field values and the errors."""
     values: dict[str, Any] = {}
     errors: dict[str, str] = {}
     for field, model in CHOICE_FIELDS:
@@ -136,37 +128,21 @@ def parse_instance_form(
         else:
             errors[field] = "Choose a value from the list."
 
-    inserted: list[Entity] = []
     numbered = (
-        ("column", TextColumn, column_number),
-        ("line", Line, line_number),
-        ("iteration", Iteration, iteration_number),
+        ("column", column_number),
+        ("line", line_number),
+        ("iteration", iteration_number),
     )
-    for name, model, parse in numbered:
+    for name, parse in numbered:
         text = form.get(name, "")
         if not text.strip():
-            values[f"{name}_id"] = None
+            values[name] = None
             continue
         try:
-            number = parse(text)
+            values[name] = parse(text)
         except ValueError as error:
             errors[name] = str(error)
-            continue
-        record = db.session.scalar(select(model).where(model.number == number))
-        if record is None:
-            record = model(number=number)
-            db.session.add(record)
-            inserted.append(record)
-        values[f"{name}_id"] = record
-
-    if errors:
-        db.session.rollback()
-        return values, [], errors
-    db.session.flush()
-    for field, value in values.items():
-        if isinstance(value, Entity):
-            values[field] = value.id
-    return values, inserted, errors
+    return values, errors
 
 
 def lookup_options() -> dict[str, list[tuple[int, str]]]:
@@ -200,7 +176,7 @@ def edit_instance(instance_id: int) -> ResponseReturnValue:
 
     inline = htmx_target() == "tablet-instances"
     form = request.form
-    values, inserted, errors = parse_instance_form(form)
+    values, errors = parse_instance_form(form)
     author = single_line(form.get("author", ""))
     comment = single_line(form.get("comment", ""))
     if not author:
@@ -231,7 +207,6 @@ def edit_instance(instance_id: int) -> ResponseReturnValue:
             author=author,
             seen=form.get("seen", ""),
             comment=comment or None,
-            inserted=inserted,
         )
     except EditConflict:
         instance = db.get_or_404(Instance, instance_id)

@@ -483,26 +483,6 @@ class Surface(Entity):
     name: Mapped[str] = mapped_column(String(50), unique=True)
 
 
-class TextColumn(Entity):
-    """A column of text on a tablet surface."""
-
-    __tablename__ = "column"
-
-    number: Mapped[str] = mapped_column(String(5), unique=True)
-
-
-class Line(Entity):
-    __tablename__ = "line"
-
-    number: Mapped[str] = mapped_column(String(5), unique=True)
-
-
-class Iteration(Entity):
-    __tablename__ = "iteration"
-
-    number: Mapped[str] = mapped_column(String(5), unique=True)
-
-
 class Instance(Entity):
     """One attestation of a sign on a tablet, with an image of it."""
 
@@ -513,10 +493,12 @@ class Instance(Entity):
     )
     sign_id: Mapped[int] = reference("sign.id", onupdate="CASCADE", ondelete="CASCADE")
     surface_id: Mapped[int | None] = reference("surface.id")
-    column_id: Mapped[int | None] = reference("column.id")
-    line_id: Mapped[int | None] = reference("line.id")
+    # Column, line and iteration numbers as the data write them, as in "ii'",
+    # "03'" and "2".
+    column: Mapped[str | None] = mapped_column("column_number", String(10))
+    line: Mapped[str | None] = mapped_column("line_number", String(10))
+    iteration: Mapped[str | None] = mapped_column("iteration_number", String(10))
     function_id: Mapped[int | None] = reference("function.id")
-    iteration_id: Mapped[int | None] = reference("iteration.id")
     language_id: Mapped[int | None] = reference("language.id")
     notes: Mapped[str | None] = mapped_column(String(250))
     jjt_notes: Mapped[str | None] = mapped_column(String(250))
@@ -525,10 +507,7 @@ class Instance(Entity):
     tablet: Mapped[Tablet] = relationship(back_populates="instances")
     sign: Mapped[Sign] = relationship(back_populates="instances")
     surface: Mapped[Surface | None] = relationship()
-    column: Mapped[TextColumn | None] = relationship()
-    line: Mapped[Line | None] = relationship()
     function: Mapped[Function | None] = relationship()
-    iteration: Mapped[Iteration | None] = relationship()
     language: Mapped[Language | None] = relationship()
 
 
@@ -591,9 +570,9 @@ class ChangeSet(Entity):
 class Change(Entity):
     """One value that a change set sets.
 
-    ``kind`` is "update" for a changed field of a record, or "insert" for a
-    field of a new lookup record, for example a new line number. The old and
-    new values are JSON.
+    ``kind`` is "update" for a changed field of a record. The check constraint
+    also allows "insert", for a field of a new record. The old and new values
+    are JSON.
     """
 
     __tablename__ = "change"

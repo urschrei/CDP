@@ -12,7 +12,7 @@ from cdpp.editor import (
     iteration_number,
     line_number,
 )
-from cdpp.models import Change, ChangeSet, Instance, Line
+from cdpp.models import Change, ChangeSet, Instance
 from tests.conftest import Sample
 
 
@@ -44,7 +44,7 @@ def change_set_count() -> int | None:
 def saved_line() -> str | None:
     db.session.expire_all()
     instance = db.session.get_one(Instance, instance_id())
-    return instance.line.number if instance.line else None
+    return instance.line
 
 
 def test_tablet_page_links_each_sign_to_its_edit_form(
@@ -99,7 +99,7 @@ def test_save_changes_the_instance_and_records_a_change_set(
         "Read from the photograph",
     )
     kinds = db.session.scalars(select(Change.kind).order_by(Change.id)).all()
-    assert kinds == ["insert", "update"]
+    assert kinds == ["update"]
 
 
 def test_save_for_htmx_returns_the_table_with_the_new_value(
@@ -129,7 +129,7 @@ def test_save_without_a_name_is_refused(client: FlaskClient, sample: Sample) -> 
     assert change_set_count() == 0
 
 
-def test_save_with_an_invalid_line_is_refused_without_new_lines(
+def test_save_with_an_invalid_line_is_refused(
     client: FlaskClient, sample: Sample
 ) -> None:
     response = client.post(
@@ -138,7 +138,8 @@ def test_save_with_an_invalid_line_is_refused_without_new_lines(
 
     assert response.status_code == 422
     assert "Enter a line number" in response.get_data(as_text=True)
-    assert db.session.scalars(select(func.count()).select_from(Line)).one() == 1
+    assert saved_line() == "1"
+    assert change_set_count() == 0
 
 
 def test_invalid_save_for_htmx_replaces_the_form_row(
@@ -179,9 +180,9 @@ def test_save_after_another_save_shows_the_saved_values(
     instance = db.session.get_one(Instance, instance_id())
     save(
         instance,
-        {"line_id": None},
+        {"line": None},
         author="Another editor",
-        seen=fingerprint(instance, ["line_id"]),
+        seen=fingerprint(instance, ["line"]),
     )
 
     response = client.post(f"/instances/{instance_id()}/edit", data=stale)

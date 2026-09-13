@@ -28,11 +28,8 @@ from cdpp.models import (
     ChangeSet,
     Function,
     Instance,
-    Iteration,
     Language,
-    Line,
     Surface,
-    TextColumn,
 )
 from cdpp.views import position_text
 
@@ -41,41 +38,29 @@ bp = Blueprint("history", __name__)
 CHANGE_SETS_PER_PAGE = 25
 FIELD_LABELS = {
     "surface_id": "Surface",
-    "column_id": "Column",
-    "line_id": "Line",
-    "iteration_id": "Iteration",
+    "column": "Column",
+    "line": "Line",
+    "iteration": "Iteration",
     "function_id": "Function",
     "language_id": "Language",
-}
-NEW_RECORD_LABELS = {
-    "column": "New column number",
-    "line": "New line number",
-    "iteration": "New iteration number",
 }
 # The lookup record of each reference field, and the attribute that names it.
 REFERENCES: dict[str, tuple[type[Any], str]] = {
     "surface_id": (Surface, "name"),
-    "column_id": (TextColumn, "number"),
-    "line_id": (Line, "number"),
-    "iteration_id": (Iteration, "number"),
     "function_id": (Function, "name"),
     "language_id": (Language, "name"),
 }
-POSITION_TABLES = {"column", "line"}
-POSITION_FIELDS = {"column_id", "line_id"}
+POSITION_FIELDS = {"column", "line"}
 
 
 @dataclass(frozen=True)
 class ChangeLine:
-    """One change of a change set, as the pages show it.
-
-    ``old`` is None for a field of a new lookup record.
-    """
+    """One change of a change set, as the pages show it."""
 
     subject: str
     subject_url: str | None
     label: str
-    old: str | None
+    old: str
     new: str
 
 
@@ -87,9 +72,7 @@ class ChangeSetEntry:
 
     @property
     def can_be_undone(self) -> bool:
-        return self.undone_by is None and any(
-            line.old is not None for line in self.lines
-        )
+        return self.undone_by is None
 
 
 @bp.app_template_filter("utc_time")
@@ -101,6 +84,8 @@ def value_text(field: str, value: Any) -> str:
     """Return a field value as the pages show it, for example a line number."""
     if value is None:
         return "not recorded"
+    if field in POSITION_FIELDS:
+        return position_text(value)
     reference = REFERENCES.get(field)
     if reference is None:
         return str(value)
@@ -108,18 +93,10 @@ def value_text(field: str, value: Any) -> str:
     record = db.session.get(model, value)
     if record is None:
         return f"missing record {value}"
-    text = getattr(record, attribute)
-    return position_text(text) if field in POSITION_FIELDS else text
+    return getattr(record, attribute)
 
 
 def change_line(change: Change) -> ChangeLine:
-    if change.kind == "insert":
-        new = str(change.new_value)
-        if change.table_name in POSITION_TABLES:
-            new = position_text(new)
-        label = NEW_RECORD_LABELS.get(change.table_name, f"New {change.table_name}")
-        return ChangeLine("", None, label, None, new)
-
     subject, subject_url = f"{change.table_name} {change.record_id}", None
     if change.table_name == "instance":
         instance = db.session.get(Instance, change.record_id)

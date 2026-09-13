@@ -19,7 +19,7 @@
   {% if entry.can_be_undone %}
     <section aria-labelledby="undo-heading" class="mt-10 max-w-3xl">
       <h2 id="undo-heading" class="font-sign text-2xl">Undo this change set</h2>
-      <p class="mt-2 max-w-prose">Undo sets each value back to its value before this change set, and records a new change set. This change set stays in the history. New line, column and iteration numbers stay available.</p>
+      <p class="mt-2 max-w-prose">Undo sets each value back to its value before this change set, and records a new change set. This change set stays in the history.</p>
       {% if conflict %}
         <div role="alert" class="mt-4 border-l-4 border-accent pl-3">
           <p>This change set cannot be undone, because later change sets changed these values:</p>

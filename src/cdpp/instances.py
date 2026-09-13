@@ -87,8 +87,8 @@ def position_key(instance: Instance) -> tuple[Any, ...]:
     An instance without a surface or a column sorts with the default value.
     """
     surface = instance.surface.name if instance.surface else DEFAULT_SURFACE
-    column = instance.column.number if instance.column else DEFAULT_COLUMN
-    line = instance.line.number if instance.line else ""
+    column = instance.column or DEFAULT_COLUMN
+    line = instance.line or ""
     line_number = LEADING_NUMBER_RE.match(line)
     return (
         SURFACE_ORDER.get(surface, len(SURFACE_ORDER)),
@@ -130,8 +130,6 @@ def sorted_instances(condition: Any, key: Any) -> list[Instance]:
             joinedload(Instance.sign),
             joinedload(Instance.tablet).joinedload(Tablet.period),
             joinedload(Instance.surface),
-            joinedload(Instance.column),
-            joinedload(Instance.line),
         )
     )
     return sorted(db.session.scalars(statement), key=key)
@@ -225,18 +223,12 @@ def instance_fields(instance: Instance) -> list[tuple[str, Any]]:
         (
             "Column",
             position(
-                position_text(instance.column.number) if instance.column else None,
+                position_text(instance.column) if instance.column else None,
                 DEFAULT_COLUMN,
             ),
         ),
-        ("Line", position_text(instance.line.number) if instance.line else ""),
-        (
-            "Iteration",
-            position(
-                instance.iteration.number if instance.iteration else None,
-                DEFAULT_ITERATION,
-            ),
-        ),
+        ("Line", position_text(instance.line) if instance.line else ""),
+        ("Iteration", position(instance.iteration, DEFAULT_ITERATION)),
         ("Notes", instance.notes or ""),
         (JJT_NOTES_HEADING, instance.jjt_notes or ""),
     ]
@@ -251,9 +243,6 @@ def instance(instance_id: int) -> ResponseReturnValue:
         options=[
             joinedload(Instance.sign),
             joinedload(Instance.surface),
-            joinedload(Instance.column),
-            joinedload(Instance.line),
-            joinedload(Instance.iteration),
             joinedload(Instance.function),
             joinedload(Instance.language),
             joinedload(Instance.tablet).options(
@@ -336,8 +325,6 @@ def compare() -> ResponseReturnValue:
         joinedload(Instance.sign),
         joinedload(Instance.tablet).joinedload(Tablet.period),
         joinedload(Instance.surface),
-        joinedload(Instance.column),
-        joinedload(Instance.line),
     )
     ids = [instance.id for instance in instances]
     items = [

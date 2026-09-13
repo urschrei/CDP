@@ -9,7 +9,7 @@ from sqlalchemy import select
 from cdpp.db import db
 from cdpp.editing import fingerprint, save
 from cdpp.instances import period_start, position_key, roman_number
-from cdpp.models import Instance, Line, Period, Surface, TextColumn
+from cdpp.models import Instance, Period, Surface
 from tests.conftest import Sample
 
 GIF = b"GIF89a" + struct.pack("<HH", 30, 20) + b"\x00" * 10
@@ -74,9 +74,9 @@ def test_instance_page_shows_the_latest_change(
     instance = db.session.get_one(Instance, ids["I_1"])
     save(
         instance,
-        {"line_id": None},
+        {"line": None},
         author="JJT",
-        seen=fingerprint(instance, ["line_id"]),
+        seen=fingerprint(instance, ["line"]),
     )
     db.session.expunge_all()
 
@@ -121,8 +121,8 @@ def test_positions_sort_by_surface_column_and_line() -> None:
         return Instance(
             id=instance_id,
             surface=Surface(name=surface) if surface else None,
-            column=TextColumn(number=column) if column else None,
-            line=Line(number=line) if line else None,
+            column=column,
+            line=line,
         )
 
     instances = [

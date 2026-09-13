@@ -4,7 +4,7 @@ CREATE TABLE alembic_version (
 	version_num VARCHAR(32) NOT NULL, 
 	CONSTRAINT alembic_version_pkc PRIMARY KEY (version_num)
 );
-INSERT INTO "alembic_version" VALUES('c4d8e2f1a376');
+INSERT INTO "alembic_version" VALUES('e5a1c7d3f920');
 CREATE TABLE author (
 	name VARCHAR(75) NOT NULL, 
 	id INTEGER NOT NULL, 
@@ -28121,6 +28121,126 @@ INSERT INTO "oracc_sign" VALUES('o0038258','5(|GEŠU@c×KASKAL|)',NULL,4259,'�
 INSERT INTO "oracc_sign" VALUES('o0038260','6(|GEŠU@c×KASKAL|)',NULL,4260,'󰀰');
 INSERT INTO "oracc_sign" VALUES('o0038262','7(|GEŠU@c×KASKAL|)',NULL,4261,'󰀱');
 INSERT INTO "oracc_sign" VALUES('o0018502','2(N57)',NULL,4262,'󰁇');
+CREATE TABLE oracc_text (
+	tablet_id INTEGER NOT NULL, 
+	project VARCHAR(50) NOT NULL, 
+	text_id VARCHAR(12) NOT NULL, 
+	id INTEGER NOT NULL, 
+	CONSTRAINT pk_oracc_text PRIMARY KEY (id), 
+	CONSTRAINT fk_oracc_text_tablet_id_tablet FOREIGN KEY(tablet_id) REFERENCES tablet (id) ON DELETE CASCADE, 
+	CONSTRAINT uq_oracc_text_tablet_id UNIQUE (tablet_id, project, text_id)
+);
+INSERT INTO "oracc_text" VALUES(452,'riao/ria2','Q005788',1);
+INSERT INTO "oracc_text" VALUES(453,'riao/ria2','Q005738',2);
+INSERT INTO "oracc_text" VALUES(453,'riao/ria2','Q005739',3);
+INSERT INTO "oracc_text" VALUES(470,'saao/saa02','P237185',4);
+INSERT INTO "oracc_text" VALUES(471,'dcclt/nineveh','P386425',5);
+INSERT INTO "oracc_text" VALUES(473,'dcclt/nineveh','P401063',6);
+INSERT INTO "oracc_text" VALUES(474,'dcclt/nineveh','P385946',7);
+INSERT INTO "oracc_text" VALUES(475,'dcclt/nineveh','P386426',8);
+INSERT INTO "oracc_text" VALUES(476,'dcclt/nineveh','P385969',9);
+INSERT INTO "oracc_text" VALUES(477,'dcclt/nineveh','P385978',10);
+INSERT INTO "oracc_text" VALUES(479,'dcclt/nineveh','P365270',11);
+INSERT INTO "oracc_text" VALUES(481,'dcclt/nineveh','P365268',12);
+INSERT INTO "oracc_text" VALUES(482,'dcclt/nineveh','P386427',13);
+INSERT INTO "oracc_text" VALUES(483,'dcclt/nineveh','P365272',14);
+INSERT INTO "oracc_text" VALUES(485,'saao/saa08','P336420',15);
+INSERT INTO "oracc_text" VALUES(486,'saao/saa08','P336378',16);
+INSERT INTO "oracc_text" VALUES(487,'saao/saa08','P336564',17);
+INSERT INTO "oracc_text" VALUES(488,'saao/saa03','P334930',18);
+INSERT INTO "oracc_text" VALUES(489,'riao/ria1','Q005706',19);
+INSERT INTO "oracc_text" VALUES(490,'riao/ria3','Q006013',20);
+INSERT INTO "oracc_text" VALUES(491,'riao/ria1','Q005686',21);
+INSERT INTO "oracc_text" VALUES(492,'saao/saa02','P336039',22);
+INSERT INTO "oracc_text" VALUES(493,'riao/ria2','Q005899',23);
+INSERT INTO "oracc_text" VALUES(494,'riao/ria1','Q005726',24);
+INSERT INTO "oracc_text" VALUES(495,'riao/ria1','Q005726',25);
+INSERT INTO "oracc_text" VALUES(504,'saao/saa02','P314346',26);
+INSERT INTO "oracc_text" VALUES(505,'saao/saa16','P334819',27);
+INSERT INTO "oracc_text" VALUES(506,'saao/saa16','P334192',28);
+INSERT INTO "oracc_text" VALUES(507,'saao/saa16','P334624',29);
+INSERT INTO "oracc_text" VALUES(508,'saao/saa16','P313428',30);
+INSERT INTO "oracc_text" VALUES(509,'saao/saa08','P336575',31);
+INSERT INTO "oracc_text" VALUES(510,'saao/saa08','P336558',32);
+INSERT INTO "oracc_text" VALUES(537,'riao/ria2','Q005893',33);
+INSERT INTO "oracc_text" VALUES(541,'riao/ria1','Q005696',34);
+INSERT INTO "oracc_text" VALUES(557,'saao/saa01','P334193',35);
+INSERT INTO "oracc_text" VALUES(558,'saao/saa01','P334118',36);
+INSERT INTO "oracc_text" VALUES(559,'saao/saa01','P334194',37);
+INSERT INTO "oracc_text" VALUES(560,'riao/ria2','Q005805',38);
+INSERT INTO "oracc_text" VALUES(561,'riao/ria2','Q005805',39);
+INSERT INTO "oracc_text" VALUES(562,'riao/ria2','Q005806',40);
+INSERT INTO "oracc_text" VALUES(563,'riao/ria1','Q005646',41);
+INSERT INTO "oracc_text" VALUES(564,'saao/saa02','P240211',42);
+INSERT INTO "oracc_text" VALUES(576,'riao/ria2','Q005852',43);
+INSERT INTO "oracc_text" VALUES(577,'riao/ria2','Q005856',44);
+INSERT INTO "oracc_text" VALUES(592,'dcclt/signlists','P227781',45);
+INSERT INTO "oracc_text" VALUES(593,'dcclt','P227844',46);
+INSERT INTO "oracc_text" VALUES(594,'dcclt','P229367',47);
+INSERT INTO "oracc_text" VALUES(595,'dcclt','P229413',48);
+INSERT INTO "oracc_text" VALUES(596,'dcclt','P229400',49);
+INSERT INTO "oracc_text" VALUES(597,'dcclt','P229408',50);
+INSERT INTO "oracc_text" VALUES(598,'dcclt','P228202',51);
+INSERT INTO "oracc_text" VALUES(599,'dcclt','P228220',52);
+INSERT INTO "oracc_text" VALUES(600,'dcclt','P231195',53);
+INSERT INTO "oracc_text" VALUES(601,'dcclt','P229307',54);
+INSERT INTO "oracc_text" VALUES(602,'dcclt','P228424',55);
+INSERT INTO "oracc_text" VALUES(603,'dcclt','P229419',56);
+INSERT INTO "oracc_text" VALUES(606,'dcclt','P227671',57);
+INSERT INTO "oracc_text" VALUES(610,'dcclt','P247797',58);
+INSERT INTO "oracc_text" VALUES(611,'dcclt','P247796',59);
+INSERT INTO "oracc_text" VALUES(615,'dcclt','P227890',60);
+INSERT INTO "oracc_text" VALUES(616,'dcclt','P229096',61);
+INSERT INTO "oracc_text" VALUES(617,'dcclt','P229421',62);
+INSERT INTO "oracc_text" VALUES(618,'dcclt','P230006',63);
+INSERT INTO "oracc_text" VALUES(619,'dcclt','P231241',64);
+INSERT INTO "oracc_text" VALUES(620,'dcclt','P229543',65);
+INSERT INTO "oracc_text" VALUES(621,'dcclt','P228494',66);
+INSERT INTO "oracc_text" VALUES(623,'dcclt','P229543',67);
+INSERT INTO "oracc_text" VALUES(624,'dcclt','P228687',68);
+INSERT INTO "oracc_text" VALUES(625,'dcclt','P228692',69);
+INSERT INTO "oracc_text" VALUES(626,'dcclt/nineveh','P365271',70);
+INSERT INTO "oracc_text" VALUES(627,'dcclt/nineveh','P400834',71);
+INSERT INTO "oracc_text" VALUES(631,'dcclt/nineveh','P373840',72);
+INSERT INTO "oracc_text" VALUES(632,'dcclt','P230213',73);
+INSERT INTO "oracc_text" VALUES(633,'dcclt','P227685',74);
+INSERT INTO "oracc_text" VALUES(634,'dcclt','P230617',75);
+INSERT INTO "oracc_text" VALUES(635,'dcclt','P227768',76);
+INSERT INTO "oracc_text" VALUES(636,'dcclt','P227804',77);
+INSERT INTO "oracc_text" VALUES(637,'dcclt','P227961',78);
+INSERT INTO "oracc_text" VALUES(638,'dcclt','P227953',79);
+INSERT INTO "oracc_text" VALUES(639,'dcclt','P229436',80);
+INSERT INTO "oracc_text" VALUES(640,'dcclt','P229739',81);
+INSERT INTO "oracc_text" VALUES(641,'dcclt','P250418',82);
+INSERT INTO "oracc_text" VALUES(642,'dcclt','P231711',83);
+INSERT INTO "oracc_text" VALUES(643,'dcclt','P228068',84);
+INSERT INTO "oracc_text" VALUES(644,'dcclt','P228281',85);
+INSERT INTO "oracc_text" VALUES(645,'dcclt','P231175',86);
+INSERT INTO "oracc_text" VALUES(646,'dcclt','P231244',87);
+INSERT INTO "oracc_text" VALUES(647,'dcclt','P228396',88);
+INSERT INTO "oracc_text" VALUES(648,'dcclt','P228454',89);
+INSERT INTO "oracc_text" VALUES(649,'dcclt','P228471',90);
+INSERT INTO "oracc_text" VALUES(650,'dcclt','P229535',91);
+INSERT INTO "oracc_text" VALUES(651,'dcclt','P230059',92);
+INSERT INTO "oracc_text" VALUES(653,'dcclt','P228689',93);
+INSERT INTO "oracc_text" VALUES(654,'dcclt','P228646',94);
+INSERT INTO "oracc_text" VALUES(655,'dcclt','P228690',95);
+INSERT INTO "oracc_text" VALUES(656,'dcclt','P228927',96);
+INSERT INTO "oracc_text" VALUES(657,'dcclt','P228859',97);
+INSERT INTO "oracc_text" VALUES(658,'dcclt','P229389',98);
+INSERT INTO "oracc_text" VALUES(659,'dcclt','P228789',99);
+INSERT INTO "oracc_text" VALUES(660,'dcclt/nineveh','P365416',100);
+INSERT INTO "oracc_text" VALUES(666,'dcclt','P227968',101);
+INSERT INTO "oracc_text" VALUES(667,'saao/saa08','P336382',102);
+INSERT INTO "oracc_text" VALUES(668,'saao/saa08','P336374',103);
+INSERT INTO "oracc_text" VALUES(669,'saao/saa08','P336394',104);
+INSERT INTO "oracc_text" VALUES(670,'saao/saa08','P336577',105);
+INSERT INTO "oracc_text" VALUES(671,'saao/saa08','P336522',106);
+INSERT INTO "oracc_text" VALUES(672,'saao/saa08','P336404',107);
+INSERT INTO "oracc_text" VALUES(673,'saao/saa08','P336445',108);
+INSERT INTO "oracc_text" VALUES(674,'saao/saa08','P336444',109);
+INSERT INTO "oracc_text" VALUES(675,'saao/saa08','P336454',110);
+INSERT INTO "oracc_text" VALUES(676,'saao/saa08','P336550',111);
 CREATE TABLE period (
 	name VARCHAR(150) NOT NULL, 
 	from_date VARCHAR(50) NOT NULL, 
@@ -71662,4 +71782,5 @@ CREATE TRIGGER change_set_no_delete BEFORE DELETE ON change_set BEGIN SELECT RAI
 CREATE TRIGGER change_no_update BEFORE UPDATE ON change BEGIN SELECT RAISE(ABORT, 'change rows cannot be changed or deleted'); END;
 CREATE TRIGGER change_no_delete BEFORE DELETE ON change BEGIN SELECT RAISE(ABORT, 'change rows cannot be changed or deleted'); END;
 CREATE INDEX ix_cdli_artifact_tablet_id ON cdli_artifact (tablet_id);
+CREATE INDEX ix_oracc_text_tablet_id ON oracc_text (tablet_id);
 COMMIT;

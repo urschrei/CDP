@@ -36,5 +36,6 @@
   <div class="flex flex-wrap items-center gap-x-6 gap-y-3">
     <button type="submit" class="min-h-11 rounded bg-accent px-5 font-semibold text-ground">Save</button>
     <a href="{{ cancel }}" {% if inline %}hx-get="{{ cancel }}" hx-target="#tablet-instances" hx-swap="outerHTML"{% endif %} class="inline-flex min-h-11 items-center">Cancel</a>
+    <a href="{{ url_for('history.instance_history', instance_id=instance.id) }}" class="inline-flex min-h-11 items-center">History of this sign</a>
   </div>
 </form>

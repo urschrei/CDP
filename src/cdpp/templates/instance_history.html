@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% from "macros.html" import breadcrumbs %}
+{% from "_change_set.html" import change_set_entry %}
+{% set section = "tablets" %}
+{% block title %}History of {{ instance.sign.sign_ref }} on {{ instance.tablet.museum_number }}{% endblock %}
+{% block content %}
+  {{ breadcrumbs([
+    (url_for("cdpp.tablets"), "Tablets", ""),
+    (url_for("cdpp.tablet", tablet_id=instance.tablet_id), instance.tablet.museum_number, ""),
+  ]) }}
+  <h1 class="mt-3 text-4xl font-semibold wrap-anywhere">History of <span class="font-sign">{{ instance.sign.sign_ref }}</span> on {{ instance.tablet.museum_number }}</h1>
+  <p class="mt-4"><a href="{{ url_for('editor.edit_instance', instance_id=instance.id) }}">Edit this sign</a></p>
+  {% if entries %}
+    <div class="mt-8 border-b border-line">
+      {% for entry in entries %}
+        {{ change_set_entry(entry) }}
+      {% endfor %}
+    </div>
+  {% else %}
+    <p class="mt-8 max-w-prose">No one has edited this sign on this tablet. Values from the original data have no history.</p>
+  {% endif %}
+{% endblock %}

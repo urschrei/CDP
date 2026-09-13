@@ -16,7 +16,7 @@
 
         <nav aria-label="Main">
           <ul class="flex gap-6">
-            {% for endpoint, label, name in [("cdpp.signs", "Signs", "signs"), ("cdpp.tablets", "Tablets", "tablets")] %}
+            {% for endpoint, label, name in [("cdpp.signs", "Signs", "signs"), ("cdpp.tablets", "Tablets", "tablets"), ("history.changes", "Changes", "changes")] %}
               <li>
                 <a href="{{ url_for(endpoint) }}"
                    class="inline-flex min-h-11 items-center {{ 'font-semibold text-ink' if section == name }}"

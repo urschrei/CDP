@@ -61,7 +61,7 @@ CHOICE_FIELDS = (
 PRIMES = str.maketrans({"′": "'", "\u2019": "'", "″": "''"})
 
 
-@bp.before_request
+@bp.before_app_request
 def refuse_forms_from_other_sites() -> None:
     """Refuse a form that a page on another site sends to this site."""
     if request.method in ("GET", "HEAD"):

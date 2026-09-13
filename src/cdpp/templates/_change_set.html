@@ -1,0 +1,45 @@
+{% macro change_set_entry(entry, heading=True) %}
+  {% set change_set = entry.change_set %}
+  {% set url = url_for("history.change_set", change_set_id=change_set.id) %}
+  <article class="border-t border-line py-6" {% if heading %}aria-labelledby="change-set-{{ change_set.id }}-title"{% else %}aria-label="Changes"{% endif %}>
+    <div class="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1">
+      {% if heading %}
+        <h2 id="change-set-{{ change_set.id }}-title" class="text-lg font-semibold"><a href="{{ url }}">Change set {{ change_set.id }}</a></h2>
+      {% endif %}
+      <p class="text-muted"><span class="text-ink">{{ change_set.author }}</span>, <time datetime="{{ change_set.created_at.isoformat() }}Z">{{ change_set.created_at|utc_time }}</time></p>
+    </div>
+    {% if change_set.reverts_id %}
+      <p class="mt-1">Undoes <a href="{{ url_for('history.change_set', change_set_id=change_set.reverts_id) }}">change set {{ change_set.reverts_id }}</a>.</p>
+    {% endif %}
+    {% if entry.undone_by %}
+      <p class="mt-1">Undone by <a href="{{ url_for('history.change_set', change_set_id=entry.undone_by) }}">change set {{ entry.undone_by }}</a>.</p>
+    {% endif %}
+    {% if change_set.comment %}
+      <p class="mt-3 max-w-prose border-l-2 border-line pl-3">{{ change_set.comment }}</p>
+    {% endif %}
+    <div class="mt-4 overflow-x-auto" tabindex="0" role="region" aria-label="Changes in change set {{ change_set.id }}">
+      <table class="min-w-full text-left text-sm">
+        <thead>
+          <tr class="text-muted">
+            <th scope="col" class="py-2 pr-6 font-semibold">Record</th>
+            <th scope="col" class="py-2 pr-6 font-semibold">Field</th>
+            <th scope="col" class="py-2 pr-6 font-semibold">Before</th>
+            <th scope="col" class="py-2 font-semibold">After</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for line in entry.lines %}
+            <tr class="border-t border-line align-baseline">
+              <td class="py-2 pr-6">
+                {%- if line.subject_url -%}<a href="{{ line.subject_url }}">{{ line.subject }}</a>{%- else -%}{{ line.subject }}{%- endif -%}
+              </td>
+              <td class="py-2 pr-6">{{ line.label }}</td>
+              <td class="py-2 pr-6">{% if line.old is none %}<span class="text-muted">None, new</span>{% else %}{{ line.old }}{% endif %}</td>
+              <td class="py-2">{{ line.new }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </article>
+{% endmacro %}

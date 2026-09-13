@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% from "_change_set.html" import change_set_entry %}
+{% from "macros.html" import pagination %}
+{% set section = "changes" %}
+{% block title %}Changes{% endblock %}
+{% block content %}
+  <h1 class="font-sign text-4xl sm:text-5xl">Changes</h1>
+  <p class="mt-4 max-w-prose text-lg">Each save of an edit form records a change set. The newest change set is first.</p>
+  {% if entries %}
+    <div class="mt-8 border-b border-line">
+      {% for entry in entries %}
+        {{ change_set_entry(entry) }}
+      {% endfor %}
+    </div>
+    {{ pagination(page, "Pages of changes") }}
+  {% else %}
+    <p class="mt-8 max-w-prose">No one has saved an edit yet. To edit the position of a sign, open a tablet and select Edit in the table of signs.</p>
+  {% endif %}
+{% endblock %}

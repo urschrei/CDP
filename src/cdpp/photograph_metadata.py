@@ -86,10 +86,14 @@ XMP_HEADER = XMP_KEYWORD + b"\x00\x00\x00\x00"
 ASCII, LONG, UNDEFINED = 2, 4, 7
 TYPE_SIZES = {ASCII: 1, LONG: 4, UNDEFINED: 1}
 IMAGE_DESCRIPTION, ARTIST, EXIF_IFD, USER_COMMENT = 0x010E, 0x013B, 0x8769, 0x9286
-TIFF_HEADER = b"II" + struct.pack("<HI", 42, 8)
-IFD_COUNT = struct.Struct("<H")
-IFD_ENTRY = struct.Struct("<HHI4s")
-IFD_NEXT = struct.Struct("<I")
+# The TIFF data is big-endian. macOS reads a UNICODE UserComment in
+# little-endian TIFF data as UTF-16BE. In big-endian TIFF data, all readers
+# read the comment as UTF-16BE.
+TIFF_HEADER = b"MM" + struct.pack(">HI", 42, 8)
+IFD_COUNT = struct.Struct(">H")
+IFD_ENTRY = struct.Struct(">HHI4s")
+IFD_NEXT = struct.Struct(">I")
+IFD_OFFSET = struct.Struct(">I")
 UNICODE_COMMENT = b"UNICODE\x00"
 
 type Value = str | list[str]
@@ -340,10 +344,10 @@ def exif_data(record: PhotographRecord) -> bytes:
         (IMAGE_DESCRIPTION, ASCII, ascii_value(record.summary)),
         (ARTIST, ASCII, ascii_value(CREDIT)),
     ]
-    comment = UNICODE_COMMENT + record.description.encode("utf-16-le")
+    comment = UNICODE_COMMENT + record.description.encode("utf-16-be")
     placeholder = ifd([*first, (EXIF_IFD, LONG, bytes(4))], len(TIFF_HEADER))
     exif_offset = len(TIFF_HEADER) + len(placeholder)
-    pointer = (EXIF_IFD, LONG, struct.pack("<I", exif_offset))
+    pointer = (EXIF_IFD, LONG, IFD_OFFSET.pack(exif_offset))
     return (
         TIFF_HEADER
         + ifd([*first, pointer], len(TIFF_HEADER))
@@ -364,7 +368,7 @@ def ifd(entries: list[tuple[int, int, bytes]], offset: int) -> bytes:
         if len(data) <= 4:
             location = data.ljust(4, b"\x00")
         else:
-            location = struct.pack("<I", offset + size + len(values))
+            location = IFD_OFFSET.pack(offset + size + len(values))
             # A value starts at an even offset.
             values += data + b"\x00" * (len(data) % 2)
         fields += IFD_ENTRY.pack(tag, kind, len(data) // TYPE_SIZES[kind], location)

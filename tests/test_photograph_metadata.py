@@ -89,6 +89,7 @@ def test_metadata_contains_the_records_and_keeps_the_image(
         assert image.info["transparency"] == 5
         values = xmp_values(image.info["XML:com.adobe.xmp"])
         exif = image.getexif()
+        tiff = image.info["exif"].removeprefix(b"Exif\x00\x00")
     page = f"https://cdpp.example/instances/{instance.id}"
     assert values["dc:title"] == ["Instance of AŠ on A.1"]
     assert values["dc:identifier"] == [page]
@@ -120,7 +121,9 @@ def test_metadata_contains_the_records_and_keeps_the_image(
     )
     assert exif[0x013B] == "CDP Project"
     comment = exif.get_ifd(0x8769)[USER_COMMENT]
-    assert comment.removeprefix(b"UNICODE\x00").decode("utf-16-le") == (
+    # macOS reads a UNICODE comment as UTF-16BE, so the TIFF data is big-endian.
+    assert tiff.startswith(b"MM\x00*")
+    assert comment.removeprefix(b"UNICODE\x00").decode("utf-16-be") == (
         "Photograph of the sign AŠ on the tablet A.1: Obverse, line 1."
     )
 

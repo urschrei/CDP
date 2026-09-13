@@ -210,10 +210,10 @@ npm run lint
 > [!IMPORTANT]
 > If `CDPP_PASSWORD` is not set, anyone who can reach the site can edit. Set it, or run the site only on a private network.
 
-1. Build the application image:
+1. Build the application image, with the Git commit of the code:
 
    ```sh
-   docker compose build
+   CDPP_COMMIT=$(git rev-parse HEAD) docker compose build
    ```
 
 2. Start the application:
@@ -238,13 +238,13 @@ npm run lint
    fly secrets set --stage -a cdpp CDPP_PASSWORD=PASSWORD
    ```
 
-3. Deploy:
+3. Deploy, with the Git commit of the code:
 
    ```sh
-   fly deploy --ha=false
+   fly deploy --ha=false --build-arg CDPP_COMMIT=$(git rev-parse HEAD)
    ```
 
-   The first deployment creates the volume, and `deploy/start.sh` creates the database from `db_dumps/cdpp.sql`. Each later deployment applies newer migrations to the database on the volume, and does not load the dump.
+   In a jj repository with a Git directory, `HEAD` is the parent of the working-copy commit. The image contains the files of the working copy, so the working copy must have no changes. The first deployment creates the volume, and `deploy/start.sh` creates the database from `db_dumps/cdpp.sql`. Each later deployment applies newer migrations to the database on the volume, and does not load the dump.
 
 To change the password, run `fly secrets set -a cdpp CDPP_PASSWORD=PASSWORD`. The machine restarts with the new password.
 
@@ -279,6 +279,7 @@ Set these environment variables to change the defaults.
 | `CDPP_SQLALCHEMY_DATABASE_URI` | `sqlite:///instance/cdpp.sqlite3`, in the project directory | Database URL. The application works only with SQLite. |
 | `CDPP_MEDIA_ROOT` | `media`, in the project directory | Directory that contains the `instance` directory of sign photographs. |
 | `CDPP_TRUSTED_PROXIES` | `0` | Number of proxies in front of the application that set the header `X-Forwarded-Proto`. The application takes the scheme of a request, `http` or `https`, from that header only if this number is 1 or more. `fly.toml` sets it to 1 for the proxy of Fly.io. |
+| `CDPP_COMMIT` | Not set | Git commit of the code. A downloaded photograph contains it as `cdp:applicationCommit`. The image sets it from the build argument `CDPP_COMMIT`. |
 | `CDPP_PASSWORD` | Not set | Password that each request must give, with HTTP basic authentication. The user name can be any text. If the variable is not set, the site does not ask for a password. |
 
 ### Pages
@@ -335,6 +336,8 @@ A downloaded photograph, and each file that `cdpp export-photographs` writes, co
 | `cdp:tabletId`, `cdp:tabletPage`, `cdp:museumNumber` | The ID, the page address and the museum number of the tablet. |
 | Other `cdp` properties of the tablet | Each detail that the tablet page shows, with a name from its label, as in `cdp:subPeriod` for **Sub-period**. `cdp:rulers`, `cdp:sentTo` and `cdp:languages` are lists. `cdp:tabletFunction` and `cdp:tabletNotes` are the function and the notes of the tablet. |
 | `cdp:cdliEntries`, `cdp:oraccTexts` | Lists of the addresses of the CDLI catalogue entries and the Oracc editions of the tablet. |
+| `cdp:applicationCommit` | The Git commit of the application that wrote the metadata, if `CDPP_COMMIT` is set. The photograph file is the file in that commit. |
+| `cdp:databaseRevision` | The migration revision of the database when the application wrote the metadata. |
 
 | EXIF tag | Value |
 | --- | --- |

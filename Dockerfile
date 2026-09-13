@@ -44,4 +44,9 @@ ENV PATH="/app/.venv/bin:$PATH" \
     CDPP_SQLALCHEMY_DATABASE_URI=sqlite:////data/cdpp.sqlite3 \
     CDPP_MEDIA_ROOT=/app/media
 EXPOSE 8000
+
+# The Git commit of the code, for the metadata of downloaded photographs. It is
+# the last layer, so a new commit does not build the other layers again.
+ARG CDPP_COMMIT
+ENV CDPP_COMMIT=$CDPP_COMMIT
 CMD ["deploy/start.sh"]

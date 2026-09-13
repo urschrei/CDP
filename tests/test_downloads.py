@@ -46,6 +46,15 @@ def test_download_contains_the_current_record(
     original = write_photograph(app, "I_1")
     identifier = instance_id("I_1")
     url = f"/instances/{identifier}/photograph.png"
+    unversioned = xmp(client.get(url).data)
+    assert "<cdp:applicationCommit>" not in unversioned
+    assert "<cdp:databaseRevision>" not in unversioned
+    app.config["COMMIT"] = "f82b7447f17d249e1e7bc75065e8855094b37337"
+    # The test database has no migrations. Give it the table of a migrated one.
+    connection = db.session.connection()
+    connection.exec_driver_sql("CREATE TABLE alembic_version (version_num TEXT)")
+    connection.exec_driver_sql("INSERT INTO alembic_version VALUES ('f6c2a8e4d913')")
+    db.session.commit()
 
     response = client.get(url)
 
@@ -62,6 +71,10 @@ def test_download_contains_the_current_record(
     page = f"http://localhost/instances/{identifier}"
     assert f"<dc:identifier>{page}</dc:identifier>" in xmp(response.data)
     assert "<cdp:line>1</cdp:line>" in xmp(response.data)
+    commit = "<cdp:applicationCommit>f82b7447f17d249e1e7bc75065e8855094b37337<"
+    assert commit in xmp(response.data)
+    revision = "<cdp:databaseRevision>f6c2a8e4d913</cdp:databaseRevision>"
+    assert revision in xmp(response.data)
     etag = response.headers["ETag"]
     assert client.get(url, headers={"If-None-Match": etag}).status_code == 304
 

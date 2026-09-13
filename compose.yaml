@@ -1,6 +1,10 @@
 services:
   app:
-    build: .
+    build:
+      context: .
+      args:
+        # The Git commit of the code. The README gives the build command.
+        CDPP_COMMIT: ${CDPP_COMMIT:-}
     ports:
       - "8000:8000"
     volumes:

@@ -19,6 +19,8 @@ from tests.conftest import Sample
 
 XML_NAMESPACES = NAMESPACES | {"rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#"}
 USER_COMMENT = 0x9286
+COMMIT = "f82b7447f17d249e1e7bc75065e8855094b37337"
+REVISION = "f6c2a8e4d913"
 
 
 def png_data() -> bytes:
@@ -47,6 +49,8 @@ def sample_record(instance: Instance) -> PhotographRecord:
         instance,
         f"https://cdpp.example/instances/{instance.id}",
         f"https://cdpp.example/tablets/{instance.tablet_id}",
+        commit=COMMIT,
+        revision=REVISION,
     )
 
 
@@ -105,6 +109,8 @@ def test_metadata_contains_the_records_and_keeps_the_image(
     assert values["cdp:languages"] == ["Akkadian"]
     assert values["cdp:tabletNotes"] == ["Letter about barley"]
     assert "cdp:lastChangeSet" not in values
+    assert values["cdp:applicationCommit"] == [COMMIT]
+    assert values["cdp:databaseRevision"] == [REVISION]
     assert (
         exif[0x010E]
         == f"Photograph of sign instance {instance.id} on tablet A.1: {page}"

@@ -1,5 +1,6 @@
 """Cuneiform Digital Palaeography Project web application."""
 
+import os
 from collections.abc import Mapping
 from datetime import timedelta
 from pathlib import Path
@@ -36,6 +37,9 @@ def create_app(config: Mapping[str, Any] | None = None) -> Flask:
         TRUSTED_PROXIES=0,
     )
     app.config.from_prefixed_env("CDPP")
+    # from_prefixed_env reads each value as JSON, so a commit such as 1234567e8
+    # becomes a number. Keep the text. An empty value is no commit.
+    app.config["COMMIT"] = os.environ.get("CDPP_COMMIT") or None
     if config is not None:
         app.config.from_mapping(config)
     # A proxy that receives HTTPS requests sends the scheme in

@@ -123,9 +123,27 @@ def load_instance(instance_id: int) -> Instance | None:
 
 
 def photograph_record(
-    instance: Instance, instance_url: str, tablet_url: str
+    instance: Instance,
+    instance_url: str,
+    tablet_url: str,
+    *,
+    commit: str | None,
+    revision: str | None,
 ) -> PhotographRecord:
+    """Describe the photograph of ``instance``.
+
+    ``commit`` is the Git commit of the application, and ``revision`` is the
+    migration revision of the database. Each is None if it is not known.
+    """
     sign, tablet = instance.sign, instance.tablet
+    versions: Properties = [
+        (name, value)
+        for name, value in (
+            ("applicationCommit", commit),
+            ("databaseRevision", revision),
+        )
+        if value
+    ]
     names = sign_names(sign)
     tablet_values = tablet_properties(tablet, tablet_url)
     dates = dict(tablet_values)
@@ -149,7 +167,9 @@ def photograph_record(
         ),
         subjects=[sign.sign_ref, *names],
         languages=[LANGUAGE_CODES[language]] if language in LANGUAGE_CODES else [],
-        properties=instance_properties(instance, instance_url, names) + tablet_values,
+        properties=instance_properties(instance, instance_url, names)
+        + tablet_values
+        + versions,
     )
 
 

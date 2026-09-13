@@ -6,6 +6,7 @@ import re
 from pathlib import Path
 
 import click
+from alembic.runtime.migration import MigrationContext
 from flask import Blueprint, abort, current_app, send_file, url_for
 from flask.cli import with_appcontext
 from flask.typing import ResponseReturnValue
@@ -36,8 +37,16 @@ def download_name(instance: Instance) -> str:
     return "_".join(safe) + ".png"
 
 
-def tagged_photograph(instance: Instance) -> bytes | None:
-    """Return the photograph of ``instance`` with its record, or None without a file."""
+def database_revision() -> str | None:
+    """Return the migration revision of the database, or None if it has none."""
+    return MigrationContext.configure(db.session.connection()).get_current_revision()
+
+
+def tagged_photograph(instance: Instance, revision: str | None) -> bytes | None:
+    """Return the photograph of ``instance`` with its record, or None without a file.
+
+    ``revision`` is the migration revision of the database.
+    """
     path = photograph_path(instance)
     if not path.is_file():
         return None
@@ -45,6 +54,8 @@ def tagged_photograph(instance: Instance) -> bytes | None:
         instance,
         url_for("instances.instance", instance_id=instance.id, _external=True),
         url_for("cdpp.tablet", tablet_id=instance.tablet_id, _external=True),
+        commit=current_app.config["COMMIT"],
+        revision=revision,
     )
     return photograph_with_metadata(path.read_bytes(), record)
 
@@ -52,7 +63,11 @@ def tagged_photograph(instance: Instance) -> bytes | None:
 @bp.get("/instances/<int:instance_id>/photograph.png")
 def photograph(instance_id: int) -> ResponseReturnValue:
     instance = load_instance(instance_id)
-    data = tagged_photograph(instance) if instance is not None else None
+    data = (
+        tagged_photograph(instance, database_revision())
+        if instance is not None
+        else None
+    )
     if instance is None or data is None:
         abort(404)
     response = send_file(
@@ -89,6 +104,7 @@ def export_photographs(directory: Path, site_url: str) -> None:
             "Its files must not contain the records."
         )
     directory.mkdir(parents=True, exist_ok=True)
+    revision = database_revision()
     written = missing = 0
     instances = db.session.scalars(
         select(Instance).options(*INSTANCE_OPTIONS).order_by(Instance.id)
@@ -96,7 +112,7 @@ def export_photographs(directory: Path, site_url: str) -> None:
     # The page addresses in the metadata need a request context.
     with current_app.test_request_context(base_url=site_url):
         for instance in instances:
-            data = tagged_photograph(instance)
+            data = tagged_photograph(instance, revision)
             if data is None:
                 missing += 1
                 continue

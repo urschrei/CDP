@@ -8,7 +8,7 @@
   {% if glyph %}
     <figure class="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2">
       {{ cuneiform(glyph, sign.sign_ref, "text-6xl leading-none") }}
-      <figcaption class="max-w-sm text-sm text-muted">The sign in Unicode cuneiform, as the Oracc Sign List gives it, in the font Noto Sans Cuneiform. The font draws one standard form, not a form from a tablet.</figcaption>
+      <figcaption class="max-w-sm text-sm text-muted">Unicode cuneiform, Noto Sans Cuneiform</figcaption>
     </figure>
   {% endif %}
   <p class="mt-5 max-w-prose text-lg">
@@ -35,7 +35,7 @@
   <section aria-labelledby="entries-heading" class="mt-14">
     <h2 id="entries-heading" class="font-sign text-3xl">Sign-list entries</h2>
     {% if rows %}
-      <p class="mt-2 max-w-prose text-muted">{{ count_noun(rows|length, "entry", "entries") }}. Sign lists without an entry are not shown. Linked numbers and ORACC names lead to the Oracc Sign List. An eBL link leads to the page in the electronic Babylonian Library that the Oracc Sign List gives for the same sign.</p>
+      <p class="mt-2 max-w-prose text-muted">{{ count_noun(rows|length, "entry", "entries") }}. Sign lists without an entry are not shown. Links lead to the Oracc Sign List and eBL.</p>
       <div class="mt-4 overflow-x-auto border-y border-line" tabindex="0" role="region" aria-labelledby="entries-heading">
         <table class="min-w-full text-left">
           <thead>

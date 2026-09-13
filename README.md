@@ -1,6 +1,6 @@
 # Cuneiform Digital Palaeography Project (CDPP)
 
-A web application for comparing the forms of cuneiform signs. It holds 11,404 photographs of individual signs on 228 tablets, and sign-list entries for 3,440 signs. Editors can change the position and reading of each sign instance, that is, each occurrence of a sign on a tablet, and the application records each change. It is a Flask application with an SQLite database, full-text search with SQLite FTS5, and a front end built with htmx, Tailwind CSS and esbuild.
+A web application for comparing the forms of cuneiform signs. It contains 11,404 photographs of individual signs on 228 tablets, and sign-list entries for 3,440 signs. Editors can change the position and reading of each sign instance, that is, each occurrence of a sign on a tablet, and the application records each change. It is a Flask application with an SQLite database, full-text search with SQLite FTS5, and a front end built with htmx, Tailwind CSS and esbuild.
 
 ## Running the site locally
 

@@ -296,7 +296,7 @@ def test_signs_show_their_unicode_cuneiform(
     sign_page = page(client, f"/signs/{sample.sign.id}")
 
     assert sign_page.count(glyph) == 2
-    assert "in the font Noto Sans Cuneiform" in sign_page
+    assert "Unicode cuneiform, Noto Sans Cuneiform" in sign_page
     assert ">Unicode</th>" in sign_page
     assert glyph in page(client, "/signs")
     assert glyph in page(client, "/search?q=aš")

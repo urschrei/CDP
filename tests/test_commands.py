@@ -3,18 +3,24 @@ from pathlib import Path
 import pytest
 from alembic.script import ScriptDirectory
 from flask import Flask
-from flask_migrate import upgrade
-from sqlalchemy import func, inspect, select, text
+from flask_migrate import downgrade, upgrade
+from sqlalchemy import Select, func, inspect, select, text
 
 from cdpp import create_app
 from cdpp.db import db
-from cdpp.models import Medium, Period, SignListEntry, SignName, Tablet
+from cdpp.models import Cdp, Medium, Period, SignList, SignListEntry, SignName, Tablet
+
+PROJECT_DUMP = Path(__file__).parents[1] / "db_dumps" / "cdpp.sql"
 
 
 def file_app(database: Path) -> Flask:
     return create_app(
         {"TESTING": True, "SQLALCHEMY_DATABASE_URI": f"sqlite:///{database}"}
     )
+
+
+def count(query: Select) -> int | None:
+    return db.session.scalar(select(func.count()).select_from(query.subquery()))
 
 
 @pytest.fixture
@@ -32,6 +38,15 @@ def dump_file(tmp_path: Path) -> Path:
         result = source.test_cli_runner().invoke(args=["dump-data", str(dump)])
     assert result.exit_code == 0, result.output
     return dump
+
+
+@pytest.fixture
+def project_app(tmp_path: Path) -> Flask:
+    """Return an application with a database loaded from the project dump."""
+    app = file_app(tmp_path / "project.sqlite3")
+    result = app.test_cli_runner().invoke(args=["load-data", str(PROJECT_DUMP)])
+    assert result.exit_code == 0, result.output
+    return app
 
 
 def test_dump_file_starts_with_foreign_keys_off(dump_file: Path) -> None:
@@ -68,28 +83,43 @@ def test_load_data_replaces_tables_only_with_the_option(
     assert "--replace" in refused.output
     assert replaced.exit_code == 0, replaced.output
     with target.app_context():
-        count = select(func.count()).select_from(Tablet)
-        assert db.session.scalar(count) == 1
+        assert count(select(Tablet)) == 1
 
 
 def test_load_data_migrates_the_project_dump_to_the_latest_revision(
-    tmp_path: Path,
+    project_app: Flask,
 ) -> None:
     # The project dump has rows that refer to each other, so this test also
     # checks that migrations can change tables that other tables refer to.
-    dump = Path(__file__).parents[1] / "db_dumps" / "cdpp.sql"
-    target = file_app(tmp_path / "target.sqlite3")
-
-    result = target.test_cli_runner().invoke(args=["load-data", str(dump)])
-
-    assert result.exit_code == 0, result.output
-    with target.app_context():
-        config = target.extensions["migrate"].migrate.get_config()
+    with project_app.app_context():
+        config = project_app.extensions["migrate"].migrate.get_config()
         head = ScriptDirectory.from_config(config).get_current_head()
         revision = db.session.scalar(text("SELECT version_num FROM alembic_version"))
         assert revision == head
-        assert db.session.scalar(select(func.count()).select_from(Tablet)) == 228
-        entries = select(func.count()).select_from(SignListEntry)
-        assert db.session.scalar(entries) == 16989
-        names = select(func.count()).select_from(SignName)
-        assert db.session.scalar(names) == 10549
+        assert count(select(Tablet)) == 228
+        assert count(select(SignListEntry)) == 25061
+        assert count(select(SignName)) == 10549
+
+
+def test_restored_2013_values_can_be_removed_and_restored_again(
+    project_app: Flask,
+) -> None:
+    schroder_number = (
+        select(SignListEntry.number)
+        .join(SignList)
+        .where(SignListEntry.cdp_id == 15, SignList.name == "Schroder VS 15")
+    )
+    form_descriptions = select(Cdp).where(Cdp.form_description.is_not(None))
+    variant_names = select(Cdp).where(Cdp.variant_name.is_not(None))
+
+    with project_app.app_context():
+        downgrade(revision="6c1e9d2f7a38")
+        assert count(select(SignListEntry)) == 16989
+        assert count(form_descriptions) == 0
+        assert count(variant_names) == 0
+
+        upgrade()
+        assert count(select(SignListEntry)) == 25061
+        assert db.session.scalar(schroder_number) == "212"
+        assert count(form_descriptions) == 144
+        assert count(variant_names) == 2

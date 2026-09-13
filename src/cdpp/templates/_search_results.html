@@ -1,8 +1,5 @@
 {% from "macros.html" import tablet_table %}
 {% if oob %}<span hx-swap-oob="innerHTML:#search-status">{{ status }}</span>{% endif %}
-{% if unavailable %}
-  <p>While search is not available, browse the <a href="{{ url_for('cdpp.signs') }}">signs</a> or the <a href="{{ url_for('cdpp.tablets') }}">tablets</a>.</p>
-{% endif %}
 {% if signs %}
   <section aria-labelledby="sign-results-heading">
     <h2 id="sign-results-heading" class="font-sign text-3xl">Signs</h2>

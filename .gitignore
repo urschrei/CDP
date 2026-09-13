@@ -13,8 +13,4 @@ node_modules/
 frontend/build/
 src/cdpp/static/dist/
 
-# Meilisearch local data
-data.ms/
-meili_data/
-
 .DS_Store

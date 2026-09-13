@@ -1,16 +1,15 @@
 # Cuneiform Digital Palaeography Project (CDPP)
 
-A web application for comparing the forms of cuneiform signs. It holds 11,404 photographs of individual signs on 228 tablets, and sign-list entries for 3,440 signs. It is a Flask application with an SQLite database, Meilisearch for full-text search, and a front end built with htmx, Tailwind CSS and esbuild.
+A web application for comparing the forms of cuneiform signs. It holds 11,404 photographs of individual signs on 228 tablets, and sign-list entries for 3,440 signs. It is a Flask application with an SQLite database, full-text search with SQLite FTS5, and a front end built with htmx, Tailwind CSS and esbuild.
 
 ## Running the site locally
 
-This tutorial installs the application, creates the database from the data dump, builds the search index and starts a development server.
+This tutorial installs the application, creates the database from the data dump and starts a development server.
 
 ### Prerequisites
 
 - [uv](https://docs.astral.sh/uv/) 0.12 or later. uv installs Python 3.14 if it is not present.
 - Node.js 22 or later, with npm.
-- [Meilisearch](https://www.meilisearch.com/docs/learn/self_hosted/install_meilisearch_locally) 1.53 or later. On macOS: `brew install meilisearch`.
 
 ### Steps
 
@@ -27,7 +26,7 @@ This tutorial installs the application, creates the database from the data dump,
    npm run build
    ```
 
-3. Create the database `instance/cdpp.sqlite3` from the dump in `db_dumps/cdpp.sql`. The command also applies the migrations that are newer than the dump:
+3. Create the database `instance/cdpp.sqlite3` from the dump in `db_dumps/cdpp.sql`. The command also applies the migrations that are newer than the dump, and makes the search tables:
 
    ```sh
    uv run cdpp load-data
@@ -35,34 +34,18 @@ This tutorial installs the application, creates the database from the data dump,
 
    ```text
    Loaded db_dumps/cdpp.sql.
+   Indexed 3440 signs and 228 tablets.
    ```
 
-4. In a second terminal, start Meilisearch. It keeps its data in `data.ms` in the current directory:
-
-   ```sh
-   meilisearch --env development --no-analytics
-   ```
-
-5. Build the search indexes:
-
-   ```sh
-   uv run cdpp reindex
-   ```
-
-   ```text
-   Indexed 3440 signs.
-   Indexed 228 tablets.
-   ```
-
-6. Start the development server:
+4. Start the development server:
 
    ```sh
    uv run cdpp run --debug --port 8000
    ```
 
-7. Open <http://127.0.0.1:8000>.
+5. Open <http://127.0.0.1:8000>.
 
-To rebuild the assets when a template or a front-end file changes, run `npm run dev` in a third terminal.
+To rebuild the assets when a template or a front-end file changes, run `npm run dev` in a second terminal.
 
 ## How-to guides
 
@@ -70,17 +53,17 @@ To rebuild the assets when a template or a front-end file changes, run `npm run 
 
 The dump in `db_dumps/cdpp.sql` is the source of record. When you change records in the database, write the database back to the dump and commit the dump.
 
-1. Write the database to the dump:
+```sh
+uv run cdpp dump-data
+```
 
-   ```sh
-   uv run cdpp dump-data
-   ```
+### Rebuilding the search tables
 
-2. Rebuild the search indexes. The indexes do not change when the database changes.
+The search tables do not change when you change records with SQL, a migration or `cdpp import-oracc-signs`. Make them again:
 
-   ```sh
-   uv run cdpp reindex
-   ```
+```sh
+uv run cdpp reindex
+```
 
 ### Restoring the database from the dump
 
@@ -89,7 +72,6 @@ The dump in `db_dumps/cdpp.sql` is the source of record. When you change records
 
 ```sh
 uv run cdpp load-data --replace
-uv run cdpp reindex
 ```
 
 ### Updating the Oracc Sign List snapshot
@@ -123,7 +105,13 @@ The links from sign pages to the Oracc Sign List use a snapshot of the list in t
    uv run cdpp db upgrade
    ```
 
-4. Write the migrated database to the dump:
+4. If the migration changes records, rebuild the search tables:
+
+   ```sh
+   uv run cdpp reindex
+   ```
+
+5. Write the migrated database to the dump:
 
    ```sh
    uv run cdpp dump-data
@@ -139,46 +127,26 @@ uv run ty check src tests
 npm run lint
 ```
 
-One search test needs a running Meilisearch server. It is skipped unless you give the server address:
-
-```sh
-CDPP_TEST_MEILISEARCH_URL=http://127.0.0.1:7700 uv run pytest
-```
-
-The test creates indexes with a random prefix and deletes them when it finishes.
-
 ### Deploying with Docker Compose
 
-`compose.yaml` runs the application with gunicorn on port 8000, and Meilisearch with a master key. The database is on the `data` volume. The images in `media/` and the dump in `db_dumps/` are mounted read-only.
+`compose.yaml` runs the application with gunicorn on port 8000. The database, with its search tables, is on the `data` volume. The images in `media/` and the dump in `db_dumps/` are mounted read-only.
 
-1. Set a master key for Meilisearch:
-
-   ```sh
-   export MEILI_MASTER_KEY="$(openssl rand -base64 32)"
-   ```
-
-2. Build the application image:
+1. Build the application image:
 
    ```sh
    docker compose build
    ```
 
-3. Create the database from the dump:
+2. Create the database from the dump:
 
    ```sh
    docker compose run --rm app cdpp load-data
    ```
 
-4. Start the services:
+3. Start the application:
 
    ```sh
    docker compose up -d
-   ```
-
-5. Build the search indexes:
-
-   ```sh
-   docker compose exec app cdpp reindex
    ```
 
 ## Reference
@@ -190,12 +158,12 @@ Run each command as `uv run cdpp COMMAND`. `cdpp` is the Flask command-line inte
 | Command | Action |
 | --- | --- |
 | `run` | Start the development server. |
-| `load-data [--replace] [PATH]` | Create the database from an SQL dump, then apply newer migrations. `PATH` defaults to `db_dumps/cdpp.sql`. `--replace` deletes the existing tables first. |
-| `dump-data [PATH]` | Write the schema, the records and the migration revision to an SQL dump. `PATH` defaults to `db_dumps/cdpp.sql`. |
+| `load-data [--replace] [PATH]` | Create the database from an SQL dump, apply newer migrations, and make the search tables. `PATH` defaults to `db_dumps/cdpp.sql`. `--replace` deletes the existing tables first. |
+| `dump-data [PATH]` | Write the schema, the records and the migration revision to an SQL dump. The dump does not contain the search tables. `PATH` defaults to `db_dumps/cdpp.sql`. |
 | `import-oracc-signs [SOURCE]` | Replace the snapshot of the Oracc Sign List with the signs in `osl.asl`. `SOURCE` is a path or a URL, and defaults to the file in the [OSL repository](https://github.com/oracc/osl). |
 | `db upgrade` | Apply the database migrations. |
 | `db migrate -m MESSAGE` | Generate a migration from changes to the models. |
-| `reindex` | Rebuild the Meilisearch indexes from the database. |
+| `reindex` | Make the search tables again from the database. |
 | `shell` | Start a Python shell with the application context. |
 
 ### Configuration
@@ -204,10 +172,7 @@ Set these environment variables to change the defaults.
 
 | Variable | Default | Meaning |
 | --- | --- | --- |
-| `CDPP_SQLALCHEMY_DATABASE_URI` | `sqlite:///instance/cdpp.sqlite3`, in the project directory | Database URL. `load-data` and `dump-data` work only with SQLite. |
-| `CDPP_MEILISEARCH_URL` | `http://127.0.0.1:7700` | Meilisearch server address. |
-| `CDPP_MEILISEARCH_API_KEY` | None | Meilisearch key. `cdpp reindex` needs a key that can create and delete indexes. |
-| `CDPP_MEILISEARCH_INDEX_PREFIX` | `cdpp_` | Prefix of the index names. The indexes are `PREFIXsigns` and `PREFIXtablets`. |
+| `CDPP_SQLALCHEMY_DATABASE_URI` | `sqlite:///instance/cdpp.sqlite3`, in the project directory | Database URL. The application works only with SQLite. |
 | `CDPP_MEDIA_ROOT` | `media`, in the project directory | Directory that contains the `instance` directory of sign photographs. |
 
 ### Pages
@@ -253,11 +218,11 @@ Each filter selects the tablets with a related record of the given name, for exa
 
 The SQL dump in `db_dumps/cdpp.sql` is the source of record. It is plain text, so version control shows each change to the records and the schema. `cdpp load-data` builds the SQLite database from the dump, and applies the migrations that are newer than the dump. The data come from a MySQL dump of the original site, and the table and column names are still those of the MySQL schema. SQLite compares text byte by byte, as the binary collation of the MySQL database did, so sign names such as `S` and `Š` stay distinct.
 
-Meilisearch holds a copy of the sign names and the tablet details for full-text search. `cdpp reindex` builds each index in a staging index, then swaps it with the live index, so search continues to work during a rebuild. If Meilisearch is not available, the search page tells the user, and the other pages continue to work.
+Search uses two SQLite FTS5 tables with the trigram tokenizer: `search_sign` holds the name of each sign and its names in other sign lists, and `search_tablet` holds the details of each tablet. The tables hold the text in a normalised form, Unicode NFKC and then case folding, so `gir3` finds GIR₃, and `S` and `Š` stay distinct. A search finds the records with a field that contains the query. An exact value ranks first, then a value that starts with the query, then a value that contains it. The trigram index cannot find a query shorter than three characters, so a shorter query reads all the rows. The search tables are derived from the other tables, so they are not in the models, the migrations or the dump. `cdpp load-data` and `cdpp reindex` make them, and a search makes them if they do not exist.
 
 On a sign page, a sign-list number links to the [Oracc Sign List](https://oracc.museum.upenn.edu/osl/) (OSL) if exactly one OSL sign or form has the same number in that list. An ORACC name links to OSL if exactly one OSL sign or form has that name, and to the electronic Babylonian Library (eBL) if OSL records an eBL page for it. The links come from a snapshot of OSL in the tables `oracc_sign` and `oracc_list_number`, so a page does not depend on Oracc. [docs/schema-and-data-questions.md](docs/schema-and-data-questions.md) lists the sign lists that have links, and the open questions about them.
 
-The server renders every page. htmx updates parts of pages without a full reload: the tablet list when a filter changes, the search results while the user types, and the random selection of signs on the home page. A request from htmx names its target element in the `HX-Target` header, and the server then returns only the fragment for that element. Links and forms also work without JavaScript. Only the button that shows other signs on the home page needs it.
+The server renders every page. htmx updates parts of pages without a full reload: the tablet list when a filter changes, the search results while the user types, the table of signs on a tablet page when the JJT notes are hidden or shown, and the random selection of signs on the home page. A request from htmx names its target element in the `HX-Target` header, and the server then returns only the fragment for that element. Links and forms also work without JavaScript. Only the button that shows other signs on the home page needs it.
 
 Sign names are set in Gentium Book Plus, and the interface in Atkinson Hyperlegible Next. The font subsets do not contain subscript digits, so the browser takes those characters from another font.
 

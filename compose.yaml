@@ -3,31 +3,10 @@ services:
     build: .
     ports:
       - "8000:8000"
-    environment:
-      CDPP_MEILISEARCH_URL: http://meilisearch:7700
-      CDPP_MEILISEARCH_API_KEY: ${MEILI_MASTER_KEY:?Set MEILI_MASTER_KEY}
     volumes:
       - data:/data
       - ./media:/app/media:ro
       - ./db_dumps:/app/db_dumps:ro
-    depends_on:
-      meilisearch:
-        condition: service_healthy
-
-  meilisearch:
-    image: getmeili/meilisearch:v1.53
-    environment:
-      MEILI_ENV: production
-      MEILI_MASTER_KEY: ${MEILI_MASTER_KEY:?Set MEILI_MASTER_KEY}
-      MEILI_NO_ANALYTICS: "true"
-    volumes:
-      - meili_data:/meili_data
-    healthcheck:
-      test: ["CMD", "curl", "--fail", "http://127.0.0.1:7700/health"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
 
 volumes:
   data:
-  meili_data:

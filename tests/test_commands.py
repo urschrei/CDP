@@ -9,6 +9,7 @@ from sqlalchemy import Select, func, inspect, select, text
 from cdpp import create_app
 from cdpp.db import db
 from cdpp.models import Cdp, Medium, Period, SignList, SignListEntry, SignName, Tablet
+from cdpp.search import rebuild
 
 PROJECT_DUMP = Path(__file__).parents[1] / "db_dumps" / "cdpp.sql"
 
@@ -67,6 +68,19 @@ def test_load_data_restores_the_records_and_the_migration_state(
     with target.app_context():
         assert db.session.scalars(select(Tablet.museum_number)).all() == ["A.1"]
         assert inspect(db.engine).has_table("alembic_version")
+
+
+def test_dump_data_leaves_out_the_search_tables(tmp_path: Path) -> None:
+    source = file_app(tmp_path / "source.sqlite3")
+    dump = tmp_path / "cdpp.sql"
+    with source.app_context():
+        upgrade()
+        rebuild()
+        assert inspect(db.engine).has_table("search_sign")
+        result = source.test_cli_runner().invoke(args=["dump-data", str(dump)])
+
+    assert result.exit_code == 0, result.output
+    assert "search_" not in dump.read_text(encoding="utf-8")
 
 
 def test_load_data_replaces_tables_only_with_the_option(

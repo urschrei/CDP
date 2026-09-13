@@ -2,25 +2,17 @@
 
 import sqlite3
 from collections.abc import Iterator
-from contextlib import contextmanager
+from contextlib import closing, contextmanager
 from pathlib import Path
 
 import click
-from flask import current_app
 from flask.cli import with_appcontext
 from flask_migrate import upgrade
 from sqlalchemy import inspect
 
 from cdpp.db import db
 from cdpp.oracc import OSL_URL, read_osl, replace_snapshot
-from cdpp.search import (
-    SIGNS,
-    TABLETS,
-    SearchUnavailable,
-    search_index,
-    sign_documents,
-    tablet_documents,
-)
+from cdpp.search import drop_tables, rebuild
 
 DATA_DUMP = Path("db_dumps/cdpp.sql")
 
@@ -33,12 +25,18 @@ DATA_DUMP = Path("db_dumps/cdpp.sql")
 def dump_data(path: Path) -> None:
     """Write the schema and all records of the database to an SQL file.
 
-    PATH defaults to db_dumps/cdpp.sql.
+    The file does not contain the search tables. PATH defaults to
+    db_dumps/cdpp.sql.
     """
-    with sqlite_connection() as connection:
+    with (
+        sqlite_connection() as connection,
+        closing(sqlite3.connect(":memory:")) as copy,
+    ):
+        connection.backup(copy)
+        drop_tables(copy)
         # iterdump writes the tables in alphabetical order, not in the order
         # of their foreign keys.
-        lines = ["PRAGMA foreign_keys = OFF;", *connection.iterdump()]
+        lines = ["PRAGMA foreign_keys = OFF;", *copy.iterdump()]
     path.write_text("\n".join(lines) + "\n", encoding="utf-8")
     click.echo(f"Wrote the database to {path}.")
 
@@ -52,9 +50,10 @@ def dump_data(path: Path) -> None:
 @click.option("--replace", is_flag=True, help="Delete the existing tables first.")
 @with_appcontext
 def load_data(path: Path, replace: bool) -> None:
-    """Create the database from an SQL file, then apply newer migrations.
+    """Create the database from an SQL file, apply newer migrations, and make
+    the search tables.
 
-    PATH defaults to db_dumps/cdpp.sql. Run 'cdpp reindex' afterwards.
+    PATH defaults to db_dumps/cdpp.sql.
     """
     if inspect(db.engine).get_table_names() and not replace:
         raise click.ClickException(
@@ -63,6 +62,8 @@ def load_data(path: Path, replace: bool) -> None:
     sql = path.read_text(encoding="utf-8")
     with sqlite_connection() as connection:
         connection.execute("PRAGMA foreign_keys = OFF")
+        # A search table owns other tables, so remove the search tables first.
+        drop_tables(connection)
         tables = connection.execute(
             "SELECT name FROM sqlite_schema"
             " WHERE type = 'table' AND name NOT LIKE 'sqlite_%'"
@@ -78,6 +79,8 @@ def load_data(path: Path, replace: bool) -> None:
         )
     click.echo(f"Loaded {path}.")
     upgrade()
+    signs, tablets = rebuild()
+    click.echo(f"Indexed {signs} signs and {tablets} tablets.")
 
 
 @click.command("import-oracc-signs")
@@ -96,16 +99,9 @@ def import_oracc_signs(source: str) -> None:
 @click.command("reindex")
 @with_appcontext
 def reindex() -> None:
-    """Rebuild the Meilisearch indexes from the database."""
-    index = search_index()
-    batches = {SIGNS: sign_documents(), TABLETS: tablet_documents()}
-    for name, documents in batches.items():
-        try:
-            index.replace_documents(name, documents)
-        except SearchUnavailable as error:
-            url = current_app.config["MEILISEARCH_URL"]
-            raise click.ClickException(f"Meilisearch at {url}: {error}") from error
-        click.echo(f"Indexed {len(documents)} {name}.")
+    """Make the search tables again from the database."""
+    signs, tablets = rebuild()
+    click.echo(f"Indexed {signs} signs and {tablets} tablets.")
 
 
 @contextmanager

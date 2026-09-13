@@ -63,6 +63,11 @@ def run_migrations_offline():
         context.run_migrations()
 
 
+def include_name(name, type_, parent_names):
+    """Leave out the search tables. The search module makes them."""
+    return type_ != "table" or not (name or "").startswith("search_")
+
+
 def run_migrations_online():
     """Run migrations in 'online' mode.
 
@@ -97,7 +102,10 @@ def run_migrations_online():
             connection.commit()
         try:
             context.configure(
-                connection=connection, target_metadata=get_metadata(), **conf_args
+                connection=connection,
+                target_metadata=get_metadata(),
+                include_name=include_name,
+                **conf_args,
             )
 
             with context.begin_transaction():

@@ -37,7 +37,7 @@ from cdpp.models import (
     Tablet,
 )
 from cdpp.oracc import list_number_urls, oracc_page_url, signs_named
-from cdpp.search import SearchResults, SearchUnavailable, search_index
+from cdpp.search import SearchResults, search_records
 
 bp = Blueprint("cdpp", __name__)
 
@@ -383,32 +383,24 @@ def search() -> ResponseReturnValue:
     results: SearchResults | None = None
     signs: list[Sign] = []
     tablets: list[Tablet] = []
-    unavailable = False
     if query:
-        try:
-            results = search_index().search(query, limit=SEARCH_LIMIT)
-        except SearchUnavailable:
-            current_app.logger.exception("Search for %r failed", query)
-            unavailable = True
-        else:
-            signs = in_rank_order(Sign, results.sign_ids)
-            tablets = in_rank_order(
-                Tablet,
-                results.tablet_ids,
-                joinedload(Tablet.period),
-                joinedload(Tablet.medium),
-                joinedload(Tablet.city),
-            )
+        results = search_records(query, limit=SEARCH_LIMIT)
+        signs = in_rank_order(Sign, results.sign_ids)
+        tablets = in_rank_order(
+            Tablet,
+            results.tablet_ids,
+            joinedload(Tablet.period),
+            joinedload(Tablet.medium),
+            joinedload(Tablet.city),
+        )
     return render_page(
         "search.html",
         partial="_search_results.html",
         target="search-results",
-        status_code=503 if unavailable else 200,
         query=query,
         signs=signs,
         tablets=tablets,
-        unavailable=unavailable,
-        status=search_status(query, results, unavailable),
+        status=search_status(query, results),
     )
 
 
@@ -690,17 +682,15 @@ def _plain(text: object) -> DetailValues:
     return [(text, None)] if isinstance(text, str) and text else []
 
 
-def search_status(query: str, results: SearchResults | None, unavailable: bool) -> str:
+def search_status(query: str, results: SearchResults | None) -> str:
     if not query:
         return ""
-    if unavailable:
-        return "Search is not available because the search service did not respond."
-    if results is None or not (results.sign_ids or results.tablet_ids):
+    if results is None or not (results.sign_count or results.tablet_count):
         return f"No signs or tablets match “{query}”."
-    counts = [(results.estimated_signs, "sign"), (results.estimated_tablets, "tablet")]
+    counts = [(results.sign_count, "sign"), (results.tablet_count, "tablet")]
     parts = [count_noun(count, noun) for count, noun in counts if count]
     verb = "matches" if sum(count for count, _ in counts) == 1 else "match"
     status = f"{' and '.join(parts)} {verb} “{query}”."
-    if max(results.estimated_signs, results.estimated_tablets) > SEARCH_LIMIT:
+    if max(results.sign_count, results.tablet_count) > SEARCH_LIMIT:
         status += f" The first {SEARCH_LIMIT} of each are shown."
     return status

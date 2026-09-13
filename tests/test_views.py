@@ -7,21 +7,9 @@ from sqlalchemy import update
 
 from cdpp.db import db
 from cdpp.models import Instance, Line, OraccListNumber, OraccSign, SignList, Surface
-from cdpp.search import EXTENSION_KEY, SearchIndex, SearchResults, SearchUnavailable
+from cdpp.search import SearchResults
 from cdpp.views import instance_location, position_text, search_status
 from tests.conftest import Sample
-
-
-class FakeSearchIndex(SearchIndex):
-    """Return fixed results, or raise SearchUnavailable if there are none."""
-
-    def __init__(self, results: SearchResults | None) -> None:
-        self.results = results
-
-    def search(self, query: str, limit: int = 50) -> SearchResults:
-        if self.results is None:
-            raise SearchUnavailable("connection refused")
-        return self.results
 
 
 def page(client: FlaskClient, url: str, **headers: str) -> str:
@@ -162,50 +150,25 @@ def test_tablet_list_returns_only_the_results_to_htmx(
     assert ">BM_12345</a>" in html
 
 
-def test_search_shows_results_in_rank_order(
-    app: Flask, client: FlaskClient, sample: Sample
+def test_search_shows_signs_and_tablets_in_rank_order(
+    client: FlaskClient, sample: Sample
 ) -> None:
-    app.extensions[EXTENSION_KEY] = FakeSearchIndex(
-        SearchResults(
-            sign_ids=[sample.sign_without_records.id, sample.sign.id],
-            tablet_ids=[sample.tablet.id],
-            estimated_signs=2,
-            estimated_tablets=1,
-        )
-    )
-
     html = page(client, "/search?q=a")
 
-    assert html.index(">ZA</a>") < html.index(">AŠ</a>")
+    # AŠ starts with the query; ZA only contains it.
+    assert html.index(">AŠ</a>") < html.index(">ZA</a>")
     assert ">A.1</a>" in html
-    assert "2 signs and 1 tablet match" in html
+    assert "2 signs and 2 tablets match" in html
 
 
 def test_search_returns_only_the_results_to_htmx(
-    app: Flask, client: FlaskClient, sample: Sample
+    client: FlaskClient, sample: Sample
 ) -> None:
-    app.extensions[EXTENSION_KEY] = FakeSearchIndex(
-        SearchResults(
-            sign_ids=[], tablet_ids=[], estimated_signs=0, estimated_tablets=0
-        )
-    )
-
     html = page(client, "/search?q=xyz", **htmx("search-results"))
 
     assert "<html" not in html
     assert 'hx-swap-oob="innerHTML:#search-status"' in html
     assert "No signs or tablets match" in html
-
-
-def test_search_reports_that_the_service_is_not_available(
-    app: Flask, client: FlaskClient
-) -> None:
-    app.extensions[EXTENSION_KEY] = FakeSearchIndex(None)
-
-    response = client.get("/search?q=a")
-
-    assert response.status_code == 503
-    assert "Search is not available" in response.get_data(as_text=True)
 
 
 def test_instance_images_come_from_the_media_root(
@@ -321,10 +284,6 @@ def test_tablet_page_without_jjt_notes_has_no_notes_link(
 
 
 def test_search_status_omits_record_types_without_matches() -> None:
-    results = SearchResults(
-        sign_ids=[], tablet_ids=[7], estimated_signs=0, estimated_tablets=1
-    )
+    results = SearchResults(sign_ids=[], tablet_ids=[7], sign_count=0, tablet_count=1)
 
-    assert search_status("K_39", results, unavailable=False) == (
-        "1 tablet matches “K_39”."
-    )
+    assert search_status("K_39", results) == "1 tablet matches “K_39”."

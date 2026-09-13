@@ -10,8 +10,6 @@ utils
 tests
 frontend/build
 src/cdpp/static/dist
-data.ms
-meili_data
 **/__pycache__
 .pytest_cache
 .ruff_cache

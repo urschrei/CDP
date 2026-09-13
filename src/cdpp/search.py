@@ -1,145 +1,174 @@
-"""Full-text search of signs and tablets, using Meilisearch.
+"""Full-text search of signs and tablets, with SQLite FTS5.
 
-The database is the source of record. ``cdpp reindex`` builds each index from
-the database in a staging index, then swaps the staging index with the live
-index, so searches continue to work during a rebuild.
+The search tables are derived from the other tables. They are not in the
+models, the migrations or the data dump. ``rebuild`` makes them from the
+database, and a search makes them if they do not exist.
 """
 
-from collections.abc import Mapping, Sequence
+import sqlite3
+import unicodedata
+from collections.abc import Sequence
 from dataclasses import dataclass
 from typing import Any
 
-from flask import Flask, current_app
-from meilisearch import Client
-from meilisearch.errors import MeilisearchError
-from meilisearch.models.task import TaskInfo
-from sqlalchemy import select
+from sqlalchemy import select, text
+from sqlalchemy.exc import OperationalError
 from sqlalchemy.orm import selectinload
 
 from cdpp.db import db
 from cdpp.models import Cdp, Sign, Tablet
 
-SIGNS = "signs"
-TABLETS = "tablets"
-EXTENSION_KEY = "cdpp.search"
-TASK_TIMEOUT_MS = 120_000
-
-# Searchable attributes are in order of ranking weight.
-SETTINGS: dict[str, dict[str, Any]] = {
-    SIGNS: {"searchableAttributes": ["sign_ref", "references"]},
-    TABLETS: {
-        "searchableAttributes": [
-            "museum_number",
-            "rulers",
-            "city",
-            "locality",
-            "period",
-            "sub_period",
-            "dynasty",
-            "genre",
-            "text_vehicle",
-            "medium",
-            "method",
-            "publication",
-            "notes",
-        ]
-    },
-}
-
-
-class SearchUnavailable(Exception):
-    """Meilisearch cannot be reached, or it did not complete a request."""
+SIGN_TABLE = "search_sign"
+TABLET_TABLE = "search_tablet"
+SEARCH_TABLES = (SIGN_TABLE, TABLET_TABLE)
+# The fields of each document, in order of ranking weight.
+SIGN_FIELDS = ("sign_ref", "names")
+TABLET_FIELDS = (
+    "museum_number",
+    "rulers",
+    "city",
+    "locality",
+    "period",
+    "sub_period",
+    "dynasty",
+    "genre",
+    "text_vehicle",
+    "medium",
+    "method",
+    "publication",
+    "notes",
+)
+# The trigram tokenizer cannot find a text shorter than three characters. A
+# shorter query reads all the documents instead.
+TRIGRAM_LENGTH = 3
+# Separates the values of a field that has more than one value.
+SEPARATOR = "\n"
 
 
 @dataclass(frozen=True)
 class SearchResults:
-    """Record IDs in rank order, with the estimated number of all matches."""
+    """Record IDs in rank order, with the number of all matches."""
 
     sign_ids: list[int]
     tablet_ids: list[int]
-    estimated_signs: int
-    estimated_tablets: int
+    sign_count: int
+    tablet_count: int
 
 
-class SearchIndex:
-    def __init__(self, url: str, api_key: str | None, prefix: str) -> None:
-        self.client = Client(url, api_key, timeout=10)
-        self.prefix = prefix
+def normalise(value: str) -> str:
+    """Return ``value`` in the form that a search compares.
 
-    def search(self, query: str, limit: int = 50) -> SearchResults:
-        queries = [
-            {
-                "indexUid": self._uid(name),
-                "q": query,
-                "limit": limit,
-                "attributesToRetrieve": ["id"],
-            }
-            for name in (SIGNS, TABLETS)
-        ]
-        try:
-            signs, tablets = self.client.multi_search(queries)["results"]
-        except MeilisearchError as error:
-            raise SearchUnavailable(str(error)) from error
-        return SearchResults(
-            sign_ids=[hit["id"] for hit in signs["hits"]],
-            tablet_ids=[hit["id"] for hit in tablets["hits"]],
-            estimated_signs=signs["estimatedTotalHits"],
-            estimated_tablets=tablets["estimatedTotalHits"],
-        )
-
-    def replace_documents(
-        self, name: str, documents: Sequence[Mapping[str, Any]]
-    ) -> None:
-        """Make ``documents`` the complete contents of the index ``name``."""
-        live = self._uid(name)
-        staging = f"{live}_staging"
-        try:
-            self._wait(self.client.delete_index(staging), ignore="index_not_found")
-            self._wait(self.client.create_index(staging, {"primaryKey": "id"}))
-            index = self.client.index(staging)
-            self._wait(index.update_settings(SETTINGS[name]))
-            self._wait(index.add_documents(documents, primary_key="id"))
-            self._wait(
-                self.client.create_index(live, {"primaryKey": "id"}),
-                ignore="index_already_exists",
-            )
-            self._wait(self.client.swap_indexes([{"indexes": [live, staging]}]))
-            self._wait(self.client.delete_index(staging))
-        except MeilisearchError as error:
-            raise SearchUnavailable(str(error)) from error
-
-    def delete_indexes(self) -> None:
-        try:
-            for name in (SIGNS, TABLETS):
-                for uid in (self._uid(name), f"{self._uid(name)}_staging"):
-                    self._wait(self.client.delete_index(uid), ignore="index_not_found")
-        except MeilisearchError as error:
-            raise SearchUnavailable(str(error)) from error
-
-    def _uid(self, name: str) -> str:
-        return f"{self.prefix}{name}"
-
-    def _wait(self, task: TaskInfo, ignore: str | None = None) -> None:
-        """Wait for a task. Raise if it fails, unless its error code is ``ignore``."""
-        result = self.client.wait_for_task(task.task_uid, timeout_in_ms=TASK_TIMEOUT_MS)
-        if result.status == "succeeded":
-            return
-        error = result.error or {}
-        if ignore is None or error.get("code") != ignore:
-            message = error.get("message", "no message")
-            raise SearchUnavailable(f"task {result.uid} {result.status}: {message}")
+    NFKC changes subscript digits to digits, so "gir3" finds GIR₃. It keeps
+    Š and S different.
+    """
+    return unicodedata.normalize("NFKC", value).casefold()
 
 
-def init_app(app: Flask) -> None:
-    app.extensions[EXTENSION_KEY] = SearchIndex(
-        app.config["MEILISEARCH_URL"],
-        app.config["MEILISEARCH_API_KEY"],
-        app.config["MEILISEARCH_INDEX_PREFIX"],
+def search_records(query: str, limit: int) -> SearchResults:
+    """Find the signs and tablets that contain ``query`` in one of their fields."""
+    needle = normalise(query.strip())
+    try:
+        sign_ids = matching_ids(SIGN_TABLE, SIGN_FIELDS, needle)
+    except OperationalError as error:
+        if "no such table" not in str(error.orig):
+            raise
+        db.session.rollback()
+        rebuild()
+        sign_ids = matching_ids(SIGN_TABLE, SIGN_FIELDS, needle)
+    tablet_ids = matching_ids(TABLET_TABLE, TABLET_FIELDS, needle)
+    return SearchResults(
+        sign_ids=sign_ids[:limit],
+        tablet_ids=tablet_ids[:limit],
+        sign_count=len(sign_ids),
+        tablet_count=len(tablet_ids),
     )
 
 
-def search_index() -> SearchIndex:
-    return current_app.extensions[EXTENSION_KEY]
+def matching_ids(table: str, fields: Sequence[str], needle: str) -> list[int]:
+    """Return the IDs of the documents that contain ``needle``, best match first."""
+    if not needle:
+        return []
+    columns = ", ".join(fields)
+    if len(needle) >= TRIGRAM_LENGTH:
+        phrase = '"' + needle.replace('"', '""') + '"'
+        rows = db.session.execute(
+            text(f"SELECT rowid, {columns} FROM {table} WHERE {table} MATCH :phrase"),
+            {"phrase": phrase},
+        )
+    else:
+        rows = db.session.execute(text(f"SELECT rowid, {columns} FROM {table}"))
+    ranked = [
+        (key, rowid)
+        for rowid, *values in rows
+        if (key := rank(needle, values)) is not None
+    ]
+    return [rowid for _, rowid in sorted(ranked)]
+
+
+def rank(needle: str, fields: Sequence[str]) -> tuple[int, int, int] | None:
+    """Return the sort key of a document for ``needle``, or None if it does not match.
+
+    An exact value ranks first, then a value that starts with ``needle``, then
+    a value that contains it. Then an earlier field ranks first, and then a
+    shorter value.
+    """
+    keys = []
+    for position, field in enumerate(fields):
+        for value in field.split(SEPARATOR):
+            if value == needle:
+                tier = 0
+            elif value.startswith(needle):
+                tier = 1
+            elif needle in value:
+                tier = 2
+            else:
+                continue
+            keys.append((tier, position, len(value)))
+    return min(keys, default=None)
+
+
+def rebuild() -> tuple[int, int]:
+    """Make the search tables again. Return the numbers of signs and tablets."""
+    signs = sign_documents()
+    tablets = tablet_documents()
+    fill(SIGN_TABLE, SIGN_FIELDS, signs)
+    fill(TABLET_TABLE, TABLET_FIELDS, tablets)
+    db.session.commit()
+    return len(signs), len(tablets)
+
+
+def fill(table: str, fields: Sequence[str], documents: list[dict[str, Any]]) -> None:
+    columns = ", ".join(fields)
+    db.session.execute(text(f"DROP TABLE IF EXISTS {table}"))
+    db.session.execute(
+        text(f"CREATE VIRTUAL TABLE {table} USING fts5({columns}, tokenize='trigram')")
+    )
+    if documents:
+        placeholders = ", ".join(f":{field}" for field in fields)
+        db.session.execute(
+            text(
+                f"INSERT INTO {table} (rowid, {columns}) VALUES (:id, {placeholders})"
+            ),
+            [
+                {"id": document["id"]}
+                | {field: field_text(document[field]) for field in fields}
+                for document in documents
+            ],
+        )
+
+
+def field_text(value: str | list[str] | None) -> str:
+    if value is None:
+        return ""
+    if isinstance(value, list):
+        return SEPARATOR.join(normalise(item) for item in value)
+    return normalise(value)
+
+
+def drop_tables(connection: sqlite3.Connection) -> None:
+    """Remove the search tables, for example from a copy of the database for a dump."""
+    for table in SEARCH_TABLES:
+        connection.execute(f"DROP TABLE IF EXISTS {table}")
 
 
 def sign_documents() -> list[dict[str, Any]]:
@@ -155,7 +184,7 @@ def sign_document(sign: Sign) -> dict[str, Any]:
     """Describe a sign by its CDP name and its names in other sign lists."""
     names = {name.name for record in sign.cdp_records for name in record.names}
     names.discard(sign.sign_ref)
-    return {"id": sign.id, "sign_ref": sign.sign_ref, "references": sorted(names)}
+    return {"id": sign.id, "sign_ref": sign.sign_ref, "names": sorted(names)}
 
 
 def tablet_documents() -> list[dict[str, Any]]:

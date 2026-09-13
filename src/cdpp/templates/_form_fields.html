@@ -1,0 +1,29 @@
+{% macro text_field(id, name, label, hint, value, error, autocomplete="off") %}
+  <div class="grid content-start gap-1">
+    <label for="{{ id }}" class="font-semibold">{{ label }}</label>
+    <input id="{{ id }}" name="{{ name }}" type="text" value="{{ value }}"
+           autocomplete="{{ autocomplete }}" spellcheck="false"
+           aria-describedby="{{ id }}-hint{% if error %} {{ id }}-error{% endif %}"
+           {% if error %}aria-invalid="true"{% endif %}
+           class="min-h-11 w-full min-w-0 rounded bg-ground px-3 {{ 'border-2 border-accent' if error else 'border border-line' }}">
+    {% if error %}<p id="{{ id }}-error" class="text-sm font-semibold">{{ error }}</p>{% endif %}
+    <p id="{{ id }}-hint" class="text-sm text-muted">{{ hint }}</p>
+  </div>
+{% endmacro %}
+
+{% macro select_field(id, name, label, hint, options, value, error) %}
+  <div class="grid content-start gap-1">
+    <label for="{{ id }}" class="font-semibold">{{ label }}</label>
+    <select id="{{ id }}" name="{{ name }}"
+            aria-describedby="{{ id }}-hint{% if error %} {{ id }}-error{% endif %}"
+            {% if error %}aria-invalid="true"{% endif %}
+            class="min-h-11 w-full min-w-0 rounded bg-ground px-2 {{ 'border-2 border-accent' if error else 'border border-line' }}">
+      <option value="">Not recorded</option>
+      {% for option_id, option_label in options %}
+        <option value="{{ option_id }}" {% if value == option_id|string %}selected{% endif %}>{{ option_label }}</option>
+      {% endfor %}
+    </select>
+    {% if error %}<p id="{{ id }}-error" class="text-sm font-semibold">{{ error }}</p>{% endif %}
+    <p id="{{ id }}-hint" class="text-sm text-muted">{{ hint }}</p>
+  </div>
+{% endmacro %}

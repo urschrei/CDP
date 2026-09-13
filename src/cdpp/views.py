@@ -332,8 +332,24 @@ def tablet(tablet_id: int) -> ResponseReturnValue:
             ),
         ],
     )
+    table = instance_table(tablet_id, show_notes=request.args.get("notes") != "hide")
+    instances = table["instances"]
+    return render_page(
+        "tablet.html",
+        partial="_tablet_instances.html",
+        target="tablet-instances",
+        tablet=tablet,
+        details=tablet_details(tablet),
+        instance_count=len(instances),
+        sign_count=len({instance.sign_id for instance in instances}),
+        specimens=random.sample(instances, k=min(4, len(instances))),
+        **table,
+    )
+
+
+def instance_table(tablet_id: int, *, show_notes: bool) -> dict[str, Any]:
+    """Return the context of the table of instances on a tablet page."""
     instances = tablet_instances(tablet_id)
-    show_notes = request.args.get("notes") != "hide"
     headings = INSTANCE_HEADINGS
     rows = [instance_row(instance) for instance in instances]
     if not show_notes:
@@ -341,25 +357,19 @@ def tablet(tablet_id: int) -> ResponseReturnValue:
         headings = [h for i, h in enumerate(headings) if i != notes_column]
         rows = [[v for i, v in enumerate(row) if i != notes_column] for row in rows]
     headings, rows = omit_empty_columns(headings, rows)
-    return render_page(
-        "tablet.html",
-        partial="_tablet_instances.html",
-        target="tablet-instances",
-        show_notes=show_notes,
-        note_count=sum(1 for instance in instances if instance.jjt_notes),
-        tablet=tablet,
-        details=tablet_details(tablet),
-        headings=headings,
-        rows=rows,
-        has_defaults=any(
+    return {
+        "instances": instances,
+        "instance_ids": [instance.id for instance in instances],
+        "show_notes": show_notes,
+        "note_count": sum(1 for instance in instances if instance.jjt_notes),
+        "headings": headings,
+        "rows": rows,
+        "has_defaults": any(
             isinstance(value, Position) and value.default
             for row in rows
             for value in row
         ),
-        instance_count=len(instances),
-        sign_count=len({instance.sign_id for instance in instances}),
-        specimens=random.sample(instances, k=min(4, len(instances))),
-    )
+    }
 
 
 @bp.get("/tablets/<int:tablet_id>/images")

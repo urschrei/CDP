@@ -1,0 +1,40 @@
+{% from "_form_fields.html" import select_field, text_field %}
+{% set prefix = "instance-" ~ instance.id %}
+{% set action = url_for("editor.edit_instance", instance_id=instance.id) %}
+{% set cancel = url_for("cdpp.tablet", tablet_id=instance.tablet_id, notes=None if show_notes else "hide") %}
+<form action="{{ action }}" method="post" novalidate
+      {% if inline %}hx-post="{{ action }}" hx-target="#tablet-instances" hx-swap="outerHTML" aria-labelledby="{{ prefix }}-title"{% else %}aria-label="Position of the sign"{% endif %}
+      class="grid max-w-4xl gap-6">
+  {% if inline %}
+    <h3 id="{{ prefix }}-title" class="font-sign text-xl">Edit {{ instance.sign.sign_ref }}</h3>
+  {% endif %}
+  {% if conflict %}
+    <p role="alert" class="border-l-4 border-accent pl-3">Someone saved a change to this sign after you opened the form. The form now shows the saved values. Make your change again, then save.</p>
+  {% elif errors %}
+    <p role="alert" class="border-l-4 border-accent pl-3">Correct the marked fields, then save.</p>
+  {% endif %}
+
+  <input type="hidden" name="seen" value="{{ seen }}">
+  <input type="hidden" name="columns" value="{{ columns }}">
+  {% if not show_notes %}<input type="hidden" name="notes" value="hide">{% endif %}
+
+  <fieldset class="grid gap-x-4 gap-y-5 sm:grid-cols-3">
+    <legend class="mb-3 font-semibold">Position and reading</legend>
+    {{ select_field(prefix ~ "-surface", "surface_id", "Surface", "Leave as Not recorded if the source gives no surface.", options.surface_id, values.surface_id, errors.surface_id) }}
+    {{ text_field(prefix ~ "-column", "column", "Column", "Roman numerals, for example ii or ii′.", values.column, errors.column) }}
+    {{ text_field(prefix ~ "-line", "line", "Line", "For example 3 or 3′. Type ′ as an apostrophe.", values.line, errors.line) }}
+    {{ text_field(prefix ~ "-iteration", "iteration", "Iteration", "For example 2.", values.iteration, errors.iteration) }}
+    {{ select_field(prefix ~ "-function", "function_id", "Function", "For example syllable or logogram.", options.function_id, values.function_id, errors.function_id) }}
+    {{ select_field(prefix ~ "-language", "language_id", "Language", "The language of the sign in this text.", options.language_id, values.language_id, errors.language_id) }}
+  </fieldset>
+
+  <div class="grid gap-x-4 gap-y-5 sm:grid-cols-2">
+    {{ text_field(prefix ~ "-author", "author", "Your name", "The history of the sign shows this name.", author, errors.author, autocomplete="name") }}
+    {{ text_field(prefix ~ "-comment", "comment", "Comment (optional)", "For example, the reason for the change.", comment, errors.comment) }}
+  </div>
+
+  <div class="flex flex-wrap items-center gap-x-6 gap-y-3">
+    <button type="submit" class="min-h-11 rounded bg-accent px-5 font-semibold text-ground">Save</button>
+    <a href="{{ cancel }}" {% if inline %}hx-get="{{ cancel }}" hx-target="#tablet-instances" hx-swap="outerHTML"{% endif %} class="inline-flex min-h-11 items-center">Cancel</a>
+  </div>
+</form>

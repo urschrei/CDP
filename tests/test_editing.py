@@ -40,6 +40,16 @@ def set_line(instance: Instance, line_id: int | None, author: str) -> ChangeSet 
     )
 
 
+def test_fingerprint_does_not_depend_on_the_order_of_the_fields(
+    sample: Sample,
+) -> None:
+    instance = first_instance()
+
+    assert fingerprint(instance, ["line_id", "surface_id"]) == fingerprint(
+        instance, ["surface_id", "line_id"]
+    )
+
+
 def test_save_changes_the_record_and_records_the_change_set(sample: Sample) -> None:
     instance = first_instance()
     old_line = instance.line_id

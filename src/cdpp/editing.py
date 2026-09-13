@@ -38,9 +38,12 @@ def fingerprint(record: Entity, fields: Sequence[str]) -> str:
     """Return a digest of the values of ``fields`` on ``record``.
 
     An edit form sends the digest back. If the digest is different when the
-    form is saved, someone changed the record after the form was loaded.
+    form is saved, someone changed the record after the form was loaded. The
+    order of ``fields`` does not change the digest.
     """
-    values = json.dumps([getattr(record, field) for field in fields])
+    values = json.dumps(
+        {field: getattr(record, field) for field in fields}, sort_keys=True
+    )
     return hashlib.sha256(values.encode()).hexdigest()
 
 

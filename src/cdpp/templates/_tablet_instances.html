@@ -1,5 +1,8 @@
 <section id="tablet-instances" aria-labelledby="instances-heading" class="min-w-0">
   <h2 id="instances-heading" class="font-sign text-2xl">Signs on this tablet</h2>
+  {% if saved %}
+    <p role="status" class="mt-2 font-semibold">{{ saved }}</p>
+  {% endif %}
   {% if note_count %}
     {% if show_notes %}
       {% set notes_url = url_for("cdpp.tablet", tablet_id=tablet.id, notes="hide") %}
@@ -23,11 +26,13 @@
           {% for heading in headings %}
             <th scope="col" class="px-3 py-2 font-semibold whitespace-nowrap">{{ heading }}</th>
           {% endfor %}
+          <th scope="col" class="px-3 py-2"><span class="sr-only">Edit</span></th>
         </tr>
       </thead>
       <tbody>
         {% for row in rows %}
-          <tr class="border-t border-line align-baseline">
+          {% set instance_id = instance_ids[loop.index0] %}
+          <tr id="instance-{{ instance_id }}" class="border-t border-line align-baseline">
             {% for value in row %}
               {% if loop.first %}
                 <th scope="row" class="px-3 py-2 text-left font-normal">
@@ -43,6 +48,11 @@
                 </td>
               {% endif %}
             {% endfor %}
+            <td class="px-3 py-2 text-right">
+              {% set edit_url = url_for("editor.edit_instance", instance_id=instance_id, columns=headings|length + 1, notes=None if show_notes else "hide") %}
+              <a href="{{ edit_url }}" hx-get="{{ edit_url }}" hx-target="#instance-{{ instance_id }}" hx-swap="outerHTML"
+                 {% if instance_id == saved_instance_id %}autofocus{% endif %}>Edit<span class="sr-only"> {{ row[0].sign_ref }}</span></a>
+            </td>
           </tr>
         {% endfor %}
       </tbody>

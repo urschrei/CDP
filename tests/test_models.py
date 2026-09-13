@@ -1,12 +1,16 @@
+from datetime import datetime
+
 import pytest
 from flask import Flask
-from sqlalchemy import Table, select
+from sqlalchemy import Table, delete, select, update
 from sqlalchemy.exc import IntegrityError, InvalidRequestError
 
 import cdpp.models  # noqa: F401 (registers the tables on the metadata)
 from cdpp.db import db
 from cdpp.models import (
     Cdp,
+    Change,
+    ChangeSet,
     Correspondent,
     Entity,
     NonRulerCorrespondent,
@@ -87,6 +91,46 @@ def test_unloaded_collections_raise_instead_of_querying(
 
     with pytest.raises(InvalidRequestError, match="raise_on_sql"):
         getattr(record, collection)
+
+
+def change_set(kind: str = "update") -> ChangeSet:
+    return ChangeSet(
+        author="JJT",
+        created_at=datetime(2026, 9, 14, 9, 0),
+        changes=[
+            Change(
+                kind=kind,
+                table_name="instance",
+                record_id=1,
+                field="line_id",
+                old_value=None,
+                new_value=2,
+            )
+        ],
+    )
+
+
+def test_change_sets_and_changes_cannot_be_changed_or_deleted(app: Flask) -> None:
+    db.session.add(change_set())
+    db.session.commit()
+    statements = [
+        update(ChangeSet).values(author="Someone else"),
+        update(Change).values(new_value=3),
+        delete(Change),
+        delete(ChangeSet),
+    ]
+
+    for statement in statements:
+        with pytest.raises(IntegrityError, match="cannot be changed or deleted"):
+            db.session.execute(statement)
+        db.session.rollback()
+
+
+def test_change_kind_must_be_insert_or_update(app: Flask) -> None:
+    db.session.add(change_set(kind="delete"))
+
+    with pytest.raises(IntegrityError, match="ck_change_kind"):
+        db.session.flush()
 
 
 def test_sign_name_source_must_be_a_known_source(app: Flask) -> None:

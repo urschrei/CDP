@@ -3,17 +3,22 @@
 Most table and column names are those of the original MySQL schema.
 """
 
+from datetime import datetime
 from typing import Any
 
 from sqlalchemy import (
+    DDL,
+    JSON,
     CheckConstraint,
     Column,
     ColumnElement,
+    DateTime,
     ForeignKey,
     Index,
     String,
     Table,
     UniqueConstraint,
+    event,
     func,
     select,
 )
@@ -528,3 +533,71 @@ class Instance(Entity):
     function: Mapped[Function | None] = relationship()
     iteration: Mapped[Iteration | None] = relationship()
     language: Mapped[Language | None] = relationship()
+
+
+# Edits
+
+
+class ChangeSet(Entity):
+    """The changes of one save: one editor, at one time, with an optional comment.
+
+    Change sets are never changed or deleted. To undo a change set, a new
+    change set sets the old values again and refers to it in ``reverts_id``.
+    """
+
+    __tablename__ = "change_set"
+
+    author: Mapped[str] = mapped_column(String(100))
+    created_at: Mapped[datetime] = mapped_column(DateTime)
+    comment: Mapped[str | None] = mapped_column(String(500))
+    reverts_id: Mapped[int | None] = reference("change_set.id")
+
+    changes: Mapped[list[Change]] = relationship(
+        back_populates="change_set", lazy="raise_on_sql", order_by="Change.id"
+    )
+
+
+class Change(Entity):
+    """One value that a change set sets.
+
+    ``kind`` is "update" for a changed field of a record, or "insert" for a
+    field of a new lookup record, for example a new line number. The old and
+    new values are JSON.
+    """
+
+    __tablename__ = "change"
+    __table_args__ = (
+        CheckConstraint("kind IN ('insert', 'update')", name="kind"),
+        Index("ix_change_table_name_record_id", "table_name", "record_id"),
+    )
+
+    change_set_id: Mapped[int] = reference("change_set.id")
+    kind: Mapped[str] = mapped_column(String(10))
+    table_name: Mapped[str] = mapped_column(String(50))
+    record_id: Mapped[int]
+    field: Mapped[str] = mapped_column(String(50))
+    old_value: Mapped[Any] = mapped_column(JSON)
+    new_value: Mapped[Any] = mapped_column(JSON)
+
+    change_set: Mapped[ChangeSet] = relationship(back_populates="changes")
+
+
+def append_only(table_name: str) -> None:
+    """Make a table refuse updates and deletes.
+
+    The migration that creates the change tables creates the same triggers.
+    """
+    for action in ("UPDATE", "DELETE"):
+        event.listen(
+            db.metadata.tables[table_name],
+            "after_create",
+            DDL(
+                f"CREATE TRIGGER {table_name}_no_{action.lower()} BEFORE {action} "
+                f"ON {table_name} BEGIN SELECT RAISE(ABORT, "
+                f"'{table_name} rows cannot be changed or deleted'); END"
+            ).execute_if(dialect="sqlite"),
+        )
+
+
+append_only("change_set")
+append_only("change")

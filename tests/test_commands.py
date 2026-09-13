@@ -230,6 +230,30 @@ def test_period_and_locality_corrections_can_be_undone_and_done_again(
         assert contradictions() == [0, 0, 0, 0]
 
 
+def test_change_tables_and_their_triggers_come_and_go_with_the_migration(
+    project_app: Flask,
+) -> None:
+    triggers = text(
+        "SELECT name FROM sqlite_schema WHERE type = 'trigger' ORDER BY name"
+    )
+    expected = [
+        "change_no_delete",
+        "change_no_update",
+        "change_set_no_delete",
+        "change_set_no_update",
+    ]
+
+    with project_app.app_context():
+        assert db.session.scalars(triggers).all() == expected
+
+        downgrade(revision="f7a1c3e5b920")
+        assert not inspect(db.engine).has_table("change_set")
+        assert db.session.scalars(triggers).all() == []
+
+        upgrade()
+        assert db.session.scalars(triggers).all() == expected
+
+
 def test_instance_languages_move_to_a_column_and_back(project_app: Flask) -> None:
     by_language = text(
         "SELECT l.name, count(*) FROM instance i "

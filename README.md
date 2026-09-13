@@ -1,6 +1,6 @@
 # Cuneiform Digital Palaeography Project (CDPP)
 
-A web application for comparing the forms of cuneiform signs. It holds 11,404 photographs of individual signs on 228 tablets, and sign-list entries for 3,440 signs. It is a Flask application with an SQLite database, full-text search with SQLite FTS5, and a front end built with htmx, Tailwind CSS and esbuild.
+A web application for comparing the forms of cuneiform signs. It holds 11,404 photographs of individual signs on 228 tablets, and sign-list entries for 3,440 signs. Editors can change the positions of the signs on the tablets, and the application records each change. It is a Flask application with an SQLite database, full-text search with SQLite FTS5, and a front end built with htmx, Tailwind CSS and esbuild.
 
 ## Running the site locally
 
@@ -49,9 +49,41 @@ To rebuild the assets when a template or a front-end file changes, run `npm run 
 
 ## How-to guides
 
-### Saving changes to the data
+### Editing the position of a sign
 
-The dump in `db_dumps/cdpp.sql` is the source of record. When you change records in the database, write the database back to the dump and commit the dump.
+1. Open a tablet, and find the sign in the table **Signs on this tablet**.
+2. In the row of the sign, select **Edit**.
+3. Change the surface, column, line, iteration, function or language. Leave a field empty if the source gives no value.
+4. Enter your name. The site keeps it for your next edit. Optionally, enter a comment, for example the reason for the change.
+5. Select **Save**.
+
+If someone saved a change to the sign after you opened the form, the form shows the saved values instead. Make your change again, then save.
+
+### Undoing a change
+
+1. Select **Changes** in the navigation, or **History of this sign** in the edit form.
+2. Select the change set.
+3. Enter your name, and select **Undo change set**.
+
+Undo records a new change set. If a later change set changed the same values, undo them in order, newest first.
+
+### Backing up the database
+
+When editors use the site, the database is the only copy of their changes until the next backup or dump. Back it up on a schedule, and keep the copies on another computer.
+
+```sh
+uv run cdpp backup "backups/cdpp-$(date +%Y-%m-%d).sqlite3"
+```
+
+The command can run while the site runs. With Docker Compose, write the copy to the `data` volume, then copy it off the server:
+
+```sh
+docker compose exec app cdpp backup "/data/cdpp-$(date +%Y-%m-%d).sqlite3"
+```
+
+### Writing a snapshot of the data to the dump
+
+The dump contains the schema, the records and the change sets. Write it to record a state of the data in version control, for example for a release:
 
 ```sh
 uv run cdpp dump-data
@@ -73,6 +105,8 @@ uv run cdpp reindex
 ```sh
 uv run cdpp load-data --replace
 ```
+
+If the database has change sets that are not in the dump, the command stops. Back up the database first. To replace it and lose those change sets, add `--discard-changes`.
 
 ### Updating the Oracc Sign List snapshot
 
@@ -131,6 +165,9 @@ npm run lint
 
 `compose.yaml` runs the application with gunicorn on port 8000. The database, with its search tables, is on the `data` volume. The images in `media/` and the dump in `db_dumps/` are mounted read-only.
 
+> [!IMPORTANT]
+> The site has no sign-in. Anyone who can reach it can edit. Run it only on a private network.
+
 1. Build the application image:
 
    ```sh
@@ -158,8 +195,9 @@ Run each command as `uv run cdpp COMMAND`. `cdpp` is the Flask command-line inte
 | Command | Action |
 | --- | --- |
 | `run` | Start the development server. |
-| `load-data [--replace] [PATH]` | Create the database from an SQL dump, apply newer migrations, and make the search tables. `PATH` defaults to `db_dumps/cdpp.sql`. `--replace` deletes the existing tables first. |
-| `dump-data [PATH]` | Write the schema, the records and the migration revision to an SQL dump. The dump does not contain the search tables. `PATH` defaults to `db_dumps/cdpp.sql`. |
+| `load-data [--replace [--discard-changes]] [PATH]` | Create the database from an SQL dump, apply newer migrations, and make the search tables. `PATH` defaults to `db_dumps/cdpp.sql`. `--replace` deletes the existing tables first. It stops if the database has change sets that are not in the dump, unless you add `--discard-changes`. |
+| `dump-data [PATH]` | Write the schema, the records, the change sets and the migration revision to an SQL dump. The dump does not contain the search tables. `PATH` defaults to `db_dumps/cdpp.sql`. |
+| `backup PATH` | Write a copy of the database to `PATH`, which must not exist. |
 | `import-oracc-signs [SOURCE]` | Replace the snapshot of the Oracc Sign List with the signs in `osl.asl`. `SOURCE` is a path or a URL, and defaults to the file in the [OSL repository](https://github.com/oracc/osl). |
 | `db upgrade` | Apply the database migrations. |
 | `db migrate -m MESSAGE` | Generate a migration from changes to the models. |
@@ -186,6 +224,10 @@ Set these environment variables to change the defaults.
 | `/tablets` | All tablets, with filters. |
 | `/tablets/TABLET_ID` | A tablet, its details, and the sign instances on it. Add `notes=hide` to hide the JJT notes. |
 | `/tablets/TABLET_ID/images` | All photographs from a tablet, grouped by sign. |
+| `/instances/INSTANCE_ID/edit` | The form that edits the position of a sign instance. |
+| `/instances/INSTANCE_ID/history` | The change sets that changed a sign instance. |
+| `/changes` | All change sets, newest first. |
+| `/changes/CHANGE_SET_ID` | A change set, with the form that undoes it. |
 | `/search?q=QUERY` | Signs and tablets that match the query. |
 | `/media/instance/FILENAME` | A sign photograph. |
 
@@ -201,28 +243,46 @@ Each filter selects the tablets with a related record of the given name, for exa
 
 | Path | Content |
 | --- | --- |
-| `src/cdpp/` | The application: models, views, filters, search and commands. |
-| `src/cdpp/templates/` | Jinja templates. Files with names that start with `_` are fragments that htmx requests. |
+| `src/cdpp/` | The application: models, views, edit pages, filters, search and commands. |
+| `src/cdpp/templates/` | Jinja templates. Files with names that start with `_` are fragments that htmx requests, or parts of other templates. |
 | `frontend/` | Front-end sources. esbuild bundles them, with htmx, the fonts and the Tailwind build. |
 | `migrations/` | Alembic migrations, managed by Flask-Migrate. |
 | `migrations/data/` | CSV files that data migrations read. |
 | `tests/` | pytest tests. |
 | `docs/schema-and-data-questions.md` | Open questions about the schema and the data. |
 | `docs/questions-for-the-editors.md` | Questions for the editors of the data, with the tablets, signs and photographs that each question is about. |
-| `db_dumps/cdpp.sql` | The data: an SQLite dump of the schema, the records and the migration revision. |
+| `db_dumps/cdpp.sql` | A snapshot of the data: an SQLite dump of the schema, the records, the change sets and the migration revision. |
 | `media/instance/` | Sign photographs. |
 | `utils/`, `csvs/` | Notebooks and spreadsheets from the original preparation of the data. They are not used by the application. |
 | `utils/restore_2013_values.py` | Writes the CSV files of the migration that restores the values that the import of 2014 did not copy. |
 
 ## About the architecture
 
-The SQL dump in `db_dumps/cdpp.sql` is the source of record. It is plain text, so version control shows each change to the records and the schema. `cdpp load-data` builds the SQLite database from the dump, and applies the migrations that are newer than the dump. The data come from a MySQL dump of the original site, and the table and column names are still those of the MySQL schema. SQLite compares text byte by byte, as the binary collation of the MySQL database did, so sign names such as `S` and `Š` stay distinct.
+The data come from a MySQL dump of the original site, and the table and column names are still those of the MySQL schema. SQLite compares text byte by byte, as the binary collation of the MySQL database did, so sign names such as `S` and `Š` stay distinct.
 
-Search uses two SQLite FTS5 tables with the trigram tokenizer: `search_sign` holds the name of each sign and its names in other sign lists, and `search_tablet` holds the details of each tablet. The tables hold the text in a normalised form, Unicode NFKC and then case folding, so `gir3` finds GIR₃, and `S` and `Š` stay distinct. A search finds the records with a field that contains the query. An exact value ranks first, then a value that starts with the query, then a value that contains it. The trigram index cannot find a query shorter than three characters, so a shorter query reads all the rows. The search tables are derived from the other tables, so they are not in the models, the migrations or the dump. `cdpp load-data` and `cdpp reindex` make them, and a search makes them if they do not exist.
+### Records and snapshots
+
+When editors use the site, the database is the source of record, and its change sets are the history of the edits. The SQL dump in `db_dumps/cdpp.sql` is a snapshot: it is plain text, so version control shows each change between two snapshots. `cdpp load-data` builds a database from a snapshot, for development, for the tests and for a new site. `cdpp backup` copies the database with SQLite's `VACUUM INTO`, which is consistent while the site writes to the database.
+
+### Edits and change sets
+
+Each save of an edit form is one transaction. It changes the record, and writes a row to `change_set` (the editor's name, the time in UTC and an optional comment) and a row to `change` for each value that it changes (the table, the record, the field, and the old and new values as JSON). A new column, line or iteration number is a new lookup record, and the change set records it as an insert. Triggers refuse to update or delete rows of `change_set` and `change`, so a change set cannot change after it is written.
+
+An edit form contains a digest of the values that it shows. If the digest of the saved values is different when the form is saved, someone saved a change after the form was loaded, and the save stops. Undo writes a new change set that sets each value back to its old value, and refers to the change set that it undoes. Undo stops if a later change set changed one of the values. New lookup records stay after an undo, because other records can refer to them.
+
+The site has no sign-in. A cookie keeps the editor's name, and the site refuses a form that a page on another site sends. Run the site only on a private network.
+
+### Search
+
+Search uses two SQLite FTS5 tables with the trigram tokenizer: `search_sign` holds the name of each sign and its names in other sign lists, and `search_tablet` holds the details of each tablet. The tables hold the text in a normalised form, Unicode NFKC and then case folding, so `gir3` finds GIR₃, and `S` and `Š` stay distinct. A search finds the records with a field that contains the query. An exact value ranks first, then a value that starts with the query, then a value that contains it. The trigram index cannot find a query shorter than three characters, so a shorter query reads all the rows. The search tables are derived from the other tables, so they are not in the models, the migrations or the dump. `cdpp load-data` and `cdpp reindex` make them, and a search makes them if they do not exist. The edit forms change only the positions of signs, which the search tables do not contain.
+
+### Links to sign lists
 
 On a sign page, a sign-list number links to the [Oracc Sign List](https://oracc.museum.upenn.edu/osl/) (OSL) if exactly one OSL sign or form has the same number in that list. An ORACC name links to OSL if exactly one OSL sign or form has that name, and to the electronic Babylonian Library (eBL) if OSL records an eBL page for it. The links come from a snapshot of OSL in the tables `oracc_sign` and `oracc_list_number`, so a page does not depend on Oracc. [docs/schema-and-data-questions.md](docs/schema-and-data-questions.md) lists the sign lists that have links, and the open questions about them.
 
-The server renders every page. htmx updates parts of pages without a full reload: the tablet list when a filter changes, the search results while the user types, the table of signs on a tablet page when the JJT notes are hidden or shown, and the random selection of signs on the home page. A request from htmx names its target element in the `HX-Target` header, and the server then returns only the fragment for that element. Links and forms also work without JavaScript. Only the button that shows other signs on the home page needs it.
+### Pages and htmx
+
+The server renders every page. htmx updates parts of pages without a full reload: the tablet list when a filter changes, the search results while the user types, the table of signs on a tablet page when the JJT notes are hidden or shown, the edit form in a row of that table, and the random selection of signs on the home page. A request from htmx names its target element in the `HX-Target` header, and the server then returns only the fragment for that element. Links and forms also work without JavaScript: without it, the edit form opens on a page of its own. Only the button that shows other signs on the home page needs JavaScript.
 
 Sign names are set in Gentium Book Plus, and the interface in Atkinson Hyperlegible Next. The font subsets do not contain subscript digits, so the browser takes those characters from another font.
 

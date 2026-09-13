@@ -42,6 +42,12 @@ The rank orders the open questions by importance. Questions whose answers change
 - An instance has one language at most, in the column `instance.language_id`. See [question 8](#8-two-records-of-one-fact).
 - [Questions for the editors](questions-for-the-editors.md) lists the questions that need the tablets, the photographs or the sign lists.
 
+14 September 2026:
+
+- Search uses SQLite FTS5 tables, not Meilisearch.
+- Editors can change the surface, column, line, iteration, function and language of a sign instance. Each save records a change set in the append-only tables `change_set` and `change`, with the editor's name from a cookie. Undo records a new change set. There is no sign-in.
+- When editors use the site, the database is the source of record. The dump in `db_dumps/cdpp.sql` is a snapshot, and `cdpp backup` copies the database.
+
 ## 6. Empty columns and tables
 
 ### Findings

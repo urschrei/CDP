@@ -13,7 +13,7 @@ from cdpp.views import (
     instance_location,
     position_text,
     search_status,
-    without_repeated_ebl_links,
+    without_repeated_links,
 )
 from tests.conftest import Sample
 
@@ -217,11 +217,10 @@ def test_sign_page_links_numbers_and_names_to_the_oracc_sign_list(
 
     html = page(client, f"/signs/{sample.sign.id}")
 
-    # MesZL 1 is MZL001 of exactly one OSL sign, which is also named AŠ.
-    assert '<a href="http://oracc.org/osl/signlist/o0000001">1<span' in html
+    # MesZL 1 is MZL001 of exactly one OSL sign, which is also named AŠ. The
+    # name and the number lead to the same pages, so only the name links to them.
     assert '<a href="http://oracc.org/osl/signlist/o0000001">AŠ<span' in html
-    # The name and the number lead to the same eBL page, so only the name links
-    # to it.
+    assert html.count('href="http://oracc.org/osl/signlist/o0000001"') == 1
     assert html.count('href="https://www.ebl.lmu.de/signs/A%C5%A0"') == 1
     assert 'eBL<span class="sr-only"> page for AŠ</span>' in html
     assert "page for MesZL 1" not in html
@@ -230,25 +229,29 @@ def test_sign_page_links_numbers_and_names_to_the_oracc_sign_list(
     assert "o0000003" not in html
 
 
-def test_a_row_links_to_each_ebl_page_once() -> None:
+def test_a_row_links_to_each_page_once() -> None:
     cells = [
         Cell("LIŠ", "osl/1", "ebl/LIŠ"),
         Cell("591", "osl/1", "ebl/LIŠ"),
         Cell("2", "osl/2", "ebl/DILIM₂"),
         Cell(""),
         Cell("377", "osl/1", "ebl/LIŠ"),
+        # A form in OSL can lead to the eBL page of its sign.
+        Cell("9", "osl/3", "ebl/LIŠ"),
     ]
 
-    kept = without_repeated_ebl_links(cells)
+    kept = without_repeated_links(cells)
 
+    assert [cell.url for cell in kept] == ["osl/1", None, "osl/2", None, None, "osl/3"]
     assert [cell.ebl_url for cell in kept] == [
         "ebl/LIŠ",
         None,
         "ebl/DILIM₂",
         None,
         None,
+        None,
     ]
-    assert [cell.url for cell in kept] == [cell.url for cell in cells]
+    assert [cell.text for cell in kept] == [cell.text for cell in cells]
 
 
 def test_tablet_page_marks_default_positions(

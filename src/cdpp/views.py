@@ -607,26 +607,23 @@ def record_cells(
             cells.append(Cell(""))
         else:
             cells.append(linked_cell(entry.number, number_signs.get(entry.id)))
-    return without_repeated_ebl_links(cells)
+    return without_repeated_links(cells)
 
 
-def without_repeated_ebl_links(cells: Sequence[Cell]) -> list[Cell]:
-    """Keep only the first link of a row to each eBL page.
+def without_repeated_links(cells: Sequence[Cell]) -> list[Cell]:
+    """Keep only the first link of a row to each OSL page and each eBL page.
 
     The ORACC name and the sign-list numbers of a record often lead to the same
-    OSL sign, and thus to the same eBL page. A cell that leads to a different
-    eBL page keeps its link.
+    OSL sign, and thus to the same pages. A cell that leads to a different page
+    keeps its link.
     """
     seen: set[str] = set()
     kept = []
     for cell in cells:
-        if cell.ebl_url is None:
-            kept.append(cell)
-        elif cell.ebl_url in seen:
-            kept.append(replace(cell, ebl_url=None))
-        else:
-            seen.add(cell.ebl_url)
-            kept.append(cell)
+        url = None if cell.url in seen else cell.url
+        ebl_url = None if cell.ebl_url in seen else cell.ebl_url
+        seen.update(link for link in (cell.url, cell.ebl_url) if link)
+        kept.append(replace(cell, url=url, ebl_url=ebl_url))
     return kept
 
 

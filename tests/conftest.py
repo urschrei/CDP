@@ -89,7 +89,6 @@ def sample(app: Flask) -> Sample:
         medium=Medium(name="clay"),
         period=old_babylonian,
         city=City(name="Mari", locality=syria),
-        locality=syria,
         genre=Genre(name="letter"),
         rulers=[zimri_lim],
         sent_from=Correspondent(ruler=zimri_lim),

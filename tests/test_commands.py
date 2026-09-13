@@ -273,13 +273,14 @@ def test_period_and_locality_corrections_can_be_undone_and_done_again(
         return [db.session.scalar(check) for check in checks]
 
     with project_app.app_context():
-        assert contradictions() == [0, 0, 0, 0]
-
         downgrade(revision="c9b4e2a7d613")
         assert contradictions() == [39, 50, 2, 1]
 
-        upgrade()
+        # A later migration removes the localities of tablets with a city.
+        upgrade(revision="d4e6b1a9c285")
         assert contradictions() == [0, 0, 0, 0]
+
+        upgrade()
 
 
 def test_change_tables_and_their_triggers_come_and_go_with_the_migration(
@@ -370,6 +371,19 @@ def test_migrations_create_the_triggers_of_the_models(
 
         upgrade()
         assert db.session.execute(triggers).all() == modelled
+
+
+def test_tablet_localities_move_to_their_cities_and_back(project_app: Flask) -> None:
+    own_localities = text("SELECT count(locality_id) FROM tablet")
+
+    with project_app.app_context():
+        assert db.session.scalar(own_localities) == 20
+
+        downgrade(revision="d8a1f3c5e742")
+        assert db.session.scalar(own_localities) == 228
+
+        upgrade()
+        assert db.session.scalar(own_localities) == 20
 
 
 def test_positions_move_to_instance_columns_and_back(project_app: Flask) -> None:

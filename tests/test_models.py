@@ -179,7 +179,6 @@ def consistent(app: Flask) -> dict[str, int]:
         period_id=ids["period"],
         sub_period_id=ids["sub_period"],
         city_id=ids["city"],
-        locality_id=ids["locality"],
         year_id=ids["year"],
         eponym_id=ids["eponym"],
     )
@@ -219,10 +218,9 @@ def consistent(app: Flask) -> dict[str, int]:
             lambda ids: update(Reign).values(sub_period_id=ids["other_sub_period"]),
         ),
         (
-            "tablet_city_locality",
+            "ck_tablet_city_or_locality",
             lambda ids: update(Tablet).values(locality_id=ids["other_locality"]),
         ),
-        ("tablet_city_locality", lambda ids: update(Tablet).values(locality_id=None)),
         (
             "tablet_year_eponym",
             lambda ids: update(Tablet).values(eponym_id=ids["other_eponym"]),
@@ -234,10 +232,6 @@ def consistent(app: Flask) -> dict[str, int]:
                 .where(SubPeriod.id == ids["sub_period"])
                 .values(period_id=ids["other_period"])
             ),
-        ),
-        (
-            "city_locality",
-            lambda ids: update(City).values(locality_id=ids["other_locality"]),
         ),
         ("year_eponym", lambda ids: update(Year).values(eponym_id=ids["other_eponym"])),
     ],
@@ -268,6 +262,14 @@ def test_changes_that_keep_the_values_consistent_are_allowed(
     for statement in statements:
         db.session.execute(statement)
     db.session.commit()
+
+
+def test_the_locality_of_a_tablet_is_the_locality_of_its_city() -> None:
+    assyria, syria = Locality(area="Assyria"), Locality(area="Syria")
+
+    assert Tablet(city=City(name="Nineveh", locality=assyria)).locality is assyria
+    assert Tablet(own_locality=syria).locality is syria
+    assert Tablet(city=City(name="Adab")).locality is None
 
 
 def test_sign_name_source_must_be_a_known_source(app: Flask) -> None:

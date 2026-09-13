@@ -37,7 +37,7 @@ The rank orders the open questions by importance. Questions whose answers change
 - The sign-list numbers, variant names and form descriptions that the import of August 2014 did not copy are restored from a MySQL dump of May 2013. See [Values that the 2014 import did not copy](#values-that-the-2014-import-did-not-copy).
 - Dynasty B.20 has the reigns of the four kings of Alalakh. The city Alalah is merged into Alalakh. Ruler names have no spaces at the ends. See [Rulers, reigns and cities](#rulers-reigns-and-cities).
 - `surface` holds the surfaces of an object and the parts of a text. Default column, iteration and surface values are for display only: the database does not store them. See [question 10](#10-lookup-tables-for-plain-values).
-- The sub-periods Sargonid, ED I, ED IIIa and ED IIIb, and the tablet `Wx17`, have their correct periods. The period ED is removed, because it is the same period as Early Dynastic. Two tablets have the locality of their city. Triggers refuse new contradictions between a period and a sub-period, a city and a locality, and a year and an eponym. See [question 7](#7-values-that-contradict-each-other).
+- The sub-periods Sargonid, ED I, ED IIIa and ED IIIb, and the tablet `Wx17`, have their correct periods. The period ED is removed, because it is the same period as Early Dynastic. Two tablets have the locality of their city. Triggers refuse new contradictions between a period and a sub-period, and a year and an eponym. A tablet with a city takes its locality from the city. See [question 7](#7-values-that-contradict-each-other).
 - Tables of instances show defaults in italics. Pages show primes as `′`, and line and column numbers without zeros in front. See [question 10](#10-lookup-tables-for-plain-values).
 - The JJT notes stay in the database, and tablet pages show them. A link hides or shows them. See [question 10](#10-lookup-tables-for-plain-values).
 - An instance has one language at most, in the column `instance.language_id`. See [question 8](#8-two-records-of-one-fact).
@@ -117,6 +117,8 @@ After the correction, no tablet or reign has a sub-period of a different period,
 - a change to the period of a sub-period, the locality of a city or the eponym of a year that contradicts its tablets or reigns
 
 A tablet without a sub-period can have any period, and a tablet without a city can have any locality. The triggers do not check the rows that exist. `83-1-18_287` keeps its eponym, but a change to its year or its eponym must remove the contradiction. The downgrade removes the triggers.
+
+13 September 2026: a tablet with a city takes its locality from the city. Migration e3b9d1f7a520 removes the localities of the 208 tablets with a city, which were all the localities of their cities, and adds a check constraint that refuses a locality on a tablet with a city. The 20 tablets without a city keep their own locality. The constraint replaces the triggers for localities. The migration stops if a tablet has a locality that is not the locality of its city. The downgrade restores the localities and the triggers.
 
 ## 8. Two records of one fact
 

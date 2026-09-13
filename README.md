@@ -329,7 +329,7 @@ The site has no user accounts. If `CDPP_PASSWORD` is set, each request must give
 
 ### Consistency rules
 
-The schema stores some values twice: a tablet has a period and a sub-period, a locality and a city, and an eponym and a year. SQLite triggers refuse a change to a tablet or a reign that contradicts its sub-period, its city or its year, and a change to a sub-period, a city or a year that contradicts its tablets or reigns. `CONSISTENCY_RULES` in `src/cdpp/models.py` defines the rules, and a migration creates the same triggers. The triggers do not check the rows that existed before them. A migration that makes one of these tables again in batch mode removes its triggers, so it must create them again: a test compares the triggers of a migrated database with the triggers of the models.
+A tablet with a city takes its locality from the city, and has a locality of its own only if it has no city. A check constraint refuses a tablet with both. The schema stores other values twice: a tablet has a period and a sub-period, and an eponym and a year. SQLite triggers refuse a change to a tablet or a reign that contradicts its sub-period or its year, and a change to a sub-period or a year that contradicts its tablets or reigns. `CONSISTENCY_RULES` in `src/cdpp/models.py` defines the rules, and a migration creates the same triggers. The triggers do not check the rows that existed before them. A migration that makes one of these tables again in batch mode removes its triggers, so it must create them again: a test compares the triggers of a migrated database with the triggers of the models.
 
 ### Search
 

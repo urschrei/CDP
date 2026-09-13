@@ -77,6 +77,27 @@ def _sent_to(value: str) -> ColumnElement[bool]:
     return Tablet.recipients.any(Correspondent.name == value)
 
 
+def _locality(value: str) -> ColumnElement[bool]:
+    return or_(
+        Tablet.city.has(City.locality.has(Locality.area == value)),
+        Tablet.own_locality.has(Locality.area == value),
+    )
+
+
+_locality_names = (
+    select(Locality.area)
+    .where(
+        or_(
+            Locality.id.in_(
+                select(City.locality_id).join(Tablet, Tablet.city_id == City.id)
+            ),
+            Locality.id.in_(select(Tablet.locality_id)),
+        )
+    )
+    .order_by(Locality.area)
+)
+
+
 def _language(value: str) -> ColumnElement[bool]:
     return Tablet.instances.any(Instance.language.has(Language.name == value))
 
@@ -121,7 +142,7 @@ FILTERS = (
     _related("year", "Year", Tablet.year, Year.year),
     TabletFilter("eponym", "Eponym", _eponym),
     _related("city", "City", Tablet.city, City.name),
-    _related("locality", "Locality", Tablet.locality, Locality.area),
+    TabletFilter("locality", "Locality", _locality, _locality_names),
     TabletFilter("sent_from", "Sent from", _sent_from),
     TabletFilter("sent_to", "Sent to", _sent_to),
     _related("genre", "Genre", Tablet.genre, Genre.name),

@@ -280,6 +280,12 @@ class Reign(Entity):
 
 class Tablet(Entity):
     __tablename__ = "tablet"
+    # A tablet with a city has the locality of the city.
+    __table_args__ = (
+        CheckConstraint(
+            "city_id IS NULL OR locality_id IS NULL", name="city_or_locality"
+        ),
+    )
 
     museum_number: Mapped[str] = mapped_column(String(75), unique=True)
     medium_id: Mapped[int] = reference("medium.id")
@@ -323,7 +329,8 @@ class Tablet(Entity):
     eponym: Mapped[Eponym | None] = relationship()
     year: Mapped[Year | None] = relationship()
     text_vehicle: Mapped[TextVehicle | None] = relationship()
-    locality: Mapped[Locality | None] = relationship()
+    # The locality of a tablet without a city. See the property locality.
+    own_locality: Mapped[Locality | None] = relationship()
     sub_locality: Mapped[SubLocality | None] = relationship()
     method: Mapped[Method | None] = relationship()
     genre: Mapped[Genre | None] = relationship()
@@ -338,6 +345,11 @@ class Tablet(Entity):
     instances: Mapped[list[Instance]] = relationship(
         back_populates="tablet", lazy="raise_on_sql"
     )
+
+    @property
+    def locality(self) -> Locality | None:
+        """The locality of the city of the tablet, or its own if it has no city."""
+        return self.city.locality if self.city is not None else self.own_locality
 
 
 # Signs and sign instances
@@ -637,16 +649,6 @@ CONSISTENCY_RULES = (
         "The sub-period of a reign must belong to the period of the reign.",
     ),
     (
-        "tablet_city_locality",
-        "tablet",
-        ("city_id", "locality_id"),
-        ("INSERT", "UPDATE"),
-        "(SELECT locality_id FROM city WHERE id = NEW.city_id) IS NOT NULL"
-        " AND NEW.locality_id IS NOT"
-        " (SELECT locality_id FROM city WHERE id = NEW.city_id)",
-        "A tablet must have the locality of its city.",
-    ),
-    (
         "tablet_year_eponym",
         "tablet",
         ("year_id", "eponym_id"),
@@ -666,15 +668,6 @@ CONSISTENCY_RULES = (
         " OR EXISTS (SELECT 1 FROM reign"
         " WHERE sub_period_id = NEW.id AND period_id IS NOT NEW.period_id)",
         "A sub-period must have the period of its tablets and reigns.",
-    ),
-    (
-        "city_locality",
-        "city",
-        ("locality_id",),
-        ("UPDATE",),
-        "NEW.locality_id IS NOT NULL AND EXISTS (SELECT 1 FROM tablet"
-        " WHERE city_id = NEW.id AND locality_id IS NOT NEW.locality_id)",
-        "A city must have the locality of its tablets.",
     ),
     (
         "year_eponym",

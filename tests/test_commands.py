@@ -123,3 +123,32 @@ def test_restored_2013_values_can_be_removed_and_restored_again(
         assert db.session.scalar(schroder_number) == "212"
         assert count(form_descriptions) == 144
         assert count(variant_names) == 2
+
+
+def test_reigns_of_the_kings_of_alalakh_can_be_removed_and_added_again(
+    project_app: Flask,
+) -> None:
+    reigns = text(
+        "SELECT r.rim_ref, ru.name, c.name, p.name, first.year, last.year "
+        "FROM reign r JOIN ruler ru ON ru.id = r.ruler_id "
+        "JOIN dynasty d ON d.id = r.dynasty_id JOIN period p ON p.id = r.period_id "
+        "LEFT JOIN city c ON c.id = r.city_id "
+        "LEFT JOIN year first ON first.id = r.start_date "
+        "LEFT JOIN year last ON last.id = r.end_date "
+        "WHERE d.name = 'B.20' ORDER BY r.rim_ref"
+    )
+    expected = [
+        ("B.20.1", "Idrimi", "Alalakh", "Middle Babylonian", "1470 BC", None),
+        ("B.20.2", "Addu-nirari", "Alalakh", "Middle Babylonian", None, None),
+        ("B.20.3", "Niqmepuh", "Alalakh", "Middle Babylonian", "1450 BC", "1425 BC"),
+        ("B.20.4", "Ilim-ilimma II", "Alalakh", "Middle Babylonian", "1420 BC", None),
+    ]
+
+    with project_app.app_context():
+        assert db.session.execute(reigns).all() == expected
+
+        downgrade(revision="e7a2c94b1f05")
+        assert db.session.execute(reigns).all() == []
+
+        upgrade()
+        assert db.session.execute(reigns).all() == expected

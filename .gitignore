@@ -14,3 +14,6 @@ frontend/build/
 src/cdpp/static/dist/
 
 .DS_Store
+
+# A global rule can ignore CSV files. Migrations read these.
+!migrations/data/*.csv

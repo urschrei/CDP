@@ -137,7 +137,13 @@ The links from tablet pages to CDLI and to Oracc editions use snapshots in the d
    uv run cdpp import-oracc-texts
    ```
 
-2. Write the database to the dump:
+2. Write the comparison with CDLI into the questions for the editors:
+
+   ```sh
+   uv run cdpp check-cdli
+   ```
+
+3. Write the database to the dump:
 
    ```sh
    uv run cdpp dump-data
@@ -240,6 +246,7 @@ Run each command as `uv run cdpp COMMAND`. `cdpp` is the Flask command-line inte
 | `import-oracc-signs [SOURCE]` | Replace the snapshot of the Oracc Sign List with the signs in `osl.asl`. `SOURCE` is a path or a URL, and defaults to the file in the [OSL repository](https://github.com/oracc/osl). |
 | `import-cdli [SOURCE]` | Replace the snapshot of the CDLI catalogue entries of the tablets. `SOURCE` is a path or a URL of the CDLI catalogue in CSV, and defaults to the file in the CDLI data repository. |
 | `import-oracc-texts [SOURCE ...]` | Replace the snapshot of the Oracc texts of the tablets. Each `SOURCE` is a path or a URL of an Oracc JSON archive. The defaults are the archives of SAAo, RIAo, RINAP, RIBo and DCCLT. |
+| `check-cdli [PATH]` | Write the tablets whose period, city, object type, medium or language does not agree with their CDLI entries into the sections of `PATH`. `PATH` defaults to `docs/questions-for-the-editors.md`. |
 | `db upgrade` | Apply the database migrations. |
 | `db migrate -m MESSAGE` | Generate a migration from changes to the models. |
 | `reindex` | Make the search tables again from the database. |
@@ -331,6 +338,8 @@ On a sign page, a sign-list number links to the [Oracc Sign List](https://oracc.
 ### Links to catalogues
 
 A tablet page links to the CDLI catalogue entry of the tablet, and to the editions of its texts in the Oracc projects SAAo, RIAo, RINAP, RIBo and DCCLT. The links come from snapshots in the tables `cdli_artifact` and `oracc_text`. A tablet matches a CDLI entry by its museum number, the museum number of a join, or its accession number. The tablet page shows the publication in one citation form, and the tablet list can filter by series. The database keeps each publication as its text.
+
+`cdpp check-cdli` compares the period, the city, the object type, the medium and the languages of each tablet with its CDLI entries. The data and CDLI give different names to some periods, places and object types, so tables in `src/cdpp/cdli_comparison.py` state which names agree. The command writes these tables and the tablets that do not agree into the questions for the editors.
 
 ### Unicode cuneiform
 

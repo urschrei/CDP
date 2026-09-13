@@ -491,3 +491,202 @@ No CDLI entry has these numbers. UET 6/3 is a volume of texts, not a collection.
 | Wx17 | `/tablets/535` | AUWE 5, 68 |
 
 Answer:
+
+## Comparison with CDLI
+
+`cdpp check-cdli` writes the tables of these questions from the snapshot of the CDLI catalogue of August 2022. Run it again after changes to the data. A CDLI value that ends with `?` is uncertain in CDLI. A tablet agrees if one of its CDLI entries agrees. The tables do not include a tablet if its CDLI entries give no value.
+
+### 28. Which period is correct?
+
+The period in the data does not agree with the period of the CDLI entry with the same museum number. Is the first table correct? For each tablet in the second table, which period is correct?
+
+<!-- cdpp check-cdli: period -->
+
+These CDLI periods agree with these periods in the data:
+
+| CDLI period | Period | Sub-periods |
+| --- | --- | --- |
+| Uruk IV | Archaic | all |
+| Uruk III | Archaic | all |
+| ED I-II | Early Dynastic | ED I, or none |
+| ED IIIa | Early Dynastic | ED IIIa, or none |
+| ED IIIb | Early Dynastic | ED IIIb, or none |
+| Old Akkadian | Late Third Millennium | Old Akkadian, or none |
+| Lagash II | Late Third Millennium | Lagash II, or none |
+| Ur III | Late Third Millennium | Ur III, or none |
+| Early Old Babylonian | Old Babylonian | Early Old Babylonian, or none |
+| Old Babylonian | Old Babylonian | Late Old Babylonian, or none |
+| Old Assyrian | Old Assyrian | all |
+| Middle Babylonian | Middle Babylonian | all |
+| Middle Assyrian | Middle Assyrian | all |
+| Neo-Assyrian | Neo-Assyrian | all |
+| Early Neo-Babylonian | Neo-Babylonian | Early Neo-Babylonian, or none |
+| Neo-Babylonian | Neo-Babylonian | Chaldean, or none |
+| Achaemenid | Late Babylonian | Achaemenid, or none |
+| Hellenistic | Late Babylonian | Greek, or none |
+
+The period in the data does not agree with CDLI:
+
+| Tablet | Page | Period | Sub-period | CDLI entry | CDLI period |
+| --- | --- | --- | --- | --- | --- |
+| BM_55872 | `/tablets/500` | Late Babylonian | Achaemenid | P367241 | Neo-Babylonian (ca. 626-539 BC) |
+| BM_56728 | `/tablets/503` | Late Babylonian | Achaemenid | P314423 | Neo-Babylonian (ca. 626-539 BC) |
+| BM_74378 | `/tablets/501` | Late Babylonian | Achaemenid | P365710 | Neo-Babylonian (ca. 626-539 BC) |
+| BM_22468 | `/tablets/512` | Late Third Millennium | Ur III | P232470 | Lagash II (ca. 2200-2100 BC) |
+| BM_87235 | `/tablets/511` | Late Third Millennium | Ur III | P233922 | Lagash II (ca. 2200-2100 BC) |
+| BM_130738 | `/tablets/523` | Middle Assyrian |  | P500443 | Middle Babylonian (ca. 1400-1100 BC) |
+| VA_8251 | `/tablets/541` | Middle Assyrian |  | P465507 | Old Babylonian (ca. 1900-1600 BC) |
+| VA_Ass_3221_c | `/tablets/491` | Middle Assyrian |  | P465880 | Old Babylonian (ca. 1900-1600 BC) |
+| VAT_9562 | `/tablets/490` | Neo-Assyrian | Early Neo-Assyrian | P467535 | Middle Assyrian (ca. 1400-1000 BC) |
+| BM_40127 | `/tablets/472` | Neo-Babylonian | Early Neo-Babylonian | P349930 | Neo-Babylonian (ca. 626-539 BC) |
+| BM_14030 | `/tablets/542` | Old Babylonian | Early Old Babylonian | P405411 | Old Babylonian (ca. 1900-1600 BC) |
+| BM_14030_seal | `/tablets/545` | Old Babylonian | Early Old Babylonian | P405411 | Old Babylonian (ca. 1900-1600 BC) |
+| BM_14070 | `/tablets/543` | Old Babylonian | Early Old Babylonian | P405421 | Old Babylonian (ca. 1900-1600 BC) |
+| BM_14070_seal | `/tablets/546` | Old Babylonian | Early Old Babylonian | P405421 | Old Babylonian (ca. 1900-1600 BC) |
+| BM_14082 | `/tablets/544` | Old Babylonian | Early Old Babylonian | P405430 | Old Babylonian (ca. 1900-1600 BC) |
+| BM_80128_seal | `/tablets/548` | Old Babylonian | Early Old Babylonian | P366217 | Old Babylonian (ca. 1900-1600 BC) |
+| CBS_10180 | `/tablets/605` | Old Babylonian | Late Old Babylonian | P265430 | Early Old Babylonian (ca. 2000-1900 BC) |
+| CBS_11387 | `/tablets/606` | Old Babylonian | Late Old Babylonian | P227671 | Ur III (ca. 2100-2000 BC) ? |
+| CBS_14108 | `/tablets/635` | Old Babylonian | Late Old Babylonian | P227768 | Early Old Babylonian (ca. 2000-1900 BC) |
+| CBS_15412 | `/tablets/593` | Old Babylonian | Late Old Babylonian | P227844 | Early Old Babylonian (ca. 2000-1900 BC) |
+| CBS_4819 | `/tablets/666` | Old Babylonian | Late Old Babylonian | P227968 | Early Old Babylonian (ca. 2000-1900 BC) |
+
+<!-- cdpp check-cdli: end -->
+
+Answer:
+
+### 29. Which city is correct?
+
+The city in the data does not agree with the provenience of the CDLI entry, or the data give no city. Is the first table correct? For each tablet in the other tables, which city is correct?
+
+<!-- cdpp check-cdli: city -->
+
+A city agrees with a CDLI place of the same ancient or modern name, with or without diacritics. These cities also agree with other names:
+
+| City | CDLI names |
+| --- | --- |
+| Ashur | Assur |
+| Drehem | Puzriš-Dagan |
+| Eshnunna | Ešnunna |
+| Kultepe | Kanesh |
+| Sippar | Sippar-Amnanum, Sippar-Yahrurum |
+
+The city in the data does not agree with CDLI:
+
+| Tablet | Page | City | CDLI entry | CDLI provenience |
+| --- | --- | --- | --- | --- |
+| 91_5-9_3 | `/tablets/505` | Nineveh | P334819 | Sippar-Yahrurum (mod. Tell Abu Habbah) |
+
+The data give no city, and CDLI gives a place:
+
+| Tablet | Page | CDLI entry | CDLI provenience |
+| --- | --- | --- | --- |
+| VAT_9653 | `/tablets/453` | P466008 | Assur (mod. Qalat Sherqat) |
+| 56_9-9_162 | `/tablets/577` | P466444 | Assur (mod. Qalat Sherqat) ? |
+| A_1429-1982 | `/tablets/522` | P105441 | Girsu (mod. Tello) |
+| BM_87572 | `/tablets/612` | P511846 | Sippar-Yahrurum (mod. Tell Abu Habbah) |
+| BM_80161_seal | `/tablets/456` | P285732 | Sippar-Yahrurum (mod. Tell Abu Habbah) ? |
+| BM_81388 | `/tablets/554` | P523779 | Sippar-Yahrurum (mod. Tell Abu Habbah) ? |
+| BM_81552 | `/tablets/555` | P523778 | Sippar-Yahrurum (mod. Tell Abu Habbah) ? |
+| BM_81562 | `/tablets/551` | P523777 | Sippar-Yahrurum (mod. Tell Abu Habbah) ? |
+| BM_81596 | `/tablets/552` | P523775 | Sippar-Yahrurum (mod. Tell Abu Habbah) ? |
+| BM_91082 | `/tablets/569` | P429914 | Sippar-Yahrurum (mod. Tell Abu Habbah) ? |
+| BM_91149 | `/tablets/587` | P431706 | Ur (mod. Tell Muqayyar) |
+
+<!-- cdpp check-cdli: end -->
+
+Answer:
+
+### 30. Which object type or medium is correct?
+
+The object type or the medium in the data does not agree with the CDLI entry. Is the first table correct? For each tablet in the second table, which object type and medium are correct?
+
+<!-- cdpp check-cdli: object -->
+
+An object type agrees with the CDLI object type of the same name. These object types also agree with other CDLI object types:
+
+| Object type | CDLI object types |
+| --- | --- |
+| cylinder seal | seal (not impression) |
+| envelope | envelope, tablet & envelope |
+| tablet | tablet, tablet & envelope |
+
+A medium agrees with the first CDLI material: stone agrees with `stone: diorite`. The comparison does not use the CDLI object type `other (see object remarks)`.
+
+The object type or the medium in the data does not agree with CDLI:
+
+| Tablet | Page | Object type | Medium | CDLI entry | CDLI object type | CDLI material |
+| --- | --- | --- | --- | --- | --- | --- |
+| BM_122669 | `/tablets/561` | architectural feature | clay | P422442 | cone | clay |
+| BM_123455 | `/tablets/562` | architectural feature | clay | P422534 | cone | clay |
+| Sm_2115 | `/tablets/560` | architectural feature | clay | P466283 | cone | clay |
+| BM_80128_seal | `/tablets/548` | envelope | clay | P366217 | tablet | clay |
+| BM_121148 | `/tablets/495` | stela | stone | P465958 | prism | clay |
+| BM_113207 | `/tablets/469` | tablet | stone | P345489 | tablet | clay |
+| 56_9-9_195 | `/tablets/452` | vessel | clay | P466114 | cone | clay |
+
+<!-- cdpp check-cdli: end -->
+
+Answer:
+
+### 31. Which language is correct?
+
+The data give a language to each sign. CDLI gives the languages of each text. The signs and the CDLI entry have no language in common, or some signs have no language, as in [question 18](#18-do-these-signs-have-no-language-or-is-the-language-missing). For each tablet, which language is correct?
+
+<!-- cdpp check-cdli: language -->
+
+The languages of the signs in the data and the CDLI languages have no language in common:
+
+| Tablet | Page | Languages | CDLI entry | CDLI language |
+| --- | --- | --- | --- | --- |
+| K_5422_a | `/tablets/480` | Sumerian | P345979 | Akkadian |
+
+Some signs have no language, and CDLI gives a language:
+
+| Tablet | Page | Without language | All | Languages of the other signs | CDLI entry | CDLI language |
+| --- | --- | --- | --- | --- | --- | --- |
+| CBS_11387 | `/tablets/606` | 62 | 62 |  | P227671 | Sumerian |
+| CBS_7072 | `/tablets/595` | 46 | 46 |  | P229413 | Sumerian |
+| CBS_7086 | `/tablets/596` | 42 | 43 | Sumerian | P229400 | Sumerian |
+| N_4030 | `/tablets/599` | 22 | 22 |  | P228220 | Sumerian |
+| CBS_7087 | `/tablets/597` | 17 | 17 |  | P229408 | Sumerian |
+| N_4949 | `/tablets/600` | 15 | 15 |  | P231195 | Sumerian |
+| CBS_15412 | `/tablets/593` | 14 | 14 |  | P227844 | Sumerian |
+| BM_96952 | `/tablets/549` | 8 | 33 | Sumerian | P431849 | Sumerian |
+| BM_97007 | `/tablets/468` | 7 | 129 | Akkadian | P511840 | Akkadian |
+| N_5087 | `/tablets/601` | 7 | 7 |  | P229307 | Sumerian |
+| N_6210 | `/tablets/603` | 7 | 7 |  | P229419 | Sumerian |
+| BM_131505 | `/tablets/589` | 6 | 207 | Akkadian | P348093 | Akkadian |
+| N_5243 | `/tablets/602` | 6 | 6 |  | P228424 | Sumerian |
+| K_686 | `/tablets/558` | 5 | 40 | Akkadian | P334118 | Akkadian |
+| N_3996 | `/tablets/598` | 5 | 5 |  | P228202 | Sumerian |
+| 83_1-18_420 | `/tablets/504` | 3 | 92 | Akkadian | P314346 | Akkadian |
+| BM_131447 | `/tablets/524` | 3 | 153 | Akkadian | P452243 | Akkadian |
+| BM_97342 | `/tablets/467` | 3 | 51 | Akkadian | P511841 | Akkadian |
+| CBS_2256 | `/tablets/615` | 3 | 16 | Sumerian | P227890 | Sumerian |
+| CBS_6923 | `/tablets/594` | 3 | 3 |  | P229367 | Sumerian |
+| CBS_7130 | `/tablets/640` | 3 | 9 | Sumerian | P229739 | Sumerian |
+| UM_41-41-2 | `/tablets/664` | 3 | 60 | Akkadian | P361171 | Akkadian |
+| VAT_9562 | `/tablets/490` | 3 | 42 | Akkadian | P467535 | Akkadian |
+| 56_9-9_162 | `/tablets/577` | 2 | 13 | Akkadian | P466444 | Akkadian |
+| 82_5-22_130 | `/tablets/470` | 2 | 208 | Akkadian | P237185 | Akkadian |
+| BM_87572 | `/tablets/612` | 2 | 30 | Akkadian | P511846 | Akkadian |
+| CBS_15100 | `/tablets/636` | 2 | 12 | Sumerian | P227804 | Sumerian |
+| K_486 | `/tablets/506` | 2 | 36 | Akkadian | P334192 | Akkadian |
+| N_5169 | `/tablets/647` | 2 | 35 | Sumerian | P228396 | Sumerian |
+| N_5910 | `/tablets/650` | 2 | 10 | Sumerian | P229535 | Sumerian |
+| N_6013 | `/tablets/623` | 2 | 22 | Sumerian | P229543 | Sumerian |
+| 91_5-9_3 | `/tablets/505` | 1 | 58 | Akkadian | P334819 | Akkadian |
+| BM_99332 | `/tablets/563` | 1 | 13 | Akkadian | P465798 | Akkadian |
+| CBS_9847 | `/tablets/643` | 1 | 5 | Sumerian | P228068 | Sumerian |
+| K_15272 | `/tablets/492` | 1 | 232 | Akkadian | P336039 | Akkadian |
+| K_1542 | `/tablets/507` | 1 | 96 | Akkadian | P334624 | Akkadian |
+| K_592 | `/tablets/559` | 1 | 14 | Akkadian | P334194 | Akkadian |
+| N_4577 | `/tablets/644` | 1 | 13 | Sumerian | P228281 | Sumerian |
+| Rm2_427 | `/tablets/564` | 1 | 100 | Akkadian | P240211 | Akkadian |
+| VA_8251 | `/tablets/541` | 1 | 62 | Akkadian | P465507 | Akkadian |
+| VA_Ass_3221_c | `/tablets/491` | 1 | 27 | Akkadian | P465880 | Akkadian |
+
+<!-- cdpp check-cdli: end -->
+
+Answer:

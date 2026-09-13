@@ -396,11 +396,12 @@ Of the 3,285 ORACC names, 3,135 link to OSL, and 3,024 of those also link to eBL
 
 ### Done
 
-- `cdpp import-cdli` loads a snapshot of the catalogue entries of the [Cuneiform Digital Library Initiative](https://cdli.earth) (CDLI) whose museum or accession number is the museum number of a tablet. The source is `cdli_cat.csv` in the [CDLI data repository](https://github.com/cdli-gh/data), last updated in August 2022. The table `cdli_artifact` keeps the P-number, the designation, the museum and accession numbers, the primary publication and the publication history of each entry.
+- `cdpp import-cdli` loads a snapshot of the catalogue entries of the [Cuneiform Digital Library Initiative](https://cdli.earth) (CDLI) whose museum or accession number is the museum number of a tablet. The source is `cdli_cat.csv` in the [CDLI data repository](https://github.com/cdli-gh/data), last updated in August 2022. The table `cdli_artifact` keeps the P-number, the designation, the museum and accession numbers, the primary publication, the publication history, the period, the provenience, the object type, the material and the language of each entry.
 - 220 of the 228 tablets match one entry each. The matches have 216 P-numbers: three seal impressions share an entry with their tablets, and N_5129 and N_6013 are parts of one join (P229543).
 - A tablet page links to the CDLI page of its entry.
 - The match compares keys made of the letters and the numbers of a museum number, without zeros in front of the numbers. `81_2-4_287` and `1881-02-04, 0287` have the same key. The collection names `OIM`, `Ashm` and `UM` in front of a CDLI number are optional, and so are letters in a registration number, as in `1891-05-09 Bu, 0003`.
 - The publications in the data do not change.
+- `cdpp check-cdli` compares the period, the city, the object type, the medium and the languages of the signs of each tablet with its CDLI entries. It writes the tablets that do not agree into questions [28 to 31](questions-for-the-editors.md#comparison-with-cdli) for the editors. The data and CDLI give different names to some periods, places and object types. Tables in `src/cdpp/cdli_comparison.py` state which names agree: for example, the city Kultepe agrees with Kanesh, and the CDLI period Ur III agrees with the period Late Third Millennium and the sub-period Ur III. The questions show these tables.
 
 | The key of the tablet is in the CDLI entry, in | Tablets |
 | --- | --- |
@@ -425,6 +426,7 @@ If a tablet has matches of more than one kind, only the matches of the kind high
 - For other tablets, CDLI gives a different edition from the data, and no conflict: CT 12 and CT 19 for tablets that the data cite from MSL 16, CT 55 to CT 57 for Bongenaar (1997), and CCT 3 and CCT 4 for Larsen, OACT and MVAG 35,3.
 - CDLI has no publication for five tablets that have one in the data: BM_131447 (Wiseman (1953) no. 3), BM_131477 (no. 70), BM_131506 (no. 128), K_14443 (MSL 16 p. 74) and K_14895 (MSL 16 p. 49).
 - 43 tablets have no publication. CDLI gives a primary publication for 32 of them, and `unpublished unassigned ?` for 9. See [question 26](questions-for-the-editors.md#26-which-publication-does-each-of-these-tablets-have).
+- On 13 September 2026, `cdpp check-cdli` found 21 tablets whose period does not agree with CDLI, 12 tablets whose city does not agree or is missing, 7 tablets whose object type or medium does not agree, and 42 tablets whose languages do not agree or whose signs have no language. 41 of the 42 are in [question 18](questions-for-the-editors.md#18-do-these-signs-have-no-language-or-is-the-language-missing). See [questions 28 to 31](questions-for-the-editors.md#comparison-with-cdli).
 - The publications in the data have many forms, for example `RIME.4.3.6.12`, `SAA 8, 70`, `MSL 14 p. 19: Bo, 20: Co`, `Jeyes (1989) no. 11` and `King, BBS pp. 120-127, pls. XCVIII-CII`. Most RIMA numbers have no volume, as in `RIMA.0.76.1`, but VA_Ass_3221_c has `RIMA.1.0.60.1`.
 
 These tablets have no CDLI entry:

@@ -126,6 +126,23 @@ The links from sign pages to the Oracc Sign List use a snapshot of the list in t
    uv run cdpp dump-data
    ```
 
+### Updating the catalogue snapshots
+
+The links from tablet pages to CDLI and to Oracc editions use snapshots in the database.
+
+1. Import the CDLI catalogue and the Oracc catalogues:
+
+   ```sh
+   uv run cdpp import-cdli
+   uv run cdpp import-oracc-texts
+   ```
+
+2. Write the database to the dump:
+
+   ```sh
+   uv run cdpp dump-data
+   ```
+
 ### Changing the schema
 
 1. Change the models in `src/cdpp/models.py`.
@@ -201,6 +218,8 @@ Run each command as `uv run cdpp COMMAND`. `cdpp` is the Flask command-line inte
 | `dump-data [PATH]` | Write the schema, the records, the change sets and the migration revision to an SQL dump. The dump does not contain the search tables. `PATH` defaults to `db_dumps/cdpp.sql`. |
 | `backup PATH` | Write a copy of the database to `PATH`, which must not exist. |
 | `import-oracc-signs [SOURCE]` | Replace the snapshot of the Oracc Sign List with the signs in `osl.asl`. `SOURCE` is a path or a URL, and defaults to the file in the [OSL repository](https://github.com/oracc/osl). |
+| `import-cdli [SOURCE]` | Replace the snapshot of the CDLI catalogue entries of the tablets. `SOURCE` is a path or a URL of the CDLI catalogue in CSV, and defaults to the file in the CDLI data repository. |
+| `import-oracc-texts [SOURCE ...]` | Replace the snapshot of the Oracc texts of the tablets. Each `SOURCE` is a path or a URL of an Oracc JSON archive. The defaults are the archives of SAAo, RIAo, RINAP, RIBo and DCCLT. |
 | `db upgrade` | Apply the database migrations. |
 | `db migrate -m MESSAGE` | Generate a migration from changes to the models. |
 | `reindex` | Make the search tables again from the database. |
@@ -240,9 +259,9 @@ The paginated pages take a `page` parameter.
 
 ### Tablet filters
 
-Each filter selects the tablets with a related record of the given name, for example `/tablets?period=Old%20Babylonian&medium=clay`.
+Each filter selects the tablets with a related record of the given name, for example `/tablets?period=Old%20Babylonian&medium=clay`. `series` selects the tablets whose publication is in the given series, for example `/tablets?series=SAA`.
 
-`city`, `dynasty`, `eponym`, `function`, `genre`, `language`, `locality`, `medium`, `method`, `period`, `ruler`, `script_type`, `sent_from`, `sent_to`, `sub_period`, `text_vehicle`, `year`
+`city`, `dynasty`, `eponym`, `function`, `genre`, `language`, `locality`, `medium`, `method`, `period`, `ruler`, `script_type`, `sent_from`, `sent_to`, `series`, `sub_period`, `text_vehicle`, `year`
 
 ### Project layout
 
@@ -284,6 +303,10 @@ Search uses two SQLite FTS5 tables with the trigram tokenizer: `search_sign` hol
 ### Links to sign lists
 
 On a sign page, a sign-list number links to the [Oracc Sign List](https://oracc.museum.upenn.edu/osl/) (OSL) if exactly one OSL sign or form has the same number in that list. An ORACC name links to OSL if exactly one OSL sign or form has that name. After each of these links, a second link leads to the page of the same sign or form in the electronic Babylonian Library (eBL), if OSL records one. The links come from a snapshot of OSL in the tables `oracc_sign` and `oracc_list_number`, so a page does not depend on Oracc. [docs/schema-and-data-questions.md](docs/schema-and-data-questions.md) lists the sign lists that have links, and the open questions about them.
+
+### Links to catalogues
+
+A tablet page links to the CDLI catalogue entry of the tablet, and to the editions of its texts in the Oracc projects SAAo, RIAo, RINAP, RIBo and DCCLT. The links come from snapshots in the tables `cdli_artifact` and `oracc_text`. A tablet matches a CDLI entry by its museum number, the museum number of a join, or its accession number. The tablet page shows the publication in one citation form, and the tablet list can filter by series. The database keeps each publication as its text.
 
 ### Unicode cuneiform
 

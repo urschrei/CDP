@@ -43,8 +43,6 @@ The rank orders the open questions by importance. Questions whose answers change
 - An instance has one language at most, in the column `instance.language_id`. See [question 8](#8-two-records-of-one-fact).
 - [Questions for the editors](questions-for-the-editors.md) lists the questions that need the tablets, the photographs or the sign lists.
 
-14 September 2026:
-
 - Search uses SQLite FTS5 tables, not Meilisearch.
 - Editors can change the surface, column, line, iteration, function and language of a sign instance. Each save records a change set in the append-only tables `change_set` and `change`, with the editor's name from a cookie. Undo records a new change set. There is no sign-in.
 - When editors use the site, the database is the source of record. The dump in `db_dumps/cdpp.sql` is a snapshot, and `cdpp backup` copies the database.
@@ -415,7 +413,7 @@ If a tablet has matches of more than one kind, only the matches of the kind high
 
 - `cdpp import-oracc-texts` loads a snapshot of the Oracc texts whose catalogue entries have the museum number of a tablet. The sources are the Oracc JSON archives of SAAo, RIAo, RINAP, RIBo and DCCLT. The table `oracc_text` keeps the project and the text ID of each text. A tablet page links to the Oracc page of each text.
 - An Oracc text matches a tablet if its museum number, its accession number or an exemplar of a composite text has the key of the tablet. 110 tablets match 111 texts: 27 SAAo texts, 17 RIAo composite texts for 16 tablets, and 67 DCCLT texts. No RINAP or RIBo text matches. VAT_9653 is an exemplar of two RIAo texts, Adad-narari I 01 and 02.
-- The archive of a project contains the editions of the project, but not the editions of its subprojects, such as `saao/saa08` and `dcclt/nineveh`. The page of a text of the project is empty if the project has no edition of it. Thus 6 DCCLT texts without an edition have no link. On 14 September 2026, the Oracc pages of all linked texts had content.
+- The archive of a project contains the editions of the project, but not the editions of its subprojects, such as `saao/saa08` and `dcclt/nineveh`. The page of a text of the project is empty if the project has no edition of it. Thus 6 DCCLT texts without an edition have no link. On 13 September 2026, the Oracc pages of all linked texts had content.
 - The Oracc match does not use the CDLI P-numbers. For K_5422_a, CDLI gives P345979, but the Oracc catalogue gives P345979 the accession number `K 05422B`, and its Oracc page is empty.
 - Tablet pages show the publication in one form, as in `SAA 8, no. 70`, `MSL 14, p. 19, Bk` and `RIME 4, no. E4.3.6.12`, and link its series to the tablet list. The tablet list has a series filter. A parser finds the series, the volume, the year, the page, the text number and the siglum of a publication. The database keeps the original text.
 - The parser finds a series for 184 of the 185 tablets with a publication, in 22 series. The other tablet has `unpublished`. Parts that the parser does not identify stay as text, as in `Roth (1997) MAPD source A` and `MSL 14, p. 19: Bo, 20: Co`.

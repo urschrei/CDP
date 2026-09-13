@@ -14,7 +14,7 @@ The rank orders the open questions by importance. Questions whose answers change
 | 2 | [9. Duplicate sign-list entries](#9-duplicate-sign-list-entries) | Partly done; 8 groups open |
 | 3 | [Links to online sign lists](#links-to-online-sign-lists) | Partly done; questions open |
 | 4 | [10. Lookup tables for plain values](#10-lookup-tables-for-plain-values) | Partly done; questions open |
-| 5 | [8. Two records of one fact](#8-two-records-of-one-fact) | Open |
+| 5 | [8. Two records of one fact](#8-two-records-of-one-fact) | Partly done; questions open |
 | 6 | [Rulers, reigns and cities](#rulers-reigns-and-cities) | Done; questions open |
 | 7 | [7. Values that contradict each other](#7-values-that-contradict-each-other) | Done; one question open |
 | 8 | [11. Dates stored as text](#11-dates-stored-as-text) | Partly done; questions open |
@@ -39,6 +39,8 @@ The rank orders the open questions by importance. Questions whose answers change
 - The sub-periods Sargonid, ED I, ED IIIa and ED IIIb, and the tablet `Wx17`, have their correct periods. The period ED is removed, because it is the same period as Early Dynastic. Two tablets have the locality of their city. See [question 7](#7-values-that-contradict-each-other).
 - Tables of instances show defaults in italics. Pages show primes as `′`, and line and column numbers without zeros in front. See [question 10](#10-lookup-tables-for-plain-values).
 - The JJT notes stay in the database, and tablet pages show them. A link hides or shows them. See [question 10](#10-lookup-tables-for-plain-values).
+- An instance has one language at most, in the column `instance.language_id`. See [question 8](#8-two-records-of-one-fact).
+- [Questions for the editors](questions-for-the-editors.md) lists the questions that need the tablets, the photographs or the sign lists.
 
 ## 6. Empty columns and tables
 
@@ -104,7 +106,7 @@ After the correction, no tablet or reign has a sub-period of a different period,
 ### Findings
 
 - A tablet can record its recipient in `tablet.to_id` (0 rows) or in the association table `tablet_correspondent` (1 row).
-- The association table `instance_language` has 11,039 rows. No instance has more than one language, and 365 instances have no language. `tablet.language_id` is empty.
+- Before the change, the association table `instance_language` had 11,039 rows, and no instance had more than one language. 365 instances have no language. `tablet.language_id` is empty.
 - The import of the instances in 2014 filled `instance_language` from the spreadsheet `csvs/corrected_instances_forimport.xlsx`. Its column `lang` has one value in each row: 8,368 `Akkadian`, 2,671 `Sumerian` and 365 empty.
 - 265 of the 365 instances without a language are on Old Babylonian school tablets from Nippur, for example `CBS_11387` (62 instances), `CBS_7072` (46) and `CBS_7086` (42). MSL 14 publishes the tablets of 246 of them.
 - All 800 instances on `BM_130738` have the import note `lang autoset to akk`. Their language was set for the whole tablet, not for each instance.
@@ -112,17 +114,15 @@ After the correction, no tablet or reign has a sub-period of a different period,
 ### Questions
 
 - Can a tablet have more than one recipient?
-- Can a sign instance have more than one language?
 - Do the instances without a language have no language, or is the value missing?
 
 ### Options
 
 - Keep `tablet_correspondent`, and remove `tablet.to_id`.
-- If an instance has one language at most, replace `instance_language` with a nullable column `instance.language_id`.
 
 ### Decision
 
-Open.
+13 September 2026: an instance has one language at most. Migration f7a1c3e5b920 stores it in the column `instance.language_id` and removes `instance_language`. Its downgrade restores the table. The recipients and the instances without a language are open: see [Questions for the editors](questions-for-the-editors.md).
 
 ## 9. Duplicate sign-list entries
 

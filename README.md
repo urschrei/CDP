@@ -243,6 +243,7 @@ Each filter selects the tablets with a related record of the given name, for exa
 | `migrations/data/` | CSV files that data migrations read. |
 | `tests/` | pytest tests. |
 | `docs/schema-and-data-questions.md` | Open questions about the schema and the data. |
+| `docs/questions-for-the-editors.md` | Questions for the editors of the data, with the tablets, signs and photographs that each question is about. |
 | `db_dumps/cdpp.sql` | The data: an SQLite dump of the schema, the records and the migration revision. |
 | `media/instance/` | Sign photographs. |
 | `utils/`, `csvs/` | Notebooks and spreadsheets from the original preparation of the data. They are not used by the application. |

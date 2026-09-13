@@ -1,0 +1,402 @@
+# Questions for the editors
+
+These questions need the tablets, the photographs or the sign lists to answer. The data alone cannot answer them. Write each answer under its question.
+
+A path such as `/tablets/487` is a page of the CDP site: add it to the address of the site. A path such as `/media/instance/I_1103765344552.jpg` is a photograph of a sign. [Schema and data questions](schema-and-data-questions.md) records the findings behind the questions.
+
+The list describes the data on 13 September 2026.
+
+## Sign lists
+
+### 1. Which list is aBZL?
+
+Is the column aBZL Mittermayer's *Altbabylonische Zeichenliste*, or Borger's *Assyrisch-babylonische Zeichenliste*?
+
+- The highest aBZL number in the data is 480, the last number of Mittermayer's list. Borger's list has 598 numbers.
+- The spreadsheet `csvs/signs_from_instances.xls` has one column for Borger ABZ and a different column for aBZL.
+- The site links aBZL numbers to Mittermayer's numbers in the Oracc Sign List.
+
+Answer:
+
+### 2. Which lists are HA and Labat?
+
+What are the full titles of the lists HA and Labat? The site links both to one numbering of the Oracc Sign List, which Deimel's *Šumerisches Lexikon*, Labat's *Manuel d'épigraphie akkadienne* and Ellermeier and Studt's *Handbuch Assur* share. In 1,227 of the 1,436 CDP records with both numbers, the HA number and the Labat number are the same.
+
+Answer:
+
+### 3. What are the full titles of the lists Emar and Hinke?
+
+Answer:
+
+### 4. Does the CDP need the lists Rosengarten and LKA?
+
+`csvs/signs_from_instances.xls` has empty columns for Rosengarten and LKA. The CDP does not have these lists.
+
+Answer:
+
+### 5. What are the Description names?
+
+The CDP records have names from a spreadsheet column with the heading Description, for example `ILIMMU`. They look like sign names, not descriptions. From which source are they?
+
+Answer:
+
+## CDP records
+
+### 6. What makes these records different?
+
+The records in each group are the same in all their values. If nothing makes them different, we can remove the copies.
+
+| Sign | Sign page | Records |
+| --- | --- | --- |
+| ADDU₂ | `/signs/29316` | 1196, 1197 |
+| ALIMₓ | `/signs/29368` | 1277, 1278 |
+| DUBAL₃ | `/signs/29634` | 1782, 1783 |
+| DUBAL₄ | `/signs/29635` | 1784, 1785 |
+| DUL | `/signs/29647` | 1808, 1809, 1810 |
+| DUN₃ | `/signs/29655` | 1823, 1824 |
+| GALAM | `/signs/29857` | 2143, 2144 |
+| GIDIM₄ | `/signs/29960` | 2272, 2273 |
+
+Answer:
+
+### 7. What are these form descriptions?
+
+The only copy of these form descriptions is a database dump of 2013, which replaced each character that is not ASCII with `_`. Where the data have names with the same letters, the table gives them as possible values. What is each form description?
+
+| Record | Sign | Sign page | Form description in the dump | Possible values |
+| --- | --- | --- | --- | --- |
+| 385 | \|LU₂×(SIG₂.BU)\| | `/signs/28544` | `\|LU__SIK_+BU\|` | |
+| 792 | 2(DIŠ@t) | `/signs/28948` | `2(di_@t)` | |
+| 908 | 3(ŠAR₂)1 | `/signs/29064` | `3(_ar_)3(_ar_@c)` | |
+| 1145 | ABLAL | `/signs/29291` | `\|LAGAB_A+LAL\|` | |
+| 1212 | AGAR₃ | `/signs/29325` | `\|LAGAB_A+GAR\|` | |
+| 1295 | AMAŠ | `/signs/29381` | `\|DAG.KISIM__LU+MA__\|` | |
+| 1342 | ARATTA | `/signs/29407` | `\|LAM_KUR+RU\|` | |
+| 1517 | BARA₆ | `/signs/29507` | `\|LAGAB_ME+EN\|` | |
+| 1525 | BER₆ | `/signs/29514` | `\|_A__U+A\|` | |
+| 1549 | BUBBU | `/signs/29531` | `\|LAGAB_U+U+U.LAGAB_U+U+U\|` | |
+| 1554 | BUL | `/signs/29535` | `\|LAGAB_U+U+U\|` | |
+| 1559 | BUNₓ | `/signs/29540` | `\|URU_MIN+IM\|` | |
+| 1561 | BUNₓ | `/signs/29540` | `\|EZEN~b_A_\| -- need to sort out EZEN~a/b` | |
+| 1753 | DINIG₂ | `/signs/29617` | `\|LU__ME+EN\|` | |
+| 1784 | DUBAL₄ | `/signs/29635` | `\|LU__KAD_\|` | \|LU₂×KAD₂\|, \|LU₂×KAD₃\| |
+| 1785 | DUBAL₄ | `/signs/29635` | `\|LU__KAD_\|` | \|LU₂×KAD₂\|, \|LU₂×KAD₃\| |
+| 1931 | EMEDA₃ | `/signs/29720` | `\|UM_ME+DA\|` | |
+| 1937 | EMEGARₓ | `/signs/29724` | `\|KA_ME+GAR\|` | |
+| 1938 | EMEGARGARₓ | `/signs/29725` | `\|KA_ME+GAR+GAR+RA\|` | |
+| 1940 | EMENGI | `/signs/29727` | `\|KA_ME+GI\|` | |
+| 1996 | ERIMₓ | `/signs/29769` | `\|AB_U+U+U\|` | |
+| 2038 | ESIRHA | `/signs/29800` | `\|LAGAB_KUL+HI+A\|` | |
+| 2423 | GUERIŠI | `/signs/30033` | `\|GU__SAL+TUG_\|` | |
+| 2510 | HARA₅ | `/signs/30092` | `\|DAG.KISIM__U_+GIR_\|` | |
+| 2511 | HARA₅ | `/signs/30092` | `\|DAG.KISIM__U_+GIR_\|` | |
+| 2512 | HARA₅ | `/signs/30092` | `\|DAG.KISIM__U_+GIR_\|` | |
+| 2614 | ILDAG₂ | `/signs/30164` | `\|GUD_A+KUR\|` | |
+| 2634 | IMMINTE | `/signs/30182` | `\|KA_ME+TE\|` | |
+| 2667 | ITI | `/signs/30205` | `\|UD_U+U+U\|` | |
+| 2668 | ITI.DU | `/signs/30206` | `\|UD_U+U+U.DU\|` | |
+| 2671 | ITI₇ | `/signs/30209` | `\|UD_U+U+U.AN._E_.KI\|` | |
+| 2678 | KA×(ME.ME) | `/signs/30215` | `\|KA_ME+ME\|` | |
+| 2679 | KA×(MI.NUNUZ) | `/signs/30216` | `\|KA_MI+NUNUZ\|` | |
+| 2804 | KIR₇ | `/signs/30297` | `\|NIM_GAR+GAN_@t\|` | |
+| 2866 | KUNGA₂ | `/signs/30335` | `\|_U_.3xAN\|` | |
+| 3049 | LUGUD₄ | `/signs/30445` | `\|LAGAR__E+SUM\|` | |
+| 3087 | MAŠ.EN | `/signs/30469` | `\|MA_+EN\|` | |
+| 3101 | MASSA₂ | `/signs/30483` | `\|DAG.KISIM__A+MA_\|` | |
+| 3102 | MASSA₂ | `/signs/30483` | `\|DAG.KISIM__A+MA_\|` | |
+| 3106 | MEₓ | `/signs/30485` | `\|LAGAB__ITA+GI_+ERIN_\|` | |
+| 3115 | ME₉ | `/signs/30489` | `\|LAGAB__ITA@t+GI_\|` | |
+| 3118 | MEDU | `/signs/30492` | `\|KA_ME+DU\|` | |
+| 3123 | MELEₓ | `/signs/30496` | `\|KA_GAR+_A_+A\|` | |
+| 3200 | MURₓ | `/signs/30541` | `\|UD_U+U+U@g\|` | |
+| 3205 | MURU₄ | `/signs/30546` | `\|UR__U_+A_\|` | |
+| 3311 | NIGRU | `/signs/30616` | `\|KA_AD+KU_\|` | |
+| 3339 | NINDAMEKAR | `/signs/30638` | `\|NINDA__ME+GAN_@t\|` | |
+| 3405 | NUNUZ.AB₂×(BULUG₂.GUG₂) | `/signs/30670` | `\|NUNUZ.AB__BULUG_+GUG_\|` | |
+| 3406 | NUNUZ.AB₂×(BULUG₂.GUG₂) | `/signs/30670` | `\|NUNUZ.AB__BULUG_+GUG_\|` | |
+| 3407 | NUNUZ.AB₂×(GUG₂.BULUG₂) | `/signs/30671` | `\|NUNUZ.AB__GUG_+BULUG_\|` | |
+| 3409 | NUNUZ.KISIM₅×(LU₃.PAP.PAP) | `/signs/30673` | `\|NUNUZ.KISIM__LU_+PAP+PAP\|` | |
+| 3491 | RAPIKU | `/signs/30725` | `\|DAG.KISIM__PAP+PAP\|` | |
+| 3507 | SAₓ | `/signs/30738` | `\|NINDA__A_+A_\|` | |
+| 3509 | SAₓ | `/signs/30738` | `\|NINDA___E+A_\|` | |
+| 3510 | SAₓ | `/signs/30738` | `\|NINDA___E+A_+A_\|` | |
+| 3511 | SAₓ | `/signs/30738` | `\|NINDA___E+A.AN\|` | |
+| 3561 | SAGKURUN | `/signs/30771` | `\|DIN.KASKAL.GA_AN.DI_\|` | |
+| 3582 | ŠAKIRₓ | `/signs/30784` | `\|URU_MIN+NI\|` | |
+| 3583 | ŠAKIRₓ | `/signs/30784` | `\|URU_MIN+NI+GA\|` | |
+| 3614 | ŠAMₓ | `/signs/30792` | `\|NINDA___E+A+AN\|` | |
+| 3638 | SAMAN | `/signs/30799` | `E__` | EŠ₂, EŠ₅, EŠ₆, E₁₂ |
+| 3669 | ŠARGALDIŠ | `/signs/30818` | `\|_AR__GAL+DI_\|` | |
+| 3670 | ŠARGALMIN | `/signs/30819` | `\|_AR__GAL+MIN\|` | |
+| 3673 | ŠARUMINₓ | `/signs/30822` | `\|HI_U+U\|` | |
+| 3697 | SED₃ | `/signs/30834` | `\|ZA.MU__.DI\|` | \|ZA.MUŠ₂.DI\|, \|ZA.MUŠ₃.DI\| |
+| 3732 | ŠERIMSUR | `/signs/30854` | `\|LAGAB__E+SUM\|` | |
+| 3866 | ŠU₂.ZI₃ | `/signs/30942` | `\|_U_+ZI_\|` | |
+| 3883 | ŠU₆ | `/signs/30949` | `\|LAGAB__U_+_U_\|` | |
+| 4138 | U₈ | `/signs/31115` | `\|LAGAB_GUD+GUD\|` | |
+| 4141 | UBIₓ | `/signs/31118` | `\|_E+SUHUR\|` | |
+| 4144 | UBUR₄ | `/signs/31121` | `\|DAG.KISIM__IR+LU\|` | |
+| 4159 | UD.AB×EŠ | `/signs/31124` | `\|UD.AB_U+U+U\|` | |
+| 4172 | UDUL₄ | `/signs/31134` | `\|PA.DAG.KISIM__LU+MA__\|` | |
+| 4198 | UGRA | `/signs/31148` | `\|LAGAB_U_+A_\|` | |
+| 4290 | UR₂×(A.NA) | `/signs/31198` | `\|UR__A+NA\|` | |
+| 4291 | UR₂×(U₂.BI) | `/signs/31199` | `\|UR__U_+BI\|` | |
+| 4334 | URU×UL | `/signs/31222` | `\|URU_U+GUD\|` | |
+| 4348 | URUM | `/signs/31232` | `\|NINDA__U_+A_\|` | |
+| 4351 | URUM₉ | `/signs/31235` | `\|UR__A+HA\|` | |
+| 4413 | UʾU | `/signs/31276` | `\|LAGAB_(GUD+GUD).A\|` | |
+| 4469 | ZANABAL | `/signs/31309` | `\|LU__LA+A_\|` | |
+| 4470 | ZANABAL₂ | `/signs/31310` | `\|LU__KAD_+A_\|` | |
+| 4471 | ZANABAL₃ | `/signs/31311` | `\|LU__SI+A_\|` | |
+
+Answer:
+
+### 8. Were three records removed on purpose?
+
+The dump of 2013 has three records that the import of 2014 did not copy. The dump replaced the characters of their sign name. Were they removed on purpose?
+
+| Sign-list numbers | Names in the dump |
+| --- | --- |
+| MesZL 758, ELLes 376, LAK 769, HA 484a | `\|LAGAB_AN\|` |
+| ELLes 109, LAK 185, ZATU N-58 | `2(A_@t)` |
+| LAK 193 | `5(A_@t)` |
+
+Answer:
+
+## Tablets
+
+### 9. Which ruler is on these tablets?
+
+The publication number of each tablet is the number of a different reign from the reign of its ruler.
+
+| Tablet | Page | Publication | Ruler in the data | Reign of the publication number |
+| --- | --- | --- | --- | --- |
+| BM_91082 | `/tablets/569` | RIME.4.4.3.1 | Sin-gamil (Diniktum), E.4.13.2 | Sin-gamil (Uruk), E.4.4.3 |
+| BM_96952 | `/tablets/549` | RIME.4.3.6.11 | Samsu-iluna, E.4.3.7 | Hammu-rapi (Babylon), E.4.3.6 |
+
+For BM_91082, the comment in `csvs/ruler_name_matching.xlsx` also gives Uruk.
+
+Answer:
+
+### 10. Are these publication numbers correct?
+
+The rulers are kings of Ur III, but the publication numbers begin with RIME 4, the volume of the Old Babylonian period. E.4.1.1 is Ishbi-Erra and E.4.1.2 is Shu-ilishu. Are the correct numbers RIME 3/2.1.1 and RIME 3/2.1.2?
+
+| Tablet | Page | Publication | Ruler |
+| --- | --- | --- | --- |
+| BM_90010 | `/tablets/583` | RIME.4.1.1.33 | Ur-Nammu |
+| BM_90011 | `/tablets/584` | RIME.4.1.1.4 | Ur-Nammu |
+| BM_90015 | `/tablets/585` | RIME.4.1.1.33 | Ur-Nammu |
+| BM_90016 | `/tablets/586` | RIME.4.1.1.35 | Ur-Nammu |
+| BM_90017 | `/tablets/568` | RIME.4.1.2.39 | Shulgi |
+
+Answer:
+
+### 11. Esarhaddon or Ashurbanipal?
+
+These letters refer to both Esarhaddon and Ashurbanipal. The spreadsheet of ruler names gives `Esarhaddon or Assurbanipal`. Must each letter have one ruler? If so, which?
+
+| Tablet | Page | Publication |
+| --- | --- | --- |
+| 81_2-4_287 | `/tablets/671` | SAA 8, 70 |
+| DT_148 | `/tablets/673` | SAA 8, 16 |
+| K_1326 | `/tablets/676` | SAA 8, 79 |
+| K_696 | `/tablets/668` | SAA 8, 10 |
+| K_697 | `/tablets/674` | SAA 8, 15 |
+| K_773 | `/tablets/675` | SAA 8, 17 |
+| K_788 | `/tablets/667` | SAA 8, 9 |
+| K_8432 | `/tablets/669` | SAA 8, 63 |
+| K_984 | `/tablets/670` | SAA 8, 67 |
+| Rm_203 | `/tablets/672` | SAA 8, 11 |
+
+Answer:
+
+### 12. Year or eponym?
+
+83-1-18_287 (`/tablets/487`, SAA 8, 8) has the year 658 BC and the eponym Labasi. The eponym of 658 BC in the data is Sha-Nabu-shu. Which is correct?
+
+Answer:
+
+### 13. Which reign is the reign of a tablet?
+
+Esarhaddon and Ashurbanipal each have an Assyrian and a Babylonian reign, for example A.0.113 and B.6.32 for Ashurbanipal. The notes on the ruler names say that the tablets belong to the Assyrian reign. At present, a tablet refers to a ruler, not to a reign. Must a tablet refer to a reign?
+
+Answer:
+
+### 14. Which sub-period have the kings of Alalakh?
+
+The reigns B.20.1 to B.20.4 (Idrimi, Addu-nirari, Niqmepuh and Ilim-ilimma II) are Middle Babylonian, with no sub-period. The sub-periods of Middle Babylonian are Kassite and Post-Kassite.
+
+Answer:
+
+### 15. Where is the data from Amarna?
+
+The notes on the ruler names say that the new data adds the city Amarna, in Egypt. The city is in the data, but no tablet refers to it.
+
+Answer:
+
+## Positions of signs
+
+### 16. What is the line of these signs?
+
+Only signs on seal impressions have no line. These 32 signs are not on seal impressions, but have no line.
+
+| Tablet | Page | Sign | Surface | Column | Photograph |
+| --- | --- | --- | --- | --- | --- |
+| 82_5-22_130 | `/tablets/470` | GI | | | `/media/instance/I_1103765344552.jpg` |
+| BM_113352 | `/tablets/536` | AŠ | be | | `/media/instance/I_1191939762718.jpg` |
+| BM_113352 | `/tablets/536` | 1+A₂ | be | | `/media/instance/I_1191941745890.jpg` |
+| BM_113352 | `/tablets/536` | UGU | be | | `/media/instance/I_1191940222953.jpg` |
+| BM_113352 | `/tablets/536` | TI | be | | `/media/instance/I_1192027642156.jpg` |
+| BM_113352 | `/tablets/536` | MES | be | | `/media/instance/I_1191942314562.jpg` |
+| BM_113352 | `/tablets/536` | HI | be | | `/media/instance/I_1191940416343.jpg` |
+| BM_113352 | `/tablets/536` | A₂ | be | | `/media/instance/I_1192028450593.jpg` |
+| BM_38120 | `/tablets/502` | GI | | | `/media/instance/I_1157290734984.jpg` |
+| BM_38622 | `/tablets/652` | NU | rev | iv | `/media/instance/I_1172577198625.jpg` |
+| BM_68332 | `/tablets/628` | AK | catchline | iv | `/media/instance/I_1163694228984.jpg` |
+| BM_68332 | `/tablets/628` | LUM | catchline | iv | `/media/instance/I_1163694716046.jpg` |
+| BM_68332 | `/tablets/628` | E | catchline | iv | `/media/instance/I_1163694423015.jpg` |
+| K_12032 | `/tablets/484` | NU | catchline | | `/media/instance/I_1172767678968.jpg` |
+| K_14895 | `/tablets/473` | GAR | a | | `/media/instance/I_1152728581140.jpg` |
+| K_14895 | `/tablets/473` | GIŠ | a | | `/media/instance/I_1152729746968.jpg` |
+| K_14895 | `/tablets/473` | ZA | a | | `/media/instance/I_1152729058828.jpg` |
+| K_197 | `/tablets/481` | AK | rev | iv | `/media/instance/I_1160573865046.jpg` |
+| K_197 | `/tablets/481` | HI | rev | iv | `/media/instance/I_1160576040000.jpg` |
+| K_197 | `/tablets/481` | TE | rev | iv | `/media/instance/I_1160574638937.jpg` |
+| K_197 | `/tablets/481` | MAN | rev | iv | `/media/instance/I_1160575490359.jpg` |
+| K_197 | `/tablets/481` | KUR | rev | iv | `/media/instance/I_1160575661281.jpg` |
+| K_197 | `/tablets/481` | KI | rev | iv | `/media/instance/I_1160576280390.jpg` |
+| K_197 | `/tablets/481` | E | rev | iv | `/media/instance/I_1160574764078.jpg` |
+| K_197 | `/tablets/481` | A | rev | iv | `/media/instance/I_1160574383796.jpg` |
+| K_197 | `/tablets/481` | A | rev | iv | `/media/instance/I_1160575134609.jpg` |
+| K_39 | `/tablets/483` | DIVIDING_SIGN | aas | | `/media/instance/I_1169136552843.jpg` |
+| K_39 | `/tablets/483` | UM | rev | iv | `/media/instance/I_1171399651781.jpg` |
+| K_39 | `/tablets/483` | UL | rev | iv | `/media/instance/I_1171388146765.jpg` |
+| K_39 | `/tablets/483` | NU | rev | iv | `/media/instance/I_1171399386796.jpg` |
+| K_39 | `/tablets/483` | E₂ | colophon | | `/media/instance/I_1171570112134.jpg` |
+| K_39 | `/tablets/483` | AN | rev | iv | `/media/instance/I_1171399219125.jpg` |
+
+Answer:
+
+### 17. What do the surfaces a, be and aas mean?
+
+| Surface | Tablet | Page | Publication | Signs |
+| --- | --- | --- | --- | --- |
+| a | BM_40127 | `/tablets/472` | MSL 16 p. 49 | 8 |
+| a | K_14895 | `/tablets/473` | MSL 16 p. 49 | 3 |
+| a | W_18202_25 | `/tablets/662` | AUWE 5, 129 | 34 |
+| be | BM_113352 | `/tablets/536` | unpublished | 7 |
+| aas | K_39 | `/tablets/483` | MSL 16 p. 117 | 1 |
+
+`a` is the only surface of the signs on its three tablets. `be` is possibly the bottom edge. Is `a` side A of a fragment whose obverse and reverse are not known?
+
+Answer:
+
+## Languages
+
+### 18. Do these signs have no language, or is the language missing?
+
+365 signs have no language. For each tablet, the table gives the number of signs without a language and the number of all its signs. Most are on Old Babylonian school tablets from Nippur.
+
+| Tablet | Page | Publication | Genre | City | Without language | All |
+| --- | --- | --- | --- | --- | --- | --- |
+| CBS_11387 | `/tablets/606` | MSL 14 p. 21: De | School | Nippur | 62 | 62 |
+| CBS_7072 | `/tablets/595` | MSL 14 p. 20: Ck | School | Nippur | 46 | 46 |
+| CBS_7086 | `/tablets/596` | MSL 14 p. 19: Bo, 20: Co | School | Nippur | 42 | 43 |
+| N_4030 | `/tablets/599` | MSL 14 p. 19: Cb | School | Nippur | 22 | 22 |
+| CBS_7087 | `/tablets/597` | MSL 14 p. 19: Bw | School | Nippur | 17 | 17 |
+| N_4949 | `/tablets/600` | MSL 14 p. 19: Bu | School | Nippur | 15 | 15 |
+| CBS_15412 | `/tablets/593` | MSL 14 p. 29: Bh | School | Nippur | 14 | 14 |
+| BM_96952 | `/tablets/549` | RIME.4.3.6.11 | Monumental | | 8 | 33 |
+| BM_113556 | `/tablets/590` | MVAG 35,3 (1935) pp. 105 f. | Letter | Kultepe | 8 | 81 |
+| BM_97007 | `/tablets/468` | Jeyes (1989) no. 11 | | Sippar | 7 | 129 |
+| N_5087 | `/tablets/601` | MSL 14 p. 19: Bw | School | Nippur | 7 | 7 |
+| N_6210 | `/tablets/603` | MSL 14 p. 20: Cu | School | Nippur | 7 | 7 |
+| VAT_9652 | `/tablets/572` | Roth (1997) MAPD source F | | Ashur | 6 | 644 |
+| BM_131505 | `/tablets/589` | Wiseman (1953) no. 126 | | Alalakh | 6 | 207 |
+| N_5243 | `/tablets/602` | MSL 14 p. 19: Bz | School | Nippur | 6 | 6 |
+| K_686 | `/tablets/558` | SAA 1, 45 | Letter | Nineveh | 5 | 40 |
+| VAT_10001 | `/tablets/573` | Roth (1997) MAL B | | Ashur | 5 | 288 |
+| VAT_9629 | `/tablets/574` | Roth (1997) MAPD source A | | Ashur | 5 | 85 |
+| N_3996 | `/tablets/598` | MSL 14 p. 19: Bk | School | Nippur | 5 | 5 |
+| BM_115110 | `/tablets/591` | MVAG 35,3 (1935) pp. 106 f. | Letter | Kultepe | 4 | 79 |
+| BM_97342 | `/tablets/467` | Jeyes (1989) no. 12 | | Sippar | 3 | 51 |
+| VAT_9562 | `/tablets/490` | RIMA.0.98.1 | Monumental | Ashur | 3 | 42 |
+| 83_1-18_420 | `/tablets/504` | SAA 2, 4 | | Nineveh | 3 | 92 |
+| BM_131447 | `/tablets/524` | Wiseman (1953) no. 3 | | Alalakh | 3 | 153 |
+| CBS_6923 | `/tablets/594` | MSL 14 p. 20: Cg | School | Nippur | 3 | 3 |
+| CBS_2256 | `/tablets/615` | | School | Nippur | 3 | 16 |
+| CBS_7130 | `/tablets/640` | Alster (1997) pl.65 | School | Nippur | 3 | 9 |
+| UM_41-41-2 | `/tablets/664` | Gwaltney (1983) no. 58 | Letter | Kultepe | 3 | 60 |
+| 82_5-22_130 | `/tablets/470` | SAA 2, 9 | | Nineveh | 2 | 208 |
+| BM_38120 | `/tablets/502` | MSL 16 p. 73 | School | Babylon | 2 | 580 |
+| K_486 | `/tablets/506` | SAA 16, 2 | Letter | Nineveh | 2 | 36 |
+| BM_57706 | `/tablets/534` | Bongenaar (1997) pp. 393-394 | Administrative | Sippar | 2 | 21 |
+| BM_119045 | `/tablets/539` | RIME.4.2.8.3 | Monumental | Ur | 2 | 8 |
+| BM_120524 | `/tablets/571` | RIME.4.2.7.2 | Monumental | Ur | 2 | 16 |
+| VAT_9140 | `/tablets/575` | Roth (1997) MAPD source G | | Ashur | 2 | 98 |
+| 56_9-9_162 | `/tablets/577` | RIMA.0.78.20 | Monumental | | 2 | 13 |
+| BM_87572 | `/tablets/612` | Jeyes (1989) no. 17 | | | 2 | 30 |
+| BM_131506 | `/tablets/613` | Wiseman (1953) no. 128 | Administrative | Alalakh | 2 | 76 |
+| N_6013 | `/tablets/623` | | School | Nippur | 2 | 22 |
+| CBS_15100 | `/tablets/636` | | School | Nippur | 2 | 12 |
+| N_5169 | `/tablets/647` | | School | Nippur | 2 | 35 |
+| N_5910 | `/tablets/650` | | School | Nippur | 2 | 10 |
+| K_39 | `/tablets/483` | MSL 16 p. 117 | School | Nineveh | 1 | 500 |
+| VA_Ass_3221_c | `/tablets/491` | RIMA.1.0.60.1 | Monumental | Ashur | 1 | 27 |
+| K_15272 | `/tablets/492` | SAA 2, 2 | | Nineveh | 1 | 232 |
+| 91_5-9_3 | `/tablets/505` | SAA 16, 17 | Letter | Nineveh | 1 | 58 |
+| K_1542 | `/tablets/507` | SAA 16, 1 | Letter | Nineveh | 1 | 96 |
+| BM_114342 | `/tablets/540` | RIME.4.2.8.5 | Monumental | Eridu | 1 | 60 |
+| VA_8251 | `/tablets/541` | RIMA.0.61.1 | Monumental | Ashur | 1 | 62 |
+| BM_116423 | `/tablets/547` | RIME.4.2.14.5 | Monumental | Ur | 1 | 132 |
+| K_592 | `/tablets/559` | SAA 1, 5 | Letter | Nineveh | 1 | 14 |
+| BM_99332 | `/tablets/563` | RIMA.0.39.2 | Monumental | Nineveh | 1 | 13 |
+| Rm2_427 | `/tablets/564` | SAA 2, 1 | | Nineveh | 1 | 100 |
+| CBS_6591 | `/tablets/638` | | School | Nippur | 1 | 47 |
+| CBS_9847 | `/tablets/643` | | School | Nippur | 1 | 5 |
+| N_4577 | `/tablets/644` | | School | Nippur | 1 | 13 |
+| N_5384 | `/tablets/648` | | School | Nippur | 1 | 15 |
+| N_5458 | `/tablets/649` | | School | Nippur | 1 | 16 |
+
+Answer:
+
+### 19. Are all the signs on BM_130738 Akkadian?
+
+All 800 signs on BM_130738 (`/tablets/523`, Smith (1949)) have the note `lang autoset to akk`: the language was set for the whole tablet. Is Akkadian correct for all of them?
+
+Answer:
+
+## The structure of the data
+
+### 20. Can a tablet have more than one recipient?
+
+Answer:
+
+### 21. Will anyone enter data into these empty fields?
+
+No tablet or record has a value in these fields:
+
+- Tablets: city site, sub-locality, dynasty, function and reign.
+- The tables of city sites and sub-localities.
+- CDP records: form name and notes.
+
+Answer:
+
+### 22. Can a tablet have a function?
+
+Signs have a function, for example syllable or logogram. The tablet table also has a function field, which is empty.
+
+Answer:
+
+### 23. Are these period dates placeholders?
+
+The periods Archaic, Late Third Millennium and Early Dynastic all have the dates 5000 BC to 5000 BC.
+
+Answer:
+
+### 24. Are the unused years needed?
+
+The data have 2,600 years. Tablets and reigns refer to 320 of them.
+
+Answer:

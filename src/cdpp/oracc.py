@@ -131,12 +131,12 @@ def oracc_page_url(oid: str) -> str:
     return PAGE_URL.format(oid=oid)
 
 
-def list_number_urls(entries: Sequence[SignListEntry]) -> dict[int, str]:
-    """Map the IDs of sign-list entries to OSL page URLs.
+def list_number_signs(entries: Sequence[SignListEntry]) -> dict[int, OraccSign]:
+    """Map the IDs of sign-list entries to OSL signs and forms.
 
-    An entry has a URL if its sign list has an OSL abbreviation, and exactly one
-    OSL sign or form has the number of the entry in that list. The sign lists of
-    the entries must be loaded.
+    An entry has an OSL sign or form if its sign list has an OSL abbreviation,
+    and exactly one OSL sign or form has the number of the entry in that list.
+    The sign lists of the entries must be loaded.
     """
     pairs = {
         (entry.sign_list.oracc_list, form)
@@ -147,30 +147,30 @@ def list_number_urls(entries: Sequence[SignListEntry]) -> dict[int, str]:
     if not pairs:
         return {}
     statement = (
-        select(OraccListNumber.list_name, OraccListNumber.number, OraccSign.oid)
+        select(OraccListNumber.list_name, OraccListNumber.number, OraccSign)
         .join(OraccListNumber.oracc_sign)
         .where(
             tuple_(OraccListNumber.list_name, OraccListNumber.number).in_(sorted(pairs))
         )
     )
-    matches: dict[tuple[str, str], set[str]] = defaultdict(set)
-    for list_name, number, oid in db.session.execute(statement):
-        matches[(list_name, number)].add(oid)
+    matches: dict[tuple[str, str], dict[str, OraccSign]] = defaultdict(dict)
+    for list_name, number, oracc_sign in db.session.execute(statement):
+        matches[(list_name, number)][oracc_sign.oid] = oracc_sign
 
-    urls: dict[int, str] = {}
+    signs: dict[int, OraccSign] = {}
     for entry in entries:
         oracc_list = entry.sign_list.oracc_list
-        oids = next(
+        found = next(
             (
                 matches[(oracc_list, form)]
                 for form in number_forms(entry.number)
                 if oracc_list is not None and (oracc_list, form) in matches
             ),
-            set(),
+            {},
         )
-        if len(oids) == 1:
-            urls[entry.id] = oracc_page_url(next(iter(oids)))
-    return urls
+        if len(found) == 1:
+            signs[entry.id] = next(iter(found.values()))
+    return signs
 
 
 def signs_named(names: Iterable[str]) -> dict[str, OraccSign]:

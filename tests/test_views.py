@@ -214,7 +214,10 @@ def test_sign_page_links_numbers_and_names_to_the_oracc_sign_list(
     # MesZL 1 is MZL001 of exactly one OSL sign, which is also named AŠ.
     assert '<a href="http://oracc.org/osl/signlist/o0000001">1<span' in html
     assert '<a href="http://oracc.org/osl/signlist/o0000001">AŠ<span' in html
-    assert 'href="https://www.ebl.lmu.de/signs/A%C5%A0"' in html
+    # The name and the number both lead to the eBL page that OSL gives.
+    assert html.count('href="https://www.ebl.lmu.de/signs/A%C5%A0"') == 2
+    assert 'eBL<span class="sr-only"> page for AŠ</span>' in html
+    assert 'eBL<span class="sr-only"> page for MesZL 1</span>' in html
     # LAK 2 is a number of two OSL signs, so it has no link.
     assert "o0000002" not in html
     assert "o0000003" not in html

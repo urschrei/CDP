@@ -36,7 +36,7 @@ from cdpp.models import (
     SignListEntry,
     Tablet,
 )
-from cdpp.oracc import list_number_urls, oracc_page_url, signs_named
+from cdpp.oracc import list_number_signs, oracc_page_url, signs_named
 from cdpp.search import SearchResults, search_records
 
 bp = Blueprint("cdpp", __name__)
@@ -221,7 +221,7 @@ def sign(sign_id: int) -> ResponseReturnValue:
     ).all()
     sign_lists = db.session.scalars(select(SignList).order_by(SignList.position)).all()
     records = sign.cdp_records
-    number_urls = list_number_urls(
+    number_signs = list_number_signs(
         [entry for record in records for entry in record.sign_list_entries]
     )
     oracc_signs = signs_named(
@@ -231,7 +231,7 @@ def sign(sign_id: int) -> ResponseReturnValue:
         [heading for _, heading in CDP_FIELDS]
         + [sign_list.name for sign_list in sign_lists],
         [
-            record_cells(record, sign_lists, number_urls, oracc_signs)
+            record_cells(record, sign_lists, number_signs, oracc_signs)
             for record in records
         ],
     )
@@ -554,7 +554,7 @@ class Cell:
 def record_cells(
     record: Cdp,
     sign_lists: Sequence[SignList],
-    number_urls: Mapping[int, str],
+    number_signs: Mapping[int, OraccSign],
     oracc_signs: Mapping[str, OraccSign],
 ) -> list[Cell]:
     """Return the cells of a CDP record: one for each of CDP_FIELDS, then one
@@ -563,12 +563,7 @@ def record_cells(
     for field, _ in CDP_FIELDS:
         if field == "oracc":
             name = record.name_from("oracc") or ""
-            oracc_sign = oracc_signs.get(name)
-            if oracc_sign is None:
-                cells.append(Cell(name))
-            else:
-                url = oracc_page_url(oracc_sign.oid)
-                cells.append(Cell(name, url, oracc_sign.ebl_url))
+            cells.append(linked_cell(name, oracc_signs.get(name)))
         elif field in NAME_SOURCES:
             cells.append(Cell(record.name_from(field) or ""))
         else:
@@ -579,8 +574,16 @@ def record_cells(
         if entry is None:
             cells.append(Cell(""))
         else:
-            cells.append(Cell(entry.number, number_urls.get(entry.id)))
+            cells.append(linked_cell(entry.number, number_signs.get(entry.id)))
     return cells
+
+
+def linked_cell(text: str, oracc_sign: OraccSign | None) -> Cell:
+    """Return a cell that links to the OSL page of ``oracc_sign``, and to the eBL
+    page that OSL gives for it."""
+    if oracc_sign is None:
+        return Cell(text)
+    return Cell(text, oracc_page_url(oracc_sign.oid), oracc_sign.ebl_url)
 
 
 # Pages show these values when an instance has no surface, column or iteration.

@@ -2,7 +2,7 @@
 
 This document tracks the questions about the database schema and the data that need a decision before the schema can change. The numbers are those of the review of the models. When you make a decision, record it with its date in the section of the question, and update the status table.
 
-Unless a section says otherwise, the findings describe the data in `db_dumps/cdpp.sql` on 13 September 2026, after the restoration of the [values that the 2014 import did not copy](#values-that-the-2014-import-did-not-copy).
+Unless a section says otherwise, the findings describe the data in `db_dumps/cdpp.sql` on 13 September 2026, after the restoration of the [values that the 2014 import did not copy](#values-that-the-2014-import-did-not-copy) and the changes to [rulers, reigns and cities](#rulers-reigns-and-cities).
 
 ## Status
 
@@ -12,10 +12,11 @@ Unless a section says otherwise, the findings describe the data in `db_dumps/cdp
 | [7. Values that contradict each other](#7-values-that-contradict-each-other) | Open |
 | [8. Two records of one fact](#8-two-records-of-one-fact) | Open |
 | [9. Duplicate sign-list entries](#9-duplicate-sign-list-entries) | Partly done; 8 groups open |
-| [10. Lookup tables for plain values](#10-lookup-tables-for-plain-values) | Open |
+| [10. Lookup tables for plain values](#10-lookup-tables-for-plain-values) | Partly done; questions open |
 | [11. Dates stored as text](#11-dates-stored-as-text) | Open |
 | [12. Sign lists and sign names](#12-sign-lists-and-sign-names) | Done; one question open |
 | [Values that the 2014 import did not copy](#values-that-the-2014-import-did-not-copy) | Done; questions open |
+| [Rulers, reigns and cities](#rulers-reigns-and-cities) | Done; questions open |
 | [Links to online sign lists](#links-to-online-sign-lists) | Partly done; questions open |
 
 ## Decisions made
@@ -31,6 +32,8 @@ Unless a section says otherwise, the findings describe the data in `db_dumps/cdp
 - The sign-list numbers of CDP records are in the tables `sign_list` and `sign_list_entry`, and the description, ORACC and CDLI names are in the table `sign_name`. See [question 12](#12-sign-lists-and-sign-names).
 - A snapshot of the Oracc Sign List gives links from sign pages. See [Links to online sign lists](#links-to-online-sign-lists).
 - The sign-list numbers, variant names and form descriptions that the import of August 2014 did not copy are restored from a MySQL dump of May 2013. See [Values that the 2014 import did not copy](#values-that-the-2014-import-did-not-copy).
+- Dynasty B.20 has the reigns of the four kings of Alalakh. The city Alalah is merged into Alalakh. Ruler names have no spaces at the ends. See [Rulers, reigns and cities](#rulers-reigns-and-cities).
+- `surface` holds the surfaces of an object and the parts of a text. Default column, iteration and surface values are for display only: the database does not store them. See [question 10](#10-lookup-tables-for-plain-values).
 
 ## 6. Empty columns and tables
 
@@ -38,7 +41,8 @@ Unless a section says otherwise, the findings describe the data in `db_dumps/cdp
 
 - These `tablet` columns are empty in all 228 rows: `city_site_id`, `to_id`, `language_id`, `dynasty_id`, `sub_locality_id`, `function_id` and `reign_id`.
 - The tables `city_site`, `sub_locality` and `subperiod_dynasty` have no rows.
-- The table `reign` has 587 rows. No tablet refers to a reign, and the application does not read the table.
+- The table `reign` has 591 rows. No tablet refers to a reign, and the application does not read the table.
+- A ruler can have more than one reign. For example, Ashurbanipal has the Assyrian reign `A.0.113` and the Babylonian reign `B.6.32`. The notes that came with `csvs/ruler_name_matching.xlsx` say that the tablets of Esarhaddon and Ashurbanipal belong to the Assyrian reign. Only `tablet.reign_id` can record this.
 - The `cdp` columns `form_name` and `notes` are empty in all 4,776 rows. They are also empty in the MySQL dumps of 2013 and 2014.
 - The `cdp` column `variant_name` has 2 values, and `form_description` has 144. Before the restoration, both were empty.
 - Every sign list has entries. Before the restoration, nine sign lists had none, because the import of 2014 did not copy them.
@@ -47,7 +51,7 @@ Unless a section says otherwise, the findings describe the data in `db_dumps/cdp
 ### Questions
 
 - Will anyone enter data into these columns and tables?
-- Is the reign data needed, for example to show the reign of the ruler of a tablet?
+- Is the reign data needed, for example to show the reign of the ruler of a tablet? Must a tablet refer to a reign, so that it can have the Assyrian reign of Esarhaddon or Ashurbanipal?
 
 ### Options
 
@@ -143,19 +147,38 @@ Open.
 ### Findings
 
 - The tables `column` (22 rows, for example `ii'`), `line` (561 rows, for example `10'`) and `iteration` (15 rows, `1` to `15`) each hold one text value. To show the position of an instance, a page joins five tables.
-- The table `function` holds sign functions: `syllable`, `logogram`, `determinative` and `gloss`. Sign instances use the table. No tablet uses it.
+- The table `function` holds sign functions: `syllable`, `logogram`, `determinative` and `gloss`. 11,072 of the 11,404 sign instances have a function. The other 332 have none in the import spreadsheet either. No tablet uses the table.
 - The table `surface` has 12 values, including the abbreviations `obv`, `rev`, `a`, `be` and `aas`. The pages show the values as they are.
 - `surface` holds parts of the text as well as surfaces of the object: `colophon` (107 instances in the import spreadsheet), `seal` (49) and `catchline` (4). Before the import, three instances on `BM_68332` changed from `rev` to `catchline`.
 - `be` occurs only on `BM_113352`, which also has `obv` and `rev`. It is probably the bottom edge.
 - `a` is the only surface of the instances on three fragments: `BM_40127` and `K_14895` (MSL 16 p. 49), and `W_18202_25` (AUWE 5, 129). It is possibly side A of a fragment whose obverse and reverse are not known.
 - `aas` occurs once, on `K_39`. The data do not show its meaning.
+- 7,719 instances have no column, 10,968 have no iteration and 2,736 have no surface.
+- 81 instances have no line. 49 of them are on seal impressions, on 5 tablets. The other 32 are on `82_5-22_130` (1, no surface), `BM_113352` (7, `be`), `BM_38120` (1, no surface), `BM_38622` (1, `rev`), `BM_68332` (3, `catchline`), `K_12032` (1, `catchline`), `K_14895` (3, `a`), `K_197` (9, `rev`) and `K_39` (6: 4 `rev`, 1 `colophon`, 1 `aas`).
+- Line and column values write the prime as an ASCII apostrophe, for example `10'`: 161 line values and 12 column values. Single-digit line numbers have a zero in front, for example `01` and `01'`, on 200 tablets.
+
+### Notes that came with the instance spreadsheet
+
+The notes of the editor of the instance data say:
+
+- The spreadsheet has separate fields for the surface, the column, the line and the iteration. Not every instance has all of them.
+- `obv`, `rev`, `seal`, `colophon`, `head`, `shaft` and similar values all belong in the surface.
+- `i` can be the default column, and `1` the default iteration. `obv` is the usual default surface when it is not clear whether the preserved surface is the obverse or the reverse.
+- Only seal impressions can have no line, because an incomplete impression does not always show the line of a sign.
+- Brackets, spaces and underscores are removed from the positions. Only the prime remains, and it must be possible to show it and to enter it.
+- Some surface values and line numbers could not be interpreted without the tablets.
+- The sign number field of the instances is not necessary. The instance table has had no such field since 2013.
+- The field `jjt note 2012` is for temporary working notes. It is `instance.jjt_notes`, with 834 values.
 
 ### Questions
 
 - Do column, line and iteration values need records of their own, for example for sorting or for notes?
 - Can a tablet have a function, as the column `tablet.function_id` suggests?
 - What do the surface values `a`, `be` and `aas` mean?
-- Must the parts of the text, such as `colophon`, be separate from the surfaces?
+- What are the lines of the 32 instances that are not on seal impressions?
+- How must pages show a default value, so that a reader does not take it for a recorded value?
+- Must pages show the prime as `′` (U+2032), and must single-digit line numbers keep the zero in front?
+- Are the working notes in `instance.jjt_notes` still needed?
 
 ### Options
 
@@ -164,7 +187,12 @@ Open.
 
 ### Decision
 
-Open.
+13 September 2026:
+
+- `surface` holds the surfaces of an object and the parts of a text, as the notes say.
+- When the source gives no column, iteration or surface, the database stores no value. Pages can show the defaults `i`, `1` and `obv` in place of an empty value. Pages do not show defaults yet.
+
+The other questions are open.
 
 ## 11. Dates stored as text
 
@@ -262,6 +290,37 @@ The migrations changed three things in the data:
 - Did the clean-up of the spreadsheet in 2014 change numbers in the nine sign lists? It did not change the numbers of the other 13 lists. The dump of 2013 is older than the clean-up.
 - Are the 3 rows of the dump without a record deleted on purpose?
 
+## Rulers, reigns and cities
+
+### Findings
+
+- `csvs/ruler_name_matching.xlsx` compares the ruler names of the tablets with the list of rulers, and proposes replacements. The tablets use the proposed names. The database also resolves the names that the spreadsheet marks `WHICH ONE?`, for example Hammu-rapi (Babylon), Ibbi-Sin (Ur) and Nebuchadnezzar II.
+- The spreadsheet gives `uruk` as the comment for Sin-gamil. The tablet `BM_91082` refers to Sin-gamil (Diniktum), `E.4.13.2`. Sin-gamil (Uruk), `E.4.4.3`, has no tablets.
+- The spreadsheet has the tablet ruler `Esarhaddon or Assurbanipal`. In the database, 10 tablets from Nineveh refer to both Esarhaddon and Ashurbanipal, for example `K_696` and `K_788`.
+- The notes that came with the spreadsheet ask for:
+  - Dynasty B.20, in the period Middle Babylonian: the kings of Alalakh. .1 Idrimi, from 1470. .2 Addu-nirari. .3 Niqmepuh, 1450 to 1425. .4 Ilim-ilimma II, from 1420.
+  - RIM references in the form `B.`, not `B`.
+  - The city Amarna, in the new locality Egypt.
+- The dynasty, the four rulers, Amarna and Egypt have been in the database since May 2013. The four reigns were not. All 587 RIM references had the form `B.` or another letter and a full stop.
+- No tablet refers to Amarna or to Egypt.
+- The city Alalah had 6 tablets, the 3 reigns `E.4.34.1` to `E.4.34.3`, and no locality. The city Alalakh, in Syria, had nothing that referred to it.
+- Five ruler names had one space at the end: Abi-eshuh (3 tablets), Ashurnasirpal I, Assur-narari IV, Ilu-shumma and Tikulti-Ninurta II.
+
+### Decision
+
+13 September 2026:
+
+- Migration a3d5f8e1c702 adds the reigns `B.20.1` to `B.20.4` of Idrimi, Addu-nirari, Niqmepuh and Ilim-ilimma II, with the dynasty B.20, the period Middle Babylonian, the city Alalakh and the dates of the notes. They have no sub-period.
+- Migration c9b4e2a7d613 changes the city of the tablets and the reigns of Alalah to Alalakh, removes Alalah, and removes the spaces at the ends of the five ruler names.
+- Both migrations have a downgrade.
+
+### Questions
+
+- Is the ruler of `BM_91082` Sin-gamil of Diniktum or Sin-gamil of Uruk?
+- Which sub-period do the reigns of dynasty B.20 have? The sub-periods of Middle Babylonian are Kassite and Post-Kassite.
+- Where is the data from Amarna?
+- Must the 10 tablets that refer to Esarhaddon and Ashurbanipal refer to one of them? See also [question 6](#6-empty-columns-and-tables).
+
 ## Links to online sign lists
 
 ### Done
@@ -300,9 +359,10 @@ Of the 3,285 ORACC names, 3,135 link to OSL, and 3,024 of those also link to eBL
 
 ### Questions about sources
 
-- **Which list is aBZL?** It was thought to be Borger's *Assyrisch-babylonische Zeichenliste* (ABZ, numbers 1 to 598). The data suggest Mittermayer's *Altbabylonische Zeichenliste*, which OSL calls ABZL (numbers 1 to 480, and 900 to 904). The highest aBZL number in the data is 480. Where our record has an ORACC or sign name, 94 % of the aBZL numbers that OSL has belong to a sign with the same name. OSL has no ABZ numbers. The links use ABZL. Please check against the source of the data. The import spreadsheet and the dumps of 2013 and 2014 also use the heading `aBZL`, without a title.
+- **Which list is aBZL?** It was thought to be Borger's *Assyrisch-babylonische Zeichenliste* (ABZ, numbers 1 to 598). The data suggest Mittermayer's *Altbabylonische Zeichenliste*, which OSL calls ABZL (numbers 1 to 480, and 900 to 904). The highest aBZL number in the data is 480. Where our record has an ORACC or sign name, 94 % of the aBZL numbers that OSL has belong to a sign with the same name. OSL has no ABZ numbers. The spreadsheet `csvs/signs_from_instances.xls` has separate columns for `Borger ABZ` and `aBZL`, so the editors kept the two lists apart. The links use ABZL. Please check against the source of the data.
 - **Are HA and Labat the SLLHA numbering?** Both columns link to SLLHA. OSL defines SLLHA from Deimel's *Šumerisches Lexikon*, Labat's *Manuel d'épigraphie akkadienne* and Ellermeier and Studt's *Handbuch Assur*. Of the numbers that OSL has, 89 % of HA numbers and 85 % of Labat numbers belong to a sign with the same name. This is near the rates of lists whose identity is certain: MesZL 78 %, LAK 85 %, HZL 92 %. In 1,227 of the 1,436 records with both numbers, the HA and the Labat numbers are the same. This decision is provisional. To change it, change `sign_list.oracc_list` for HA or Labat, then run `cdpp dump-data`.
 - **Name agreement understates the match:** the rates above count a match only when the OSL name is the same as our name. Many differences are two names for one sign, for example `1` and `DIŠ`, or `|3(N57).PIRIG~b1|` and `|GIR₃×(LU.IGI)|`. A specialist check of a sample of the differences would give better rates.
+- **Other sign lists:** `csvs/signs_from_instances.xls` also has columns for `Rosengarten` and `LKA`, which the CDP does not have. The columns are empty. The spreadsheet also maps the instance sign names of the first spreadsheets, such as `ca3`, to new names, such as `ŠA3`. The instances in the database use all the new names, with subscript digits.
 - **Unverified sources:** the sign pages of the Hethitologie Portal Mainz (for HZL) and the Ebla Digital Archives (for ELLes) did not respond. They may have pages for entries.
 - **LaBaSi:** LaBaSi has sign pages with MesZL numbers, but its addresses use internal IDs, and it states no licence for its data.
 - **eBL:** would eBL agree to the use of its API, to link numbers that OSL does not have?

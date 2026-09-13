@@ -86,20 +86,6 @@ subperiod_dynasty = Table(
     ),
 )
 
-instance_language = Table(
-    "instance_language",
-    db.metadata,
-    Column(
-        "instance_id", ForeignKey("instance.id", ondelete="CASCADE"), primary_key=True
-    ),
-    Column(
-        "language_id",
-        ForeignKey("language.id", ondelete="CASCADE"),
-        primary_key=True,
-        index=True,
-    ),
-)
-
 
 # Tablet metadata
 
@@ -529,6 +515,7 @@ class Instance(Entity):
     line_id: Mapped[int | None] = reference("line.id")
     function_id: Mapped[int | None] = reference("function.id")
     iteration_id: Mapped[int | None] = reference("iteration.id")
+    language_id: Mapped[int | None] = reference("language.id")
     notes: Mapped[str | None] = mapped_column(String(250))
     jjt_notes: Mapped[str | None] = mapped_column(String(250))
     filename: Mapped[str] = mapped_column(String(50), unique=True)
@@ -540,8 +527,4 @@ class Instance(Entity):
     line: Mapped[Line | None] = relationship()
     function: Mapped[Function | None] = relationship()
     iteration: Mapped[Iteration | None] = relationship()
-    languages: Mapped[list[Language]] = relationship(
-        lazy="raise_on_sql",
-        secondary=instance_language,
-        order_by=Language.name,
-    )
+    language: Mapped[Language | None] = relationship()

@@ -214,3 +214,26 @@ def test_period_and_locality_corrections_can_be_undone_and_done_again(
 
         upgrade()
         assert contradictions() == [0, 0, 0, 0]
+
+
+def test_instance_languages_move_to_a_column_and_back(project_app: Flask) -> None:
+    by_language = text(
+        "SELECT l.name, count(*) FROM instance i "
+        "JOIN language l ON l.id = i.language_id GROUP BY l.name ORDER BY l.name"
+    )
+    expected = [("Akkadian", 8368), ("Sumerian", 2671)]
+
+    with project_app.app_context():
+        assert db.session.execute(by_language).all() == expected
+        assert not inspect(db.engine).has_table("instance_language")
+
+        downgrade(revision="d4e6b1a9c285")
+        association = text("SELECT count(*) FROM instance_language")
+        assert db.session.scalar(association) == 11039
+        columns = {
+            column["name"] for column in inspect(db.engine).get_columns("instance")
+        }
+        assert "language_id" not in columns
+
+        upgrade()
+        assert db.session.execute(by_language).all() == expected

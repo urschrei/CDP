@@ -522,7 +522,7 @@ def tablet_instances(tablet_id: int) -> list[Instance]:
                 joinedload(Instance.line),
                 joinedload(Instance.function),
                 joinedload(Instance.iteration),
-                selectinload(Instance.languages),
+                joinedload(Instance.language),
             )
             .order_by(Sign.sign_ref, Instance.id)
         )
@@ -624,7 +624,7 @@ def instance_row(instance: Instance) -> list[Any]:
             instance.iteration.number if instance.iteration else None,
             DEFAULT_ITERATION,
         ),
-        ", ".join(language.name for language in instance.languages),
+        instance.language.name if instance.language else "",
         instance.jjt_notes or "",
         instance.notes or "",
     ]

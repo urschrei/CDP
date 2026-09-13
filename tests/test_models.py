@@ -9,7 +9,6 @@ from cdpp.models import (
     Cdp,
     Correspondent,
     Entity,
-    Instance,
     NonRulerCorrespondent,
     Ruler,
     Sign,
@@ -77,7 +76,6 @@ def test_correspondent_name_is_the_same_in_python_and_in_sql(app: Flask) -> None
         (Sign, "cdp_records"),
         (Cdp, "sign_list_entries"),
         (Cdp, "names"),
-        (Instance, "languages"),
     ],
     ids=lambda value: value if isinstance(value, str) else value.__name__,
 )

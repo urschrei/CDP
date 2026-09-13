@@ -102,7 +102,7 @@ def sample(app: Flask) -> Sample:
                 surface=Surface(name="obverse"),
                 line=line_1,
                 filename="I_1",
-                languages=[Language(name="Akkadian")],
+                language=Language(name="Akkadian"),
             ),
             Instance(sign=sign, line=line_1, filename="I_2"),
         ],

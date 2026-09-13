@@ -12,6 +12,7 @@
   --font-sign:
     "Gentium Book Plus", "Gentium Book", "Gentium Plus", "Noto Serif", Georgia,
     serif;
+  --font-cuneiform: "Noto Sans Cuneiform", "Segoe UI Historic", sans-serif;
 
   --color-ground: var(--ground);
   --color-ink: var(--ink);

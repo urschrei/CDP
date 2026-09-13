@@ -17,6 +17,7 @@
     "@eslint/js": "10.0.1",
     "@fontsource-variable/atkinson-hyperlegible-next": "5.3.0",
     "@fontsource/gentium-book-plus": "5.3.0",
+    "@fontsource/noto-sans-cuneiform": "5.3.0",
     "@tailwindcss/cli": "4.3.3",
     "esbuild": "0.28.2",
     "eslint": "10.10.0",

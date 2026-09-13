@@ -13,4 +13,6 @@
 @import "@fontsource/gentium-book-plus/latin-700.css";
 @import "@fontsource/gentium-book-plus/latin-ext-700.css";
 @import "@fontsource-variable/atkinson-hyperlegible-next/wght.css";
+/* Only the cuneiform subset. The browser loads it for a page with cuneiform. */
+@import "@fontsource/noto-sans-cuneiform/cuneiform-400.css";
 @import "./build/tailwind.css";

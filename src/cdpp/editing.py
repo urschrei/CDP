@@ -148,6 +148,17 @@ def revert(
     return reverting
 
 
+def last_change_set(table_name: str, record_id: int) -> ChangeSet | None:
+    """Return the newest change set that changed the record, or None."""
+    return db.session.scalars(
+        select(ChangeSet)
+        .join(ChangeSet.changes)
+        .where(Change.table_name == table_name, Change.record_id == record_id)
+        .order_by(ChangeSet.id.desc())
+        .limit(1)
+    ).first()
+
+
 def model_for(table_name: str) -> type[Entity]:
     """Return the model of the table ``table_name``."""
     for mapper in Base.registry.mappers:

@@ -10,10 +10,9 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import joinedload, selectinload
 
 from cdpp.db import db
+from cdpp.editing import last_change_set
 from cdpp.images import image_size
 from cdpp.models import (
-    Change,
-    ChangeSet,
     Correspondent,
     Instance,
     Period,
@@ -269,13 +268,7 @@ def instance(instance_id: int) -> ResponseReturnValue:
         if other.id != instance.id
         and other.tablet.period_id == instance.tablet.period_id
     ][:SAME_PERIOD_LIMIT]
-    change_set = db.session.scalars(
-        select(ChangeSet)
-        .join(ChangeSet.changes)
-        .where(Change.table_name == "instance", Change.record_id == instance.id)
-        .order_by(ChangeSet.id.desc())
-        .limit(1)
-    ).first()
+    change_set = last_change_set("instance", instance.id)
     details = [
         detail
         for detail in tablet_details(instance.tablet)

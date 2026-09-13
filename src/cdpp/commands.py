@@ -48,8 +48,13 @@ def dump_data(path: Path) -> None:
     default=DATA_DUMP,
 )
 @click.option("--replace", is_flag=True, help="Delete the existing tables first.")
+@click.option(
+    "--discard-changes",
+    is_flag=True,
+    help="With --replace, delete change sets that are not in the file.",
+)
 @with_appcontext
-def load_data(path: Path, replace: bool) -> None:
+def load_data(path: Path, replace: bool, discard_changes: bool) -> None:
     """Create the database from an SQL file, apply newer migrations, and make
     the search tables.
 
@@ -61,6 +66,13 @@ def load_data(path: Path, replace: bool) -> None:
         )
     sql = path.read_text(encoding="utf-8")
     with sqlite_connection() as connection:
+        missing = change_set_ids(connection) - dump_change_set_ids(sql)
+        if missing and not discard_changes:
+            raise click.ClickException(
+                f"The database has {len(missing)} change sets that are not in "
+                f"{path}. Write the database to a dump or a backup first. To "
+                "replace the database and lose them, add --discard-changes."
+            )
         connection.execute("PRAGMA foreign_keys = OFF")
         # A search table owns other tables, so remove the search tables first.
         drop_tables(connection)
@@ -83,6 +95,23 @@ def load_data(path: Path, replace: bool) -> None:
     click.echo(f"Indexed {signs} signs and {tablets} tablets.")
 
 
+@click.command("backup")
+@click.argument("path", type=click.Path(dir_okay=False, path_type=Path))
+@with_appcontext
+def backup(path: Path) -> None:
+    """Write a copy of the database to PATH, which must not exist.
+
+    The command can run while the application runs. The database is the only
+    record of the edits after the last dump, so keep the copies on another
+    computer.
+    """
+    if path.exists():
+        raise click.ClickException(f"{path} exists. Give the path of a new file.")
+    with sqlite_connection() as connection:
+        connection.execute("VACUUM INTO ?", (str(path),))
+    click.echo(f"Wrote a copy of the database to {path}.")
+
+
 @click.command("import-oracc-signs")
 @click.argument("source", default=OSL_URL)
 @with_appcontext
@@ -102,6 +131,25 @@ def reindex() -> None:
     """Make the search tables again from the database."""
     signs, tablets = rebuild()
     click.echo(f"Indexed {signs} signs and {tablets} tablets.")
+
+
+def change_set_ids(connection: sqlite3.Connection) -> set[int]:
+    """Return the IDs of the change sets in a database, if it has the table."""
+    has_table = connection.execute(
+        "SELECT 1 FROM sqlite_schema WHERE type = 'table' AND name = 'change_set'"
+    ).fetchone()
+    if has_table is None:
+        return set()
+    return {row[0] for row in connection.execute("SELECT id FROM change_set")}
+
+
+def dump_change_set_ids(sql: str) -> set[int]:
+    """Return the IDs of the change sets in an SQL dump."""
+    if 'INSERT INTO "change_set"' not in sql:
+        return set()
+    with closing(sqlite3.connect(":memory:")) as dump:
+        dump.executescript(sql)
+        return change_set_ids(dump)
 
 
 @contextmanager

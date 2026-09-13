@@ -1,3 +1,6 @@
+import sqlite3
+from contextlib import closing
+from datetime import datetime
 from pathlib import Path
 
 import pytest
@@ -8,7 +11,16 @@ from sqlalchemy import Select, func, inspect, select, text
 
 from cdpp import create_app
 from cdpp.db import db
-from cdpp.models import Cdp, Medium, Period, SignList, SignListEntry, SignName, Tablet
+from cdpp.models import (
+    Cdp,
+    ChangeSet,
+    Medium,
+    Period,
+    SignList,
+    SignListEntry,
+    SignName,
+    Tablet,
+)
 from cdpp.search import rebuild
 
 PROJECT_DUMP = Path(__file__).parents[1] / "db_dumps" / "cdpp.sql"
@@ -81,6 +93,46 @@ def test_dump_data_leaves_out_the_search_tables(tmp_path: Path) -> None:
 
     assert result.exit_code == 0, result.output
     assert "search_" not in dump.read_text(encoding="utf-8")
+
+
+def test_backup_writes_a_copy_and_refuses_an_existing_file(
+    tmp_path: Path, dump_file: Path
+) -> None:
+    source = file_app(tmp_path / "source.sqlite3")
+    copy = tmp_path / "copy.sqlite3"
+    runner = source.test_cli_runner()
+
+    first = runner.invoke(args=["backup", str(copy)])
+    second = runner.invoke(args=["backup", str(copy)])
+
+    assert first.exit_code == 0, first.output
+    with closing(sqlite3.connect(copy)) as connection:
+        tablets = connection.execute("SELECT museum_number FROM tablet").fetchall()
+    assert tablets == [("A.1",)]
+    assert second.exit_code != 0
+    assert "exists" in second.output
+
+
+def test_load_data_keeps_change_sets_that_are_not_in_the_dump(
+    tmp_path: Path, dump_file: Path
+) -> None:
+    target = file_app(tmp_path / "target.sqlite3")
+    runner = target.test_cli_runner()
+    assert runner.invoke(args=["load-data", str(dump_file)]).exit_code == 0
+    with target.app_context():
+        db.session.add(ChangeSet(author="JJT", created_at=datetime(2026, 9, 14)))
+        db.session.commit()
+
+    refused = runner.invoke(args=["load-data", "--replace", str(dump_file)])
+    discarded = runner.invoke(
+        args=["load-data", "--replace", "--discard-changes", str(dump_file)]
+    )
+
+    assert refused.exit_code != 0
+    assert "1 change sets that are not in" in refused.output
+    assert discarded.exit_code == 0, discarded.output
+    with target.app_context():
+        assert count(select(ChangeSet)) == 0
 
 
 def test_load_data_replaces_tables_only_with_the_option(

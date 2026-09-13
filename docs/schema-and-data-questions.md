@@ -417,6 +417,8 @@ If a tablet has matches of more than one kind, only the matches of the kind high
 - An Oracc text matches a tablet if its museum number, its accession number or an exemplar of a composite text has the key of the tablet. 110 tablets match 111 texts: 27 SAAo texts, 17 RIAo composite texts for 16 tablets, and 67 DCCLT texts. No RINAP or RIBo text matches. VAT_9653 is an exemplar of two RIAo texts, Adad-narari I 01 and 02.
 - The archive of a project contains the editions of the project, but not the editions of its subprojects, such as `saao/saa08` and `dcclt/nineveh`. The page of a text of the project is empty if the project has no edition of it. Thus 6 DCCLT texts without an edition have no link. On 14 September 2026, the Oracc pages of all linked texts had content.
 - The Oracc match does not use the CDLI P-numbers. For K_5422_a, CDLI gives P345979, but the Oracc catalogue gives P345979 the accession number `K 05422B`, and its Oracc page is empty.
+- Tablet pages show the publication in one form, as in `SAA 8, no. 70`, `MSL 14, p. 19, Bk` and `RIME 4, no. E4.3.6.12`, and link its series to the tablet list. The tablet list has a series filter. A parser finds the series, the volume, the year, the page, the text number and the siglum of a publication. The database keeps the original text.
+- The parser finds a series for 184 of the 185 tablets with a publication, in 22 series. The other tablet has `unpublished`. Parts that the parser does not identify stay as text, as in `Roth (1997) MAPD source A` and `MSL 14, p. 19: Bo, 20: Co`.
 
 ### Findings
 
@@ -454,4 +456,5 @@ The catalogues in the Oracc JSON archives are released under CC0. The snapshot k
 ### Questions
 
 - Must the data take the CDLI publications of the tablets that have no publication? See [question 26](questions-for-the-editors.md#26-which-publication-does-each-of-these-tablets-have).
-- Must the publications in the data have one form? A form with a series, a volume, a text or page number and a siglum would let the tablet list filter by series.
+- Is the form of the citations correct? It uses `no.` for a text number and `p.` or `pp.` for pages, as in `UF 10 (1978), p. 124, no. 5`. RIMA numbers without a volume, as in `RIMA, no. A.0.76.1`, have no volume in the citation.
+- Must the database store the parts of a publication? At present, the series filter parses the publications of all tablets for each request.

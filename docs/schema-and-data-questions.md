@@ -2,22 +2,24 @@
 
 This document tracks the questions about the database schema and the data that need a decision before the schema can change. The numbers are those of the review of the models. When you make a decision, record it with its date in the section of the question, and update the status table.
 
-Unless a section says otherwise, the findings describe the data in `db_dumps/cdpp.sql` on 13 September 2026, after the restoration of the [values that the 2014 import did not copy](#values-that-the-2014-import-did-not-copy) and the changes to [rulers, reigns and cities](#rulers-reigns-and-cities).
+Unless a section says otherwise, the findings describe the data in `db_dumps/cdpp.sql` on 13 September 2026, after the changes that the sections record.
 
 ## Status
 
-| Question | Status |
-| --- | --- |
-| [6. Empty columns and tables](#6-empty-columns-and-tables) | Open |
-| [7. Values that contradict each other](#7-values-that-contradict-each-other) | Open |
-| [8. Two records of one fact](#8-two-records-of-one-fact) | Open |
-| [9. Duplicate sign-list entries](#9-duplicate-sign-list-entries) | Partly done; 8 groups open |
-| [10. Lookup tables for plain values](#10-lookup-tables-for-plain-values) | Partly done; questions open |
-| [11. Dates stored as text](#11-dates-stored-as-text) | Open |
-| [12. Sign lists and sign names](#12-sign-lists-and-sign-names) | Done; one question open |
-| [Values that the 2014 import did not copy](#values-that-the-2014-import-did-not-copy) | Done; questions open |
-| [Rulers, reigns and cities](#rulers-reigns-and-cities) | Done; questions open |
-| [Links to online sign lists](#links-to-online-sign-lists) | Partly done; questions open |
+The rank orders the open questions by importance. Questions whose answers change the data, the links or the positions that pages show come first, and questions about the schema come after them. Rank 1 is the most important.
+
+| Rank | Question | Status |
+| --- | --- | --- |
+| 1 | [Values that the 2014 import did not copy](#values-that-the-2014-import-did-not-copy) | Done; questions open |
+| 2 | [9. Duplicate sign-list entries](#9-duplicate-sign-list-entries) | Partly done; 8 groups open |
+| 3 | [Links to online sign lists](#links-to-online-sign-lists) | Partly done; questions open |
+| 4 | [10. Lookup tables for plain values](#10-lookup-tables-for-plain-values) | Partly done; questions open |
+| 5 | [8. Two records of one fact](#8-two-records-of-one-fact) | Open |
+| 6 | [Rulers, reigns and cities](#rulers-reigns-and-cities) | Done; questions open |
+| 7 | [7. Values that contradict each other](#7-values-that-contradict-each-other) | Done; one question open |
+| 8 | [11. Dates stored as text](#11-dates-stored-as-text) | Partly done; questions open |
+| 9 | [6. Empty columns and tables](#6-empty-columns-and-tables) | Open |
+| 10 | [12. Sign lists and sign names](#12-sign-lists-and-sign-names) | Done; one question open |
 
 ## Decisions made
 
@@ -34,6 +36,8 @@ Unless a section says otherwise, the findings describe the data in `db_dumps/cdp
 - The sign-list numbers, variant names and form descriptions that the import of August 2014 did not copy are restored from a MySQL dump of May 2013. See [Values that the 2014 import did not copy](#values-that-the-2014-import-did-not-copy).
 - Dynasty B.20 has the reigns of the four kings of Alalakh. The city Alalah is merged into Alalakh. Ruler names have no spaces at the ends. See [Rulers, reigns and cities](#rulers-reigns-and-cities).
 - `surface` holds the surfaces of an object and the parts of a text. Default column, iteration and surface values are for display only: the database does not store them. See [question 10](#10-lookup-tables-for-plain-values).
+- The sub-periods Sargonid, ED I, ED IIIa and ED IIIb, and the tablet `Wx17`, have their correct periods. The period ED is removed, because it is the same period as Early Dynastic. Two tablets have the locality of their city. See [question 7](#7-values-that-contradict-each-other).
+- Tables of instances show defaults in italics. Pages show primes as `′`, and line and column numbers without zeros in front. See [question 10](#10-lookup-tables-for-plain-values).
 
 ## 6. Empty columns and tables
 
@@ -66,15 +70,17 @@ Open.
 
 ### Findings
 
-- The sub-period of 39 tablets belongs to a different period from the period of the tablet.
-- One tablet has an eponym that is different from the eponym of its year.
-- Two tablets have a city with a locality, but no locality of their own.
+- Before the correction, 39 tablets had a sub-period that belonged to a different period from the period of the tablet:
+  - 38 Neo-Assyrian tablets from Nineveh had the sub-period Sargonid, whose period was Late Third Millennium. The 8 reigns in Sargonid, from Sargon II (`A.0.110`) to Assur-uballit (`A.0.117`), have the period Neo-Assyrian. The period of the sub-period was wrong.
+  - `Wx17` had the period Late Babylonian and the sub-period Chaldean. Its year is 581 BC, and its ruler is Nebuchadnezzar II, whose reign `B.7.2` is Neo-Babylonian. The table `period` dates Late Babylonian from 540 BC. The period of the tablet was wrong.
+- Before the correction, 42 reigns had the period Early Dynastic and one of the sub-periods ED I, ED IIIa and ED IIIb, whose period was ED. No tablet referred to ED or to Early Dynastic.
+- Before the correction, `K_12032` (Nineveh) and `BM_91071` (Sippar) had a city with a locality, but no locality of their own. No tablet has a locality that is different from the locality of its city.
+- Five tablets have a year with an eponym and a different eponym, or no eponym, of their own. Four have no eponym of their own, and the tablet page shows the eponym of the year. `83-1-18_287` has the eponym Labasi, but its year, 658 BC, has the eponym Sha-Nabu-shu.
 
 ### Questions
 
-- For the 39 tablets, which value is correct: the period or the sub-period?
-- Is the locality of a tablet always the locality of its city?
-- Is the eponym of a tablet always the eponym of its year?
+- For `83-1-18_287`, which is correct: the year 658 BC or the eponym Labasi?
+- For new data: must the period of a tablet always be the period of its sub-period, and its locality the locality of its city?
 
 ### Options
 
@@ -83,7 +89,14 @@ Open.
 
 ### Decision
 
-Open.
+13 September 2026: migration d4e6b1a9c285 corrects the data. Its downgrade restores the former values.
+
+- The sub-period Sargonid has the period Neo-Assyrian.
+- The sub-periods ED I, ED IIIa and ED IIIb have the period Early Dynastic, and the period ED is removed.
+- `Wx17` has the period Neo-Babylonian.
+- `K_12032` and `BM_91071` have the locality of their city.
+
+After the correction, no tablet or reign has a sub-period of a different period, and no tablet has a city with a locality but no locality of its own. The eponym of `83-1-18_287`, and the choice between the options, are open.
 
 ## 8. Two records of one fact
 
@@ -155,7 +168,8 @@ Open.
 - `aas` occurs once, on `K_39`. The data do not show its meaning.
 - 7,719 instances have no column, 10,968 have no iteration and 2,736 have no surface.
 - 81 instances have no line. 49 of them are on seal impressions, on 5 tablets. The other 32 are on `82_5-22_130` (1, no surface), `BM_113352` (7, `be`), `BM_38120` (1, no surface), `BM_38622` (1, `rev`), `BM_68332` (3, `catchline`), `K_12032` (1, `catchline`), `K_14895` (3, `a`), `K_197` (9, `rev`) and `K_39` (6: 4 `rev`, 1 `colophon`, 1 `aas`).
-- Line and column values write the prime as an ASCII apostrophe, for example `10'`: 161 line values and 12 column values. Single-digit line numbers have a zero in front, for example `01` and `01'`, on 200 tablets.
+- Line and column values write the prime as an ASCII apostrophe, for example `10'`: 161 line values and 12 column values.
+- Single-digit line numbers have a zero in front, for example `01` and `01'`, on 200 tablets. The import spreadsheet added 4,366 of these zeros. In the spreadsheet of the editor, only 1,000 values had a zero, all of the form `01'` to `09'`. No line number is `0` or `0'`.
 
 ### Notes that came with the instance spreadsheet
 
@@ -176,8 +190,6 @@ The notes of the editor of the instance data say:
 - Can a tablet have a function, as the column `tablet.function_id` suggests?
 - What do the surface values `a`, `be` and `aas` mean?
 - What are the lines of the 32 instances that are not on seal impressions?
-- How must pages show a default value, so that a reader does not take it for a recorded value?
-- Must pages show the prime as `′` (U+2032), and must single-digit line numbers keep the zero in front?
 - Are the working notes in `instance.jjt_notes` still needed?
 
 ### Options
@@ -190,7 +202,10 @@ The notes of the editor of the instance data say:
 13 September 2026:
 
 - `surface` holds the surfaces of an object and the parts of a text, as the notes say.
-- When the source gives no column, iteration or surface, the database stores no value. Pages can show the defaults `i`, `1` and `obv` in place of an empty value. Pages do not show defaults yet.
+- When the source gives no column, iteration or surface, the database stores no value.
+- The table of instances on a tablet page shows the default `obv`, `i` or `1` in place of an empty surface, column or iteration. A default is in italics, and screen readers read "(default)" after it. A note above the table explains the italics. The table does not show a column whose values are all defaults.
+- The position under a photograph, for example "Rev, column iii, line 6′", contains only recorded values.
+- Pages show each apostrophe in a line or column number as a prime (`′`, U+2032), and remove the zeros in front of a number, for example `1′` for `01'`. The database keeps the values as they are, so data entry can use the apostrophe.
 
 The other questions are open.
 
@@ -199,15 +214,14 @@ The other questions are open.
 ### Findings
 
 - `year.year` holds values such as `1244 BC`. `period.from_date` and `period.to_date` hold values such as `1800 BC`. Text values do not sort or compare as dates.
-- The periods Archaic, ED, Late Third Millennium and Early Dynastic all have the dates `5000 BC` to `5000 BC`.
-- There is a period named `ED` and a period named `Early Dynastic`.
+- The periods Archaic, Late Third Millennium and Early Dynastic all have the dates `5000 BC` to `5000 BC`.
+- Until the correction of [question 7](#7-values-that-contradict-each-other), there was also a period named `ED`, with the same dates. The reigns in its sub-periods had the period Early Dynastic.
 - Tablets and reigns refer to 320 of the 2,600 rows in `year`.
 - The ancient date columns of `tablet` hold values such as `1Bb`, which are not numbers.
 
 ### Questions
 
 - Are the `5000 BC` dates placeholders for unknown dates?
-- Are `ED` and `Early Dynastic` the same period?
 - Are the 2,280 years that nothing refers to needed?
 
 ### Options
@@ -217,7 +231,7 @@ The other questions are open.
 
 ### Decision
 
-Open.
+13 September 2026: `ED` and `Early Dynastic` are one period. See [question 7](#7-values-that-contradict-each-other). The other questions are open.
 
 ## 12. Sign lists and sign names
 
@@ -348,7 +362,7 @@ Of the 3,285 ORACC names, 3,135 link to OSL, and 3,024 of those also link to eBL
 
 ### Not done
 
-- **Several matches:** a number that more than one OSL sign or form has gets no link. Often this is a sign and one of its forms. The snapshot could record the sign of each form, and the page could then link to the sign.
+- **Several matches:** a number that more than one OSL sign or form has gets no link. For only 55 of the 590 entries with several matches are all the matches one OSL sign and its forms. The matches of the other 535 entries are different signs. A link to the sign of the forms would add 55 links at most, so it is not done.
 - **Forms that OSL does not use:** numbers such as `172?`, `556_8`, `10+127` and `439, 465` have no link.
 - **ZATU and REC:** OSL records only 17 ZATU numbers and 16 REC numbers. No other online source with a page for each entry was found. The CDLI list of proto-cuneiform signs on GitHub has an image for each sign name, under CC BY, but no page to link to. LAK and REC are available only as scans of the whole book on archive.org.
 - **Emar and Hinke:** no online source was found.

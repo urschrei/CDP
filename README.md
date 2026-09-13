@@ -149,6 +149,23 @@ The links from tablet pages to CDLI and to Oracc editions use snapshots in the d
    uv run cdpp dump-data
    ```
 
+### Downloading photographs with their records
+
+A downloaded photograph contains the records of its instance, its sign and its tablet in its metadata. [Photograph metadata](#photograph-metadata) lists the values.
+
+To download one photograph:
+
+1. Open the page of the instance.
+2. Under the photograph, select **Download with its record**.
+
+To write all the photographs with their records to a directory:
+
+```sh
+uv run cdpp export-photographs DIRECTORY
+```
+
+The command writes a PNG file for each instance that has a photograph file, with the name of that file. The page addresses in the metadata start with `https://cdpp.fly.dev`. For the addresses of another site, add `--site-url URL`. The command refuses to write to the directory of the photographs.
+
 ### Changing the schema
 
 1. Change the models in `src/cdpp/models.py`.
@@ -247,6 +264,7 @@ Run each command as `uv run cdpp COMMAND`. `cdpp` is the Flask command-line inte
 | `import-cdli [SOURCE]` | Replace the snapshot of the CDLI catalogue entries of the tablets. `SOURCE` is a path or a URL of the CDLI catalogue in CSV, and defaults to the file in the CDLI data repository. |
 | `import-oracc-texts [SOURCE ...]` | Replace the snapshot of the Oracc texts of the tablets. Each `SOURCE` is a path or a URL of an Oracc JSON archive. The defaults are the archives of SAAo, RIAo, RINAP, RIBo and DCCLT. |
 | `check-cdli [PATH]` | Write the tablets whose period, city, object type, medium or language does not agree with their CDLI entries into the sections of `PATH`. `PATH` defaults to `docs/questions-for-the-editors.md`. |
+| `export-photographs DIRECTORY [--site-url URL]` | Write the photograph of each instance, with its record in the metadata, to `DIRECTORY`. `URL` is the address of the site in the page addresses of the metadata, and defaults to `https://cdpp.fly.dev`. |
 | `db upgrade` | Apply the database migrations. |
 | `db migrate -m MESSAGE` | Generate a migration from changes to the models. |
 | `reindex` | Make the search tables again from the database. |
@@ -292,6 +310,37 @@ The paginated pages take a `page` parameter.
 Each filter selects the tablets with a related record of the given name, for example `/tablets?period=Old%20Babylonian&medium=clay`. `language` selects the tablets with a sign instance in the given language. `series` selects the tablets whose publication is in the given series, for example `/tablets?series=SAA`.
 
 `city`, `eponym`, `function`, `genre`, `language`, `locality`, `medium`, `method`, `period`, `ruler`, `script_type`, `sent_from`, `sent_to`, `series`, `sub_period`, `text_vehicle`, `year`
+
+### Photograph metadata
+
+A downloaded photograph, and each file that `cdpp export-photographs` writes, contains an XMP packet in an `iTXt` chunk and EXIF data in an `eXIf` chunk. The file does not contain a property without a value. The properties with the prefix `cdp` are in the namespace `https://github.com/urschrei/CDP/ns/1.0/`. A property that is a list is an `rdf:Bag`.
+
+| XMP property | Value |
+| --- | --- |
+| `dc:title` | `Instance of SIGN on MUSEUM_NUMBER`, as on the instance page. |
+| `dc:description` | The sign, the tablet and the position of the instance. |
+| `dc:identifier` | The address of the instance page. |
+| `dc:source` | The museum number of the tablet. |
+| `dc:format` | `image/png`. |
+| `dc:creator`, `photoshop:Credit` | `CDP Project`. |
+| `dc:subject` | The name of the sign, and its names in the sign lists. |
+| `dc:language` | The ISO 639 code of the language of the instance: `akk`, `elx`, `hit`, `sux` or `xhu`. |
+| `Iptc4xmpExt:ArtworkOrObject` | The tablet. `AOTitle` and `AOSourceInvNo` are its museum number, and `AOCircaDateCreated` is its period, sub-period and year. |
+| `cdp:instanceId`, `cdp:instancePage`, `cdp:filename` | The ID and the page address of the instance, and the name of its photograph file. |
+| `cdp:sign`, `cdp:signNames`, `cdp:signListEntries` | The name of the sign, a list of its names in the sign lists, and a list of its sign-list numbers, as in `MesZL 748`. |
+| `cdp:position` | The position as the instance page describes it, as in `Obv, line 1`. |
+| `cdp:surface`, `cdp:column`, `cdp:line`, `cdp:iteration` | The position values as the data write them, as in `ii'` and `03'`. |
+| `cdp:function`, `cdp:language`, `cdp:notes`, `cdp:jjtNotes` | The function, the language, the notes and the JJT notes of the instance. |
+| `cdp:lastChangeSet`, `cdp:lastChanged` | The ID of the last change set that changed the instance, and its time in UTC. |
+| `cdp:tabletId`, `cdp:tabletPage`, `cdp:museumNumber` | The ID, the page address and the museum number of the tablet. |
+| Other `cdp` properties of the tablet | Each detail that the tablet page shows, with a name from its label, as in `cdp:subPeriod` for **Sub-period**. `cdp:rulers`, `cdp:sentTo` and `cdp:languages` are lists. `cdp:tabletFunction` and `cdp:tabletNotes` are the function and the notes of the tablet. |
+| `cdp:cdliEntries`, `cdp:oraccTexts` | Lists of the addresses of the CDLI catalogue entries and the Oracc editions of the tablet. |
+
+| EXIF tag | Value |
+| --- | --- |
+| `ImageDescription` | The instance ID, the museum number and the address of the instance page. EXIF text is ASCII, so this tag does not contain the sign name. |
+| `Artist` | `CDP Project`. |
+| `UserComment` | The text of `dc:description`, in UTF-16. |
 
 ### Project layout
 
@@ -360,6 +409,8 @@ A sign page, the list of signs and the search results show a sign in Unicode cun
 ### Photographs, instance pages and comparisons
 
 The photographs are PNG images. The original files were GIF and JPEG images with the extension `.jpg`. `utils/convert_photographs.py` converted them in September 2026: each GIF image became an 8-bit PNG image with the same palette, pixel values and transparent colour, and each JPEG image became a 24-bit PNG image with its decoded pixels. `media/photograph-conversion.csv` records the size and the SHA-256 of each original file and each PNG file, and the version history keeps the original files. On Fly.io, the file server of the machine sends the photographs without cache headers. An instance page and a comparison read the width and the height from the header of the file, and set the size of the enlarged image from them.
+
+The files in `media/instance` do not contain the records. An editor changes an instance on the site, and migrations and catalogue imports change tablets, but the file server of Fly.io sends the files that are in the image. Thus the application adds the metadata when it sends a download: it reads the records, and puts the `eXIf` and `iTXt` chunks before the image data of the file, without decoding the image. The ETag of a download is the SHA-256 of the file, so it changes when the records change.
 
 On an instance page, the instances of the same sign are in the order of the period, from the first year of the period, then of the museum number, then of the position. The order of positions is the surface (obverse, reverse, then the other surfaces), the column as a Roman numeral, and the line. An instance without a surface or a column sorts with the default, obverse and column i.
 

@@ -3,20 +3,28 @@
 import hashlib
 import io
 import re
+from pathlib import Path
 
-from flask import Blueprint, abort, send_file, url_for
+import click
+from flask import Blueprint, abort, current_app, send_file, url_for
+from flask.cli import with_appcontext
 from flask.typing import ResponseReturnValue
+from sqlalchemy import select
 
+from cdpp.db import db
 from cdpp.models import Instance
 from cdpp.photograph_metadata import (
+    INSTANCE_OPTIONS,
     load_instance,
     photograph_record,
     photograph_with_metadata,
 )
-from cdpp.views import photograph_path
+from cdpp.views import count_noun, media_root, photograph_path
 
 bp = Blueprint("downloads", __name__)
 
+# The address of the site on Fly.io.
+SITE_URL = "https://cdpp.fly.dev"
 # Spaces, and characters that some file systems do not allow in file names.
 FILE_NAME_UNSAFE_RE = re.compile(r'[\\/:*?"<>|\s]+')
 
@@ -59,3 +67,40 @@ def photograph(instance_id: int) -> ResponseReturnValue:
     )
     response.cache_control.no_cache = True
     return response
+
+
+@click.command("export-photographs")
+@click.argument("directory", type=click.Path(file_okay=False, path_type=Path))
+@click.option(
+    "--site-url",
+    default=SITE_URL,
+    show_default=True,
+    help="Address of the site, for the page addresses in the metadata.",
+)
+@with_appcontext
+def export_photographs(directory: Path, site_url: str) -> None:
+    """Write the photograph of each instance, with its record, to DIRECTORY.
+
+    Each file has the name of the photograph file of the instance.
+    """
+    if directory.resolve() == media_root().resolve():
+        raise click.UsageError(
+            "DIRECTORY is the directory of the photographs. "
+            "Its files must not contain the records."
+        )
+    directory.mkdir(parents=True, exist_ok=True)
+    written = missing = 0
+    instances = db.session.scalars(
+        select(Instance).options(*INSTANCE_OPTIONS).order_by(Instance.id)
+    )
+    # The page addresses in the metadata need a request context.
+    with current_app.test_request_context(base_url=site_url):
+        for instance in instances:
+            data = tagged_photograph(instance)
+            if data is None:
+                missing += 1
+                continue
+            (directory / f"{instance.filename}.png").write_bytes(data)
+            written += 1
+    click.echo(f"Wrote {count_noun(written, 'photograph')} to {directory}.")
+    click.echo(f"Instances without a photograph file: {missing}.")

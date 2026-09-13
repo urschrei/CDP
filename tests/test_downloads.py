@@ -105,3 +105,38 @@ def test_download_names_omit_characters_that_file_systems_refuse() -> None:
     )
 
     assert download_name(instance) == "UET_6-3_378_NINDA₂×GUD_7.png"
+
+
+def test_export_writes_the_photographs_with_their_records(
+    app: Flask, sample: Sample, tmp_path: Path
+) -> None:
+    original = write_photograph(app, "I_1")
+    target = tmp_path / "export"
+
+    result = app.test_cli_runner().invoke(
+        args=["export-photographs", str(target), "--site-url", "https://cdpp.example"]
+    )
+
+    assert result.exit_code == 0, result.output
+    assert result.output.splitlines() == [
+        f"Wrote 1 photograph to {target}.",
+        "Instances without a photograph file: 1.",
+    ]
+    assert [path.name for path in target.iterdir()] == ["I_1.png"]
+    data = (target / "I_1.png").read_bytes()
+    assert pixels(data) == pixels(original)
+    page = f"https://cdpp.example/instances/{instance_id('I_1')}"
+    assert f"<dc:identifier>{page}</dc:identifier>" in xmp(data)
+
+
+def test_export_refuses_the_directory_of_the_photographs(
+    app: Flask, sample: Sample
+) -> None:
+    original = write_photograph(app, "I_1")
+    photographs = Path(app.config["MEDIA_ROOT"]) / "instance"
+
+    result = app.test_cli_runner().invoke(args=["export-photographs", str(photographs)])
+
+    assert result.exit_code != 0
+    assert "DIRECTORY is the directory of the photographs" in result.output
+    assert (photographs / "I_1.png").read_bytes() == original

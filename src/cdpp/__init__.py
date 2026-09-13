@@ -60,6 +60,7 @@ def create_app(config: Mapping[str, Any] | None = None) -> Flask:
         import_oracc_texts,
         check_cdli,
         reindex,
+        downloads.export_photographs,
     )
     for command in commands:
         app.cli.add_command(command)

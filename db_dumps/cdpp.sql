@@ -4,7 +4,7 @@ CREATE TABLE alembic_version (
 	version_num VARCHAR(32) NOT NULL, 
 	CONSTRAINT alembic_version_pkc PRIMARY KEY (version_num)
 );
-INSERT INTO "alembic_version" VALUES('f7a1c3e5b920');
+INSERT INTO "alembic_version" VALUES('a9d2e4f6b813');
 CREATE TABLE author (
 	name VARCHAR(75) NOT NULL, 
 	id INTEGER NOT NULL, 
@@ -4798,6 +4798,28 @@ INSERT INTO "cdp" VALUES(31600,NULL,NULL,NULL,NULL,4773);
 INSERT INTO "cdp" VALUES(31601,NULL,NULL,NULL,NULL,4774);
 INSERT INTO "cdp" VALUES(31602,NULL,NULL,NULL,NULL,4775);
 INSERT INTO "cdp" VALUES(31603,NULL,NULL,NULL,NULL,4776);
+CREATE TABLE change (
+	change_set_id INTEGER NOT NULL, 
+	kind VARCHAR(10) NOT NULL, 
+	table_name VARCHAR(50) NOT NULL, 
+	record_id INTEGER NOT NULL, 
+	field VARCHAR(50) NOT NULL, 
+	old_value JSON NOT NULL, 
+	new_value JSON NOT NULL, 
+	id INTEGER NOT NULL, 
+	CONSTRAINT pk_change PRIMARY KEY (id), 
+	CONSTRAINT ck_change_kind CHECK (kind IN ('insert', 'update')), 
+	CONSTRAINT fk_change_change_set_id_change_set FOREIGN KEY(change_set_id) REFERENCES change_set (id)
+);
+CREATE TABLE change_set (
+	author VARCHAR(100) NOT NULL, 
+	created_at DATETIME NOT NULL, 
+	comment VARCHAR(500), 
+	reverts_id INTEGER, 
+	id INTEGER NOT NULL, 
+	CONSTRAINT pk_change_set PRIMARY KEY (id), 
+	CONSTRAINT fk_change_set_reverts_id_change_set FOREIGN KEY(reverts_id) REFERENCES change_set (id)
+);
 CREATE TABLE city (
 	name VARCHAR(100) NOT NULL, 
 	locality_id INTEGER, 
@@ -71399,4 +71421,11 @@ CREATE INDEX ix_instance_tablet_id ON instance (tablet_id);
 CREATE INDEX ix_instance_function_id ON instance (function_id);
 CREATE INDEX ix_instance_sign_id ON instance (sign_id);
 CREATE INDEX ix_instance_language_id ON instance (language_id);
+CREATE INDEX ix_change_set_reverts_id ON change_set (reverts_id);
+CREATE INDEX ix_change_change_set_id ON change (change_set_id);
+CREATE INDEX ix_change_table_name_record_id ON change (table_name, record_id);
+CREATE TRIGGER change_set_no_update BEFORE UPDATE ON change_set BEGIN SELECT RAISE(ABORT, 'change_set rows cannot be changed or deleted'); END;
+CREATE TRIGGER change_set_no_delete BEFORE DELETE ON change_set BEGIN SELECT RAISE(ABORT, 'change_set rows cannot be changed or deleted'); END;
+CREATE TRIGGER change_no_update BEFORE UPDATE ON change BEGIN SELECT RAISE(ABORT, 'change rows cannot be changed or deleted'); END;
+CREATE TRIGGER change_no_delete BEFORE DELETE ON change BEGIN SELECT RAISE(ABORT, 'change rows cannot be changed or deleted'); END;
 COMMIT;

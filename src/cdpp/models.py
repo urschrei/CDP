@@ -10,6 +10,7 @@ from sqlalchemy import (
     Column,
     ColumnElement,
     ForeignKey,
+    Index,
     String,
     Table,
     UniqueConstraint,
@@ -404,6 +405,9 @@ class SignList(Entity):
     name: Mapped[str] = mapped_column(String(50), unique=True)
     # The order of the sign lists in tables.
     position: Mapped[int] = mapped_column(unique=True)
+    # The abbreviation of the list in the Oracc Sign List, as in MZL, if the
+    # Oracc Sign List records numbers of the list.
+    oracc_list: Mapped[str | None] = mapped_column(String(20))
 
 
 class Cdp(Entity):
@@ -448,6 +452,41 @@ class SignListEntry(Entity):
 
     cdp: Mapped[Cdp] = relationship(back_populates="sign_list_entries")
     sign_list: Mapped[SignList] = relationship()
+
+
+# A snapshot of the Oracc Sign List (OSL). See cdpp.oracc.
+
+
+class OraccSign(Entity):
+    """A sign or a sign form in the Oracc Sign List."""
+
+    __tablename__ = "oracc_sign"
+
+    oid: Mapped[str] = mapped_column(String(12), unique=True)
+    name: Mapped[str] = mapped_column(String(200), index=True)
+    ebl_url: Mapped[str | None] = mapped_column(String(500))
+
+    list_numbers: Mapped[list[OraccListNumber]] = relationship(
+        lazy="raise_on_sql",
+        back_populates="oracc_sign",
+        cascade="all, delete-orphan",
+    )
+
+
+class OraccListNumber(Entity):
+    """The number of an Oracc Sign List sign or form in a printed sign list."""
+
+    __tablename__ = "oracc_list_number"
+    __table_args__ = (
+        UniqueConstraint("oracc_sign_id", "list_name", "number"),
+        Index("ix_oracc_list_number_list_name_number", "list_name", "number"),
+    )
+
+    oracc_sign_id: Mapped[int] = reference("oracc_sign.id", ondelete="CASCADE")
+    list_name: Mapped[str] = mapped_column(String(20))
+    number: Mapped[str] = mapped_column(String(50))
+
+    oracc_sign: Mapped[OraccSign] = relationship(back_populates="list_numbers")
 
 
 class Surface(Entity):

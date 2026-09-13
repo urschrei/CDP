@@ -28,6 +28,8 @@ extend-exclude = ["utils/*.ipynb"]
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "UP", "B", "SIM", "RUF"]
+# Sign names use the multiplication sign, as in |NINDA₂×GUD|.
+allowed-confusables = ["×"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

@@ -12,6 +12,7 @@ from flask_migrate import upgrade
 from sqlalchemy import inspect
 
 from cdpp.db import db
+from cdpp.oracc import OSL_URL, read_osl, replace_snapshot
 from cdpp.search import (
     SIGNS,
     TABLETS,
@@ -77,6 +78,19 @@ def load_data(path: Path, replace: bool) -> None:
         )
     click.echo(f"Loaded {path}.")
     upgrade()
+
+
+@click.command("import-oracc-signs")
+@click.argument("source", default=OSL_URL)
+@with_appcontext
+def import_oracc_signs(source: str) -> None:
+    """Replace the snapshot of the Oracc Sign List.
+
+    SOURCE is a path or a URL of osl.asl, and defaults to the file in the
+    repository of the Oracc Sign List. Run 'cdpp dump-data' afterwards.
+    """
+    signs, numbers = replace_snapshot(read_osl(source))
+    click.echo(f"Imported {signs} signs and forms, with {numbers} list numbers.")
 
 
 @click.command("reindex")

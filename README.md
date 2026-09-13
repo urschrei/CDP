@@ -226,6 +226,9 @@ Set these environment variables to change the defaults.
 | `/tablets` | All tablets, with filters. |
 | `/tablets/TABLET_ID` | A tablet, its details, and the sign instances on it. Add `notes=hide` to hide the JJT notes. |
 | `/tablets/TABLET_ID/images` | All photographs from a tablet, grouped by sign. |
+| `/instances/INSTANCE_ID` | A sign instance: its photograph enlarged, its position, its tablet, and the neighbouring instances of the same sign and on the same tablet. `scale` is 1, 2 (the default) or 4. `compare` is the comparison that the page adds the instance to. |
+| `/compare?instances=IDS` | Up to 12 sign instances side by side, at one scale. `IDS` is a comma-separated list of instance IDs. `scale` is 1, 2 (the default) or 4. |
+| `/compare?sign=SIGN_ID` | Redirects to a comparison of one instance of the sign from each period: the instance with the lowest ID. |
 | `/instances/INSTANCE_ID/edit` | The form that edits the position of a sign instance. |
 | `/instances/INSTANCE_ID/history` | The change sets that changed a sign instance. |
 | `/changes` | All change sets, newest first. |
@@ -285,6 +288,14 @@ On a sign page, a sign-list number links to the [Oracc Sign List](https://oracc.
 ### Unicode cuneiform
 
 A sign page, the list of signs and the search results show a sign in Unicode cuneiform if the snapshot of OSL gives one value for the name of the sign, or, if it has no value for that name, one value for the ORACC names of the CDP records of the sign. In the table of CDP records, the column **Unicode** shows the cuneiform of each ORACC name. The font Noto Sans Cuneiform draws one standard form of each sign, not a form from a tablet. OSL writes some signs with characters of the private use area, or with X for a part that Unicode does not have. The pages do not show those values, because the font cannot draw them.
+
+### Photographs, instance pages and comparisons
+
+The photographs have the extension `.jpg`, but most of them are GIF images. The server reads the first bytes of each file, and sends the photograph with the type of its content. An instance page and a comparison read the width and the height from the header of the file, and set the size of the enlarged image from them.
+
+On an instance page, the instances of the same sign are in the order of the period, from the first year of the period, then of the museum number, then of the position. The order of positions is the surface (obverse, reverse, then the other surfaces), the column as a Roman numeral, and the line. An instance without a surface or a column sorts with the default, obverse and column i.
+
+A comparison is only in the URL: the parameter `instances` of the comparison page, and the parameter `compare` of an instance page. Each state of a comparison has its own URL, so a user can share it, and the back button undoes an addition. Links between instance pages keep the comparison. Links to other pages do not.
 
 ### Pages and htmx
 

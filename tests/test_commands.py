@@ -152,3 +152,33 @@ def test_reigns_of_the_kings_of_alalakh_can_be_removed_and_added_again(
 
         upgrade()
         assert db.session.execute(reigns).all() == expected
+
+
+def test_alalah_merge_and_ruler_name_trim_can_be_undone_and_done_again(
+    project_app: Flask,
+) -> None:
+    cities = text(
+        "SELECT c.name, count(t.id) FROM city c "
+        "LEFT JOIN tablet t ON t.city_id = c.id "
+        "WHERE c.name IN ('Alalah', 'Alalakh') GROUP BY c.id ORDER BY c.name"
+    )
+    reign_cities = text(
+        "SELECT c.name FROM reign r JOIN city c ON c.id = r.city_id "
+        "WHERE r.rim_ref LIKE 'E.4.34.%'"
+    )
+    padded_rulers = text("SELECT count(*) FROM ruler WHERE name != trim(name)")
+
+    with project_app.app_context():
+        assert db.session.execute(cities).all() == [("Alalakh", 6)]
+        assert db.session.scalars(reign_cities).all() == ["Alalakh"] * 3
+        assert db.session.scalar(padded_rulers) == 0
+
+        downgrade(revision="a3d5f8e1c702")
+        assert db.session.execute(cities).all() == [("Alalah", 6), ("Alalakh", 0)]
+        assert db.session.scalars(reign_cities).all() == ["Alalah"] * 3
+        assert db.session.scalar(padded_rulers) == 5
+
+        upgrade()
+        assert db.session.execute(cities).all() == [("Alalakh", 6)]
+        assert db.session.scalars(reign_cities).all() == ["Alalakh"] * 3
+        assert db.session.scalar(padded_rulers) == 0

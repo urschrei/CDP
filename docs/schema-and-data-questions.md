@@ -2,7 +2,7 @@
 
 This document tracks the questions about the database schema and the data that need a decision before the schema can change. The numbers are those of the review of the models. When you make a decision, record it with its date in the section of the question, and update the status table.
 
-Unless a section says otherwise, the findings describe the data in `db_dumps/cdpp.sql` on 13 September 2026.
+Unless a section says otherwise, the findings describe the data in `db_dumps/cdpp.sql` on 13 September 2026, after the restoration of the [values that the 2014 import did not copy](#values-that-the-2014-import-did-not-copy).
 
 ## Status
 
@@ -11,10 +11,11 @@ Unless a section says otherwise, the findings describe the data in `db_dumps/cdp
 | [6. Empty columns and tables](#6-empty-columns-and-tables) | Open |
 | [7. Values that contradict each other](#7-values-that-contradict-each-other) | Open |
 | [8. Two records of one fact](#8-two-records-of-one-fact) | Open |
-| [9. Duplicate sign-list entries](#9-duplicate-sign-list-entries) | Open |
+| [9. Duplicate sign-list entries](#9-duplicate-sign-list-entries) | Partly done; 8 groups open |
 | [10. Lookup tables for plain values](#10-lookup-tables-for-plain-values) | Open |
 | [11. Dates stored as text](#11-dates-stored-as-text) | Open |
 | [12. Sign lists and sign names](#12-sign-lists-and-sign-names) | Done; one question open |
+| [Values that the 2014 import did not copy](#values-that-the-2014-import-did-not-copy) | Done; questions open |
 | [Links to online sign lists](#links-to-online-sign-lists) | Partly done; questions open |
 
 ## Decisions made
@@ -29,6 +30,7 @@ Unless a section says otherwise, the findings describe the data in `db_dumps/cdp
 - `tablet.timestamp` is removed. It held only the two times of the import in 2012.
 - The sign-list numbers of CDP records are in the tables `sign_list` and `sign_list_entry`, and the description, ORACC and CDLI names are in the table `sign_name`. See [question 12](#12-sign-lists-and-sign-names).
 - A snapshot of the Oracc Sign List gives links from sign pages. See [Links to online sign lists](#links-to-online-sign-lists).
+- The sign-list numbers, variant names and form descriptions that the import of August 2014 did not copy are restored from a MySQL dump of May 2013. See [Values that the 2014 import did not copy](#values-that-the-2014-import-did-not-copy).
 
 ## 6. Empty columns and tables
 
@@ -37,18 +39,19 @@ Unless a section says otherwise, the findings describe the data in `db_dumps/cdp
 - These `tablet` columns are empty in all 228 rows: `city_site_id`, `to_id`, `language_id`, `dynasty_id`, `sub_locality_id`, `function_id` and `reign_id`.
 - The tables `city_site`, `sub_locality` and `subperiod_dynasty` have no rows.
 - The table `reign` has 587 rows. No tablet refers to a reign, and the application does not read the table.
-- These `cdp` columns are empty in all 4,776 rows: `form_name`, `variant_name`, `form_description` and `notes`.
-- These sign lists have no entries: UET 2, ARM XV, Clay BE A 14, Koenig AfO Bei 16, Ranke BE A 61, Schroeder VS 12, Clay BE A 10, Schroder VS 15 and Fossey pp. Each was an empty column of `cdp` before the normalisation of question 12.
+- The `cdp` columns `form_name` and `notes` are empty in all 4,776 rows. They are also empty in the MySQL dumps of 2013 and 2014.
+- The `cdp` column `variant_name` has 2 values, and `form_description` has 144. Before the restoration, both were empty.
+- Every sign list has entries. Before the restoration, nine sign lists had none, because the import of 2014 did not copy them.
 - The application does not read `period.from_date`, `period.to_date`, `text_vehicle.bm_catalogue`, `text_vehicle.cdli` or `reign.rim_ref`.
 
 ### Questions
 
-- Will anyone enter data into these columns, tables and sign lists?
+- Will anyone enter data into these columns and tables?
 - Is the reign data needed, for example to show the reign of the ruler of a tablet?
 
 ### Options
 
-- Remove the empty columns, tables and sign lists. The filters and the tablet details become shorter.
+- Remove the empty columns and tables. The filters and the tablet details become shorter.
 - Keep those that are for future data entry, and remove the others.
 
 ### Decision
@@ -84,11 +87,15 @@ Open.
 
 - A tablet can record its recipient in `tablet.to_id` (0 rows) or in the association table `tablet_correspondent` (1 row).
 - The association table `instance_language` has 11,039 rows. No instance has more than one language, and 365 instances have no language. `tablet.language_id` is empty.
+- The import of the instances in 2014 filled `instance_language` from the spreadsheet `csvs/corrected_instances_forimport.xlsx`. Its column `lang` has one value in each row: 8,368 `Akkadian`, 2,671 `Sumerian` and 365 empty.
+- 265 of the 365 instances without a language are on Old Babylonian school tablets from Nippur, for example `CBS_11387` (62 instances), `CBS_7072` (46) and `CBS_7086` (42). MSL 14 publishes the tablets of 246 of them.
+- All 800 instances on `BM_130738` have the import note `lang autoset to akk`. Their language was set for the whole tablet, not for each instance.
 
 ### Questions
 
 - Can a tablet have more than one recipient?
 - Can a sign instance have more than one language?
+- Do the instances without a language have no language, or is the value missing?
 
 ### Options
 
@@ -103,21 +110,33 @@ Open.
 
 ### Findings
 
-- 227 of the 4,776 `cdp` rows are copies of another row, in all columns except `id`. The copies have the same names and the same sign-list numbers as their originals.
-- Nothing in the data makes a copy different from its original.
+- Before the restoration, 227 of the 4,776 `cdp` rows were copies of another row, in all columns except `id`, in 169 groups. The IDs of the records in a group are at most three apart.
+- The import of 2014 did not copy nine sign lists. With their numbers, the records of 161 groups are all different. For example, records 14 and 15 have the Schroder VS 15 numbers 211 and 212.
+- The records of 8 groups are still the same in all columns except `id`:
+
+| Sign | Records |
+| --- | --- |
+| ADDU₂ | 1196, 1197 |
+| ALIMₓ | 1277, 1278 |
+| DUBAL₃ | 1782, 1783 |
+| DUBAL₄ | 1784, 1785 |
+| DUL | 1808, 1809, 1810 |
+| DUN₃ | 1823, 1824 |
+| GALAM | 2143, 2144 |
+| GIDIM₄ | 2272, 2273 |
 
 ### Questions
 
-- Do the copies record different forms of a sign that the data do not yet show?
+- Do the records of the 8 groups record different forms of a sign? If they do, which values make them different? The spreadsheet of the 2014 import can have them. See [Values that the 2014 import did not copy](#values-that-the-2014-import-did-not-copy).
 
 ### Options
 
-- Remove the copies, and add a constraint that prevents new copies.
+- Remove the 9 copies, and add a constraint that prevents new copies.
 - Keep the copies, and add the information that makes them different.
 
 ### Decision
 
-Open.
+13 September 2026: the restored values make the records of 161 groups different, so these groups need no change. The 8 other groups are open.
 
 ## 10. Lookup tables for plain values
 
@@ -126,12 +145,17 @@ Open.
 - The tables `column` (22 rows, for example `ii'`), `line` (561 rows, for example `10'`) and `iteration` (15 rows, `1` to `15`) each hold one text value. To show the position of an instance, a page joins five tables.
 - The table `function` holds sign functions: `syllable`, `logogram`, `determinative` and `gloss`. Sign instances use the table. No tablet uses it.
 - The table `surface` has 12 values, including the abbreviations `obv`, `rev`, `a`, `be` and `aas`. The pages show the values as they are.
+- `surface` holds parts of the text as well as surfaces of the object: `colophon` (107 instances in the import spreadsheet), `seal` (49) and `catchline` (4). Before the import, three instances on `BM_68332` changed from `rev` to `catchline`.
+- `be` occurs only on `BM_113352`, which also has `obv` and `rev`. It is probably the bottom edge.
+- `a` is the only surface of the instances on three fragments: `BM_40127` and `K_14895` (MSL 16 p. 49), and `W_18202_25` (AUWE 5, 129). It is possibly side A of a fragment whose obverse and reverse are not known.
+- `aas` occurs once, on `K_39`. The data do not show its meaning.
 
 ### Questions
 
 - Do column, line and iteration values need records of their own, for example for sorting or for notes?
 - Can a tablet have a function, as the column `tablet.function_id` suggests?
 - What do the surface values `a`, `be` and `aas` mean?
+- Must the parts of the text, such as `colophon`, be separate from the surfaces?
 
 ### Options
 
@@ -181,7 +205,7 @@ Open.
 
 13 September 2026: normalise both.
 
-- `sign_list` has one row for each of the 22 sign lists, with its name and its position in tables. `sign_list_entry` has one row for each number of a CDP record in a sign list: 16,989 rows. The number is text.
+- `sign_list` has one row for each of the 22 sign lists, with its name and its position in tables. `sign_list_entry` has one row for each number of a CDP record in a sign list. The number is text. The normalisation copied 16,989 numbers. With the restored numbers, the table has 25,061 rows.
 - `sign_name` has one row for each name of a CDP record, with the source of the name: `description`, `oracc` or `cdli`. It has 10,549 rows. A record has one name from each source at most.
 - Both migrations have a downgrade that restores the former columns and tables.
 
@@ -189,11 +213,54 @@ The migrations changed three things in the data:
 
 - They removed the spaces at the ends of three KWU numbers.
 - They did not copy the KWU value of record 3099 (sign MAŠMIN), which held only three spaces.
-- They did not copy the CDLI name `NA`, which no record used. It is probably a marker for a missing value from the spreadsheets of the original import.
+- They did not copy the CDLI name `NA`, which no record used. pandas reads the text `NA` as a missing value. Thus the import notebook sets the sign, description and ORACC names of records 3224 to 3227 to `NA` itself, and a comment in the notebook says to add `NA` to the sign, ORACC and CDLI tables. The unused CDLI name is probably that addition. The four records have the CDLI names `NA~a` to `NA~d`.
 
 ### Question still open
 
-- What does the source `description` hold? Its values look like sign names, for example `ILIMMU`, not like descriptions. If they are sign names, rename the source.
+- What does the source `description` hold? Its values look like sign names, for example `ILIMMU`, not like descriptions. The column of the import spreadsheet had the heading `Description`. If the values are sign names, rename the source.
+
+## Values that the 2014 import did not copy
+
+### Findings
+
+- The import notebook `utils/CDP_import.ipynb` read the CDP records from `csvs/cdp_signs_modified.csv` until 14 August 2014, and from `csvs/clean_CDP.xlsx` after that date. Neither file is in the repository.
+- The column headings of the spreadsheet have spaces, for example `Schroder VS 15` and `form description`. The notebook read each column with the name of the model attribute, for example `Schroder_VS_15`. For a heading with spaces, it got no value and gave no error. The saved output of the notebook shows the headings.
+- Thus the import did not copy the columns `variant_name` and `form_description`, or these nine sign lists: UET 2, ARM XV, Clay BE A 14, Koenig AfO Bei 16, Ranke BE A 61, Schroeder VS 12, Clay BE A 10, Schroder VS 15 and Fossey pp.
+- The notebook did not read two columns of the spreadsheet that have no heading. Its output names them `Unnamed: 8` and `Unnamed: 31`.
+- The MySQL dumps of 22 May 2013 (`db_dumps/latest_dump.sql` in commit 8f0d55e) and of 13 and 14 August 2014 (commit 2fb076f) have the values. In the dumps of 2014, Excel changed six values to dates: the sign names `1/4` and `1/6` became `01-Apr` and `01-Jun`, and four Fossey pp values became dates, for example `6-10` became `06-Oct`. The dump of 2013 does not have these changes.
+- In the text columns of all the dumps, each character that is not ASCII is an underscore. For example, the form description `|LAGAB×U+A|` is `|LAGAB_U+A|`.
+- Some restored numbers have underscores, for example `334_2` in UET 2. The numbers of HA, HZL and other lists that the import copied use the same form, so these underscores are probably in the source.
+- The dump of 2013 has 4,779 CDP rows. In ID order, 4,776 rows have the same numbers in the 13 other sign lists as the CDP records in the database, in the same order. The other 3 rows have no record. Their sign name has characters that are not ASCII, and their numbers include MesZL 758, LAK 769 and ZATU N-58. Only LAK 193 is also the number of a record in the database (record 1891).
+
+### Decision
+
+13 September 2026: restore the values from the dump of 2013.
+
+- `utils/restore_2013_values.py` aligns the rows of the dump with the CDP records and writes the values to `migrations/data/2013_sign_list_entries.csv` and `migrations/data/2013_record_details.csv`. Migration e7a2c94b1f05 adds the values to the database. Its downgrade removes them.
+- The migration adds 8,072 sign-list entries:
+
+| Sign list | Entries |
+| --- | --- |
+| UET 2 | 1,031 |
+| ARM XV | 781 |
+| Clay BE A 14 | 986 |
+| Koenig AfO Bei 16 | 643 |
+| Ranke BE A 61 | 837 |
+| Schroeder VS 12 | 852 |
+| Clay BE A 10 | 577 |
+| Schroder VS 15 | 745 |
+| Fossey pp | 1,620 |
+
+- It adds both variant names, to records 4547 and 4548 (signs ZATU680~a1 and ZATU680~a2).
+- It adds 144 of the 227 form descriptions. 72 have only ASCII characters. For the other 72, exactly one name in the tables `sign`, `sign_name` or `oracc_sign` has the same ASCII form, and the migration uses that name.
+- It does not add 83 form descriptions. For 79, no name has the same ASCII form. For 4, more than one name has it, for example `|LU__KAD_|`, which can be `|LU₂×KAD₂|` or `|LU₂×KAD₃|`. `uv run utils/restore_2013_values.py` lists the 83 values. One value holds a note: `|EZEN~b_A_| -- need to sort out EZEN~a/b` (record 1561).
+- The nine sign lists have no OSL abbreviation in `sign_list.oracc_list`, so their numbers have no links on sign pages.
+
+### Questions
+
+- Is `clean_CDP.xlsx` or `cdp_signs_modified.csv` still available? The spreadsheet can have the 83 form descriptions with all their characters, the values that make the 8 groups of [question 9](#9-duplicate-sign-list-entries) different, and the contents of the two columns without a heading.
+- Did the clean-up of the spreadsheet in 2014 change numbers in the nine sign lists? It did not change the numbers of the other 13 lists. The dump of 2013 is older than the clean-up.
+- Are the 3 rows of the dump without a record deleted on purpose?
 
 ## Links to online sign lists
 
@@ -233,7 +300,7 @@ Of the 3,285 ORACC names, 3,135 link to OSL, and 3,024 of those also link to eBL
 
 ### Questions about sources
 
-- **Which list is aBZL?** It was thought to be Borger's *Assyrisch-babylonische Zeichenliste* (ABZ, numbers 1 to 598). The data suggest Mittermayer's *Altbabylonische Zeichenliste*, which OSL calls ABZL (numbers 1 to 480, and 900 to 904). The highest aBZL number in the data is 480. Where our record has an ORACC or sign name, 94 % of the aBZL numbers that OSL has belong to a sign with the same name. OSL has no ABZ numbers. The links use ABZL. Please check against the source of the data.
+- **Which list is aBZL?** It was thought to be Borger's *Assyrisch-babylonische Zeichenliste* (ABZ, numbers 1 to 598). The data suggest Mittermayer's *Altbabylonische Zeichenliste*, which OSL calls ABZL (numbers 1 to 480, and 900 to 904). The highest aBZL number in the data is 480. Where our record has an ORACC or sign name, 94 % of the aBZL numbers that OSL has belong to a sign with the same name. OSL has no ABZ numbers. The links use ABZL. Please check against the source of the data. The import spreadsheet and the dumps of 2013 and 2014 also use the heading `aBZL`, without a title.
 - **Are HA and Labat the SLLHA numbering?** Both columns link to SLLHA. OSL defines SLLHA from Deimel's *Šumerisches Lexikon*, Labat's *Manuel d'épigraphie akkadienne* and Ellermeier and Studt's *Handbuch Assur*. Of the numbers that OSL has, 89 % of HA numbers and 85 % of Labat numbers belong to a sign with the same name. This is near the rates of lists whose identity is certain: MesZL 78 %, LAK 85 %, HZL 92 %. In 1,227 of the 1,436 records with both numbers, the HA and the Labat numbers are the same. This decision is provisional. To change it, change `sign_list.oracc_list` for HA or Labat, then run `cdpp dump-data`.
 - **Name agreement understates the match:** the rates above count a match only when the OSL name is the same as our name. Many differences are two names for one sign, for example `1` and `DIŠ`, or `|3(N57).PIRIG~b1|` and `|GIR₃×(LU.IGI)|`. A specialist check of a sample of the differences would give better rates.
 - **Unverified sources:** the sign pages of the Hethitologie Portal Mainz (for HZL) and the Ebla Digital Archives (for ELLes) did not respond. They may have pages for entries.

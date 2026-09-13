@@ -240,11 +240,13 @@ Each filter selects the tablets with a related record of the given name, for exa
 | `src/cdpp/templates/` | Jinja templates. Files with names that start with `_` are fragments that htmx requests. |
 | `frontend/` | Front-end sources. esbuild bundles them, with htmx, the fonts and the Tailwind build. |
 | `migrations/` | Alembic migrations, managed by Flask-Migrate. |
+| `migrations/data/` | CSV files that data migrations read. |
 | `tests/` | pytest tests. |
 | `docs/schema-and-data-questions.md` | Open questions about the schema and the data. |
 | `db_dumps/cdpp.sql` | The data: an SQLite dump of the schema, the records and the migration revision. |
 | `media/instance/` | Sign photographs. |
 | `utils/`, `csvs/` | Notebooks and spreadsheets from the original preparation of the data. They are not used by the application. |
+| `utils/restore_2013_values.py` | Writes the CSV files of the migration that restores the values that the import of 2014 did not copy. |
 
 ## About the architecture
 

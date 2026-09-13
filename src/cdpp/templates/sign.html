@@ -29,7 +29,7 @@
   <section aria-labelledby="entries-heading" class="mt-14">
     <h2 id="entries-heading" class="font-sign text-3xl">Sign-list entries</h2>
     {% if rows %}
-      <p class="mt-2 max-w-prose text-muted">{{ count_noun(rows|length, "entry", "entries") }}. Sign lists without an entry are not shown.</p>
+      <p class="mt-2 max-w-prose text-muted">{{ count_noun(rows|length, "entry", "entries") }}. Sign lists without an entry are not shown. Linked numbers and ORACC names lead to the Oracc Sign List.</p>
       <div class="mt-4 overflow-x-auto border-y border-line" tabindex="0" role="region" aria-labelledby="entries-heading">
         <table class="min-w-full text-left">
           <thead>
@@ -43,7 +43,14 @@
             {% for row in rows %}
               <tr class="border-t border-line">
                 {% for value in row %}
-                  <td class="px-3 py-2 whitespace-nowrap {{ 'sticky left-0 bg-ground' if loop.first }} {{ 'font-sign text-lg' if headings[loop.index0] in sign_name_headings }}">{{ value }}</td>
+                  <td class="px-3 py-2 whitespace-nowrap {{ 'sticky left-0 bg-ground' if loop.first }} {{ 'font-sign text-lg' if headings[loop.index0] in sign_name_headings }}">
+                    {%- if value.url -%}
+                      <a href="{{ value.url }}">{{ value.text }}<span class="sr-only"> in the Oracc Sign List</span></a>
+                    {%- else -%}
+                      {{ value.text }}
+                    {%- endif -%}
+                    {%- if value.ebl_url %} <a href="{{ value.ebl_url }}" class="font-sans text-sm">eBL<span class="sr-only"> page for {{ value.text }}</span></a>{% endif -%}
+                  </td>
                 {% endfor %}
               </tr>
             {% endfor %}

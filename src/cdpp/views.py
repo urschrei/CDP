@@ -1,7 +1,7 @@
 """Pages of the CDPP site."""
 
 import random
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from itertools import groupby
 from pathlib import Path
@@ -30,10 +30,13 @@ from cdpp.models import (
     Correspondent,
     Entity,
     Instance,
+    OraccSign,
     Sign,
     SignList,
+    SignListEntry,
     Tablet,
 )
+from cdpp.oracc import list_number_urls, oracc_page_url, signs_named
 from cdpp.search import SearchResults, SearchUnavailable, search_index
 
 bp = Blueprint("cdpp", __name__)
@@ -180,7 +183,7 @@ def sign(sign_id: int) -> ResponseReturnValue:
         options=[
             selectinload(Sign.cdp_records).options(
                 selectinload(Cdp.names),
-                selectinload(Cdp.sign_list_entries),
+                selectinload(Cdp.sign_list_entries).joinedload(SignListEntry.sign_list),
             )
         ],
     )
@@ -203,13 +206,19 @@ def sign(sign_id: int) -> ResponseReturnValue:
         .limit(6)
     ).all()
     sign_lists = db.session.scalars(select(SignList).order_by(SignList.position)).all()
+    records = sign.cdp_records
+    number_urls = list_number_urls(
+        [entry for record in records for entry in record.sign_list_entries]
+    )
+    oracc_signs = signs_named(
+        name for record in records if (name := record.name_from("oracc"))
+    )
     headings, rows = omit_empty_columns(
         [heading for _, heading in CDP_FIELDS]
         + [sign_list.name for sign_list in sign_lists],
         [
-            [cdp_value(record, field) for field, _ in CDP_FIELDS]
-            + sign_list_numbers(record, sign_lists)
-            for record in sign.cdp_records
+            record_cells(record, sign_lists, number_urls, oracc_signs)
+            for record in records
         ],
     )
     return render_template(
@@ -500,16 +509,48 @@ def omit_empty_columns[T](
     return [headings[i] for i in keep], [[row[i] for i in keep] for row in rows]
 
 
-def cdp_value(record: Cdp, field: str) -> str:
-    if field in NAME_SOURCES:
-        return record.name_from(field) or ""
-    return getattr(record, field) or ""
+@dataclass(frozen=True)
+class Cell:
+    """A table cell. ``url`` leads to the Oracc Sign List, ``ebl_url`` to eBL."""
+
+    text: str
+    url: str | None = None
+    ebl_url: str | None = None
+
+    def __bool__(self) -> bool:
+        return bool(self.text)
 
 
-def sign_list_numbers(record: Cdp, sign_lists: Sequence[SignList]) -> list[str]:
-    """Return the numbers of a record in ``sign_lists``, in the same order."""
-    numbers = {entry.sign_list_id: entry.number for entry in record.sign_list_entries}
-    return [numbers.get(sign_list.id, "") for sign_list in sign_lists]
+def record_cells(
+    record: Cdp,
+    sign_lists: Sequence[SignList],
+    number_urls: Mapping[int, str],
+    oracc_signs: Mapping[str, OraccSign],
+) -> list[Cell]:
+    """Return the cells of a CDP record: one for each of CDP_FIELDS, then one
+    for each of ``sign_lists``."""
+    cells = []
+    for field, _ in CDP_FIELDS:
+        if field == "oracc":
+            name = record.name_from("oracc") or ""
+            oracc_sign = oracc_signs.get(name)
+            if oracc_sign is None:
+                cells.append(Cell(name))
+            else:
+                url = oracc_page_url(oracc_sign.oid)
+                cells.append(Cell(name, url, oracc_sign.ebl_url))
+        elif field in NAME_SOURCES:
+            cells.append(Cell(record.name_from(field) or ""))
+        else:
+            cells.append(Cell(getattr(record, field) or ""))
+    entries = {entry.sign_list_id: entry for entry in record.sign_list_entries}
+    for sign_list in sign_lists:
+        entry = entries.get(sign_list.id)
+        if entry is None:
+            cells.append(Cell(""))
+        else:
+            cells.append(Cell(entry.number, number_urls.get(entry.id)))
+    return cells
 
 
 def instance_row(instance: Instance) -> list[Any]:

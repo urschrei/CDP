@@ -3,7 +3,10 @@ from pathlib import Path
 import pytest
 from flask import Flask
 from flask.testing import FlaskClient
+from sqlalchemy import update
 
+from cdpp.db import db
+from cdpp.models import OraccListNumber, OraccSign, SignList
 from cdpp.search import EXTENSION_KEY, SearchIndex, SearchResults, SearchUnavailable
 from cdpp.views import search_status
 from tests.conftest import Sample
@@ -212,6 +215,46 @@ def test_instance_images_come_from_the_media_root(
 
     assert client.get("/media/instance/I_9.jpg").data == b"jpeg"
     assert client.get("/media/instance/I_10.jpg").status_code == 404
+
+
+def test_sign_page_links_numbers_and_names_to_the_oracc_sign_list(
+    client: FlaskClient, sample: Sample
+) -> None:
+    for name, oracc_list in (("MesZL", "MZL"), ("LAK", "LAK")):
+        db.session.execute(
+            update(SignList).where(SignList.name == name).values(oracc_list=oracc_list)
+        )
+    db.session.add_all(
+        [
+            OraccSign(
+                oid="o0000001",
+                name="AŠ",
+                ebl_url="https://www.ebl.lmu.de/signs/A%C5%A0",
+                list_numbers=[OraccListNumber(list_name="MZL", number="001")],
+            ),
+            OraccSign(
+                oid="o0000002",
+                name="X",
+                list_numbers=[OraccListNumber(list_name="LAK", number="002")],
+            ),
+            OraccSign(
+                oid="o0000003",
+                name="Y",
+                list_numbers=[OraccListNumber(list_name="LAK", number="002")],
+            ),
+        ]
+    )
+    db.session.commit()
+
+    html = page(client, f"/signs/{sample.sign.id}")
+
+    # MesZL 1 is MZL001 of exactly one OSL sign, which is also named AŠ.
+    assert '<a href="http://oracc.org/osl/signlist/o0000001">1<span' in html
+    assert '<a href="http://oracc.org/osl/signlist/o0000001">AŠ<span' in html
+    assert 'href="https://www.ebl.lmu.de/signs/A%C5%A0"' in html
+    # LAK 2 is a number of two OSL signs, so it has no link.
+    assert "o0000002" not in html
+    assert "o0000003" not in html
 
 
 def test_search_status_omits_record_types_without_matches() -> None:

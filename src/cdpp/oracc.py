@@ -7,15 +7,16 @@ public domain under a CC0 licence: https://github.com/oracc/osl
 
 import re
 import urllib.request
-from collections.abc import Iterable
+from collections import defaultdict
+from collections.abc import Iterable, Sequence
 from dataclasses import dataclass, field
 from pathlib import Path
 from urllib.parse import quote
 
-from sqlalchemy import delete
+from sqlalchemy import delete, select, tuple_
 
 from cdpp.db import db
-from cdpp.models import OraccListNumber, OraccSign
+from cdpp.models import OraccListNumber, OraccSign, SignListEntry
 
 OSL_URL = "https://raw.githubusercontent.com/oracc/osl/master/00lib/osl.asl"
 # The citation URL that OSL gives on each sign page.
@@ -124,3 +125,61 @@ def number_forms(number: str) -> tuple[str, ...]:
         return (number,)
     padded = f"{int(match[1]):03d}{match[2]}"
     return (padded,) if padded == number else (padded, number)
+
+
+def oracc_page_url(oid: str) -> str:
+    return PAGE_URL.format(oid=oid)
+
+
+def list_number_urls(entries: Sequence[SignListEntry]) -> dict[int, str]:
+    """Map the IDs of sign-list entries to OSL page URLs.
+
+    An entry has a URL if its sign list has an OSL abbreviation, and exactly one
+    OSL sign or form has the number of the entry in that list. The sign lists of
+    the entries must be loaded.
+    """
+    pairs = {
+        (entry.sign_list.oracc_list, form)
+        for entry in entries
+        if entry.sign_list.oracc_list is not None
+        for form in number_forms(entry.number)
+    }
+    if not pairs:
+        return {}
+    statement = (
+        select(OraccListNumber.list_name, OraccListNumber.number, OraccSign.oid)
+        .join(OraccListNumber.oracc_sign)
+        .where(
+            tuple_(OraccListNumber.list_name, OraccListNumber.number).in_(sorted(pairs))
+        )
+    )
+    matches: dict[tuple[str, str], set[str]] = defaultdict(set)
+    for list_name, number, oid in db.session.execute(statement):
+        matches[(list_name, number)].add(oid)
+
+    urls: dict[int, str] = {}
+    for entry in entries:
+        oracc_list = entry.sign_list.oracc_list
+        oids = next(
+            (
+                matches[(oracc_list, form)]
+                for form in number_forms(entry.number)
+                if oracc_list is not None and (oracc_list, form) in matches
+            ),
+            set(),
+        )
+        if len(oids) == 1:
+            urls[entry.id] = oracc_page_url(next(iter(oids)))
+    return urls
+
+
+def signs_named(names: Iterable[str]) -> dict[str, OraccSign]:
+    """Map each name to the OSL sign or form with that name, if exactly one has it."""
+    wanted = set(names)
+    if not wanted:
+        return {}
+    found: dict[str, list[OraccSign]] = defaultdict(list)
+    statement = select(OraccSign).where(OraccSign.name.in_(wanted))
+    for oracc_sign in db.session.scalars(statement):
+        found[oracc_sign.name].append(oracc_sign)
+    return {name: signs[0] for name, signs in found.items() if len(signs) == 1}

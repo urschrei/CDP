@@ -116,16 +116,27 @@ def image_url(instance: Instance) -> str:
     return url_for("cdpp.instance_image", filename=f"{instance.filename}.jpg")
 
 
+def position_text(number: str) -> str:
+    """Return a column or line number as pages show it, as in "1′" for "01'"."""
+    text = number.lstrip("0")
+    if number.startswith("0") and not text[:1].isdigit():
+        text = f"0{text}"
+    return text.replace("'", "′")
+
+
 @bp.app_template_global()
 def instance_location(instance: Instance) -> str:
-    """Describe where an instance is on its tablet, as in "Obverse, line 3"."""
+    """Describe where an instance is on its tablet, as in "Obverse, line 3".
+
+    The description contains only recorded values, not defaults.
+    """
     parts = []
     if instance.surface is not None:
         parts.append(instance.surface.name)
     if instance.column is not None:
-        parts.append(f"column {instance.column.number}")
+        parts.append(f"column {position_text(instance.column.number)}")
     if instance.line is not None:
-        parts.append(f"line {instance.line.number}")
+        parts.append(f"line {position_text(instance.line.number)}")
     text = ", ".join(parts)
     return text[:1].upper() + text[1:]
 
@@ -328,6 +339,11 @@ def tablet(tablet_id: int) -> ResponseReturnValue:
         details=tablet_details(tablet),
         headings=headings,
         rows=rows,
+        has_defaults=any(
+            isinstance(value, Position) and value.default
+            for row in rows
+            for value in row
+        ),
         instance_count=len(instances),
         sign_count=len({instance.sign_id for instance in instances}),
         specimens=random.sample(instances, k=min(4, len(instances))),
@@ -553,14 +569,49 @@ def record_cells(
     return cells
 
 
+# Pages show these values when an instance has no surface, column or iteration.
+# The database does not store them. See docs/schema-and-data-questions.md.
+DEFAULT_SURFACE = "obv"
+DEFAULT_COLUMN = "i"
+DEFAULT_ITERATION = "1"
+
+
+@dataclass(frozen=True)
+class Position:
+    """A surface, column or iteration value in a table of instances.
+
+    The data do not contain a default. A table column that has only defaults
+    is empty.
+    """
+
+    text: str
+    default: bool = False
+
+    def __bool__(self) -> bool:
+        return bool(self.text) and not self.default
+
+    def __str__(self) -> str:
+        return self.text
+
+
+def position(value: str | None, default: str) -> Position:
+    return Position(value) if value else Position(default, default=True)
+
+
 def instance_row(instance: Instance) -> list[Any]:
     return [
         instance.sign,
-        instance.surface.name if instance.surface else "",
-        instance.column.number if instance.column else "",
-        instance.line.number if instance.line else "",
+        position(instance.surface.name if instance.surface else None, DEFAULT_SURFACE),
+        position(
+            position_text(instance.column.number) if instance.column else None,
+            DEFAULT_COLUMN,
+        ),
+        position_text(instance.line.number) if instance.line else "",
         instance.function.name if instance.function else "",
-        instance.iteration.number if instance.iteration else "",
+        position(
+            instance.iteration.number if instance.iteration else None,
+            DEFAULT_ITERATION,
+        ),
         ", ".join(language.name for language in instance.languages),
         instance.jjt_notes or "",
         instance.notes or "",

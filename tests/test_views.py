@@ -6,9 +6,9 @@ from flask.testing import FlaskClient
 from sqlalchemy import update
 
 from cdpp.db import db
-from cdpp.models import OraccListNumber, OraccSign, SignList
+from cdpp.models import Instance, Line, OraccListNumber, OraccSign, SignList, Surface
 from cdpp.search import EXTENSION_KEY, SearchIndex, SearchResults, SearchUnavailable
-from cdpp.views import search_status
+from cdpp.views import instance_location, position_text, search_status
 from tests.conftest import Sample
 
 
@@ -255,6 +255,35 @@ def test_sign_page_links_numbers_and_names_to_the_oracc_sign_list(
     # LAK 2 is a number of two OSL signs, so it has no link.
     assert "o0000002" not in html
     assert "o0000003" not in html
+
+
+def test_tablet_page_marks_default_positions(
+    client: FlaskClient, sample: Sample
+) -> None:
+    html = page(client, f"/tablets/{sample.tablet.id}")
+
+    # One instance has a surface, so the other instance shows the default.
+    assert '>obv<span class="sr-only"> (default)</span>' in html
+    assert "Values in italics are defaults" in html
+    # No instance has a column or an iteration, so the table omits both.
+    assert ">Column</th>" not in html
+    assert ">Iteration</th>" not in html
+
+
+@pytest.mark.parametrize(
+    ("number", "text"),
+    [("01'", "1′"), ("ii''", "ii′′"), ("10", "10"), ("0", "0"), ("003", "3")],
+)
+def test_position_text_removes_leading_zeros_and_shows_primes(
+    number: str, text: str
+) -> None:
+    assert position_text(number) == text
+
+
+def test_instance_location_shows_the_line_as_pages_show_it() -> None:
+    instance = Instance(surface=Surface(name="rev"), line=Line(number="03'"))
+
+    assert instance_location(instance) == "Rev, line 3′"
 
 
 def test_search_status_omits_record_types_without_matches() -> None:

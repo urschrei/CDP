@@ -28,8 +28,9 @@ extend-exclude = ["utils/*.ipynb"]
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "UP", "B", "SIM", "RUF"]
-# Sign names use the multiplication sign, as in |NINDA₂×GUD|.
-allowed-confusables = ["×"]
+# Sign names use the multiplication sign, as in |NINDA₂×GUD|. Pages show
+# primes in line and column numbers, as in 3′.
+allowed-confusables = ["×", "′"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

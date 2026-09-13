@@ -50,6 +50,7 @@ def test_download_contains_the_current_record(
     assert "<cdp:applicationCommit>" not in unversioned
     assert "<cdp:databaseRevision>" not in unversioned
     app.config["COMMIT"] = "f82b7447f17d249e1e7bc75065e8855094b37337"
+    app.config["CHANGE"] = "qqspxxrnkskvuzqyywppnyrtoslpxmmo"
     # The test database has no migrations. Give it the table of a migrated one.
     connection = db.session.connection()
     connection.exec_driver_sql("CREATE TABLE alembic_version (version_num TEXT)")
@@ -73,6 +74,8 @@ def test_download_contains_the_current_record(
     assert "<cdp:line>1</cdp:line>" in xmp(response.data)
     commit = "<cdp:applicationCommit>f82b7447f17d249e1e7bc75065e8855094b37337<"
     assert commit in xmp(response.data)
+    change = "<cdp:applicationChange>qqspxxrnkskvuzqyywppnyrtoslpxmmo<"
+    assert change in xmp(response.data)
     revision = "<cdp:databaseRevision>f6c2a8e4d913</cdp:databaseRevision>"
     assert revision in xmp(response.data)
     etag = response.headers["ETag"]

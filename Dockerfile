@@ -45,8 +45,10 @@ ENV PATH="/app/.venv/bin:$PATH" \
     CDPP_MEDIA_ROOT=/app/media
 EXPOSE 8000
 
-# The Git commit of the code, for the metadata of downloaded photographs. It is
-# the last layer, so a new commit does not build the other layers again.
-ARG CDPP_COMMIT
-ENV CDPP_COMMIT=$CDPP_COMMIT
+# The Git commit and the jj change ID of the code, for the metadata of
+# downloaded photographs. They are the last layer, so a new commit does not
+# build the other layers again.
+ARG CDPP_COMMIT CDPP_CHANGE
+ENV CDPP_COMMIT=$CDPP_COMMIT \
+    CDPP_CHANGE=$CDPP_CHANGE
 CMD ["deploy/start.sh"]

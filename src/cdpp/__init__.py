@@ -40,6 +40,7 @@ def create_app(config: Mapping[str, Any] | None = None) -> Flask:
     # from_prefixed_env reads each value as JSON, so a commit such as 1234567e8
     # becomes a number. Keep the text. An empty value is no commit.
     app.config["COMMIT"] = os.environ.get("CDPP_COMMIT") or None
+    app.config["CHANGE"] = os.environ.get("CDPP_CHANGE") or None
     if config is not None:
         app.config.from_mapping(config)
     # A proxy that receives HTTPS requests sends the scheme in

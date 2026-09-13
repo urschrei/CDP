@@ -55,6 +55,7 @@ def tagged_photograph(instance: Instance, revision: str | None) -> bytes | None:
         url_for("instances.instance", instance_id=instance.id, _external=True),
         url_for("cdpp.tablet", tablet_id=instance.tablet_id, _external=True),
         commit=current_app.config["COMMIT"],
+        change=current_app.config["CHANGE"],
         revision=revision,
     )
     return photograph_with_metadata(path.read_bytes(), record)

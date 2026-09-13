@@ -128,18 +128,21 @@ def photograph_record(
     tablet_url: str,
     *,
     commit: str | None,
+    change: str | None,
     revision: str | None,
 ) -> PhotographRecord:
     """Describe the photograph of ``instance``.
 
-    ``commit`` is the Git commit of the application, and ``revision`` is the
-    migration revision of the database. Each is None if it is not known.
+    ``commit`` is the Git commit of the application, ``change`` is the jj
+    change ID of that commit, and ``revision`` is the migration revision of the
+    database. Each is None if it is not known.
     """
     sign, tablet = instance.sign, instance.tablet
     versions: Properties = [
         (name, value)
         for name, value in (
             ("applicationCommit", commit),
+            ("applicationChange", change),
             ("databaseRevision", revision),
         )
         if value

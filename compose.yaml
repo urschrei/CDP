@@ -3,8 +3,10 @@ services:
     build:
       context: .
       args:
-        # The Git commit of the code. The README gives the build command.
+        # The Git commit and the jj change ID of the code. The README gives the
+        # build command.
         CDPP_COMMIT: ${CDPP_COMMIT:-}
+        CDPP_CHANGE: ${CDPP_CHANGE:-}
     ports:
       - "8000:8000"
     volumes:

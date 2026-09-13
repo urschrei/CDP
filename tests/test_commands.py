@@ -182,3 +182,35 @@ def test_alalah_merge_and_ruler_name_trim_can_be_undone_and_done_again(
         assert db.session.execute(cities).all() == [("Alalakh", 6)]
         assert db.session.scalars(reign_cities).all() == ["Alalakh"] * 3
         assert db.session.scalar(padded_rulers) == 0
+
+
+def test_period_and_locality_corrections_can_be_undone_and_done_again(
+    project_app: Flask,
+) -> None:
+    checks = [
+        text(
+            "SELECT count(*) FROM tablet t JOIN sub_period s ON s.id = t.sub_period_id "
+            "WHERE t.period_id != s.period_id"
+        ),
+        text(
+            "SELECT count(*) FROM reign r JOIN sub_period s ON s.id = r.sub_period_id "
+            "WHERE r.period_id != s.period_id"
+        ),
+        text(
+            "SELECT count(*) FROM tablet t JOIN city c ON c.id = t.city_id "
+            "WHERE c.locality_id IS NOT NULL AND t.locality_id IS NULL"
+        ),
+        text("SELECT count(*) FROM period WHERE name = 'ED'"),
+    ]
+
+    def contradictions() -> list[int | None]:
+        return [db.session.scalar(check) for check in checks]
+
+    with project_app.app_context():
+        assert contradictions() == [0, 0, 0, 0]
+
+        downgrade(revision="c9b4e2a7d613")
+        assert contradictions() == [39, 50, 2, 1]
+
+        upgrade()
+        assert contradictions() == [0, 0, 0, 0]

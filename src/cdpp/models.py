@@ -554,6 +554,11 @@ class CdliArtifact(Entity):
     accession_no: Mapped[str | None] = mapped_column(String(500))
     primary_publication: Mapped[str | None] = mapped_column(String(500))
     publication_history: Mapped[str | None] = mapped_column(String(2000))
+    period: Mapped[str | None] = mapped_column(String(200))
+    provenience: Mapped[str | None] = mapped_column(String(200))
+    object_type: Mapped[str | None] = mapped_column(String(200))
+    material: Mapped[str | None] = mapped_column(String(200))
+    language: Mapped[str | None] = mapped_column(String(200))
 
 
 class OraccText(Entity):

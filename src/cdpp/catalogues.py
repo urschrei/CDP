@@ -47,6 +47,11 @@ CDLI_FIELDS = (
     "accession_no",
     "primary_publication",
     "publication_history",
+    "period",
+    "provenience",
+    "object_type",
+    "material",
+    "language",
 )
 # CDLI writes these collection names in front of some museum numbers. The CDP
 # does not.
@@ -204,6 +209,11 @@ def replace_cdli_snapshot(rows: Iterable[CatalogueRow]) -> tuple[int, int]:
                     accession_no=row["accession_no"] or None,
                     primary_publication=row["primary_publication"] or None,
                     publication_history=row["publication_history"] or None,
+                    period=row["period"] or None,
+                    provenience=row["provenience"] or None,
+                    object_type=row["object_type"] or None,
+                    material=row["material"] or None,
+                    language=row["language"] or None,
                 )
             )
             entries += 1

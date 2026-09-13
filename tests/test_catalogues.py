@@ -35,6 +35,11 @@ def cdli_row(
         "accession_no": accession_no,
         "primary_publication": "",
         "publication_history": "",
+        "period": "",
+        "provenience": "",
+        "object_type": "",
+        "material": "",
+        "language": "",
     }
 
 
@@ -102,7 +107,9 @@ def test_import_cdli_replaces_the_snapshot_and_links_tablet_pages(
         writer = csv.DictWriter(file, fieldnames=CDLI_FIELDS)
         writer.writeheader()
         writer.writerow(cdli_row("12345", "BM 012345"))
-        writer.writerow(cdli_row("7", "OIM A 1"))
+        writer.writerow(
+            {**cdli_row("7", "OIM A 1"), "period": "Old Babylonian (ca. 1900-1600 BC)"}
+        )
         writer.writerow(cdli_row("8", "USC 1", "A 1"))
     runner = app.test_cli_runner()
 
@@ -111,8 +118,13 @@ def test_import_cdli_replaces_the_snapshot_and_links_tablet_pages(
         assert result.exit_code == 0, result.output
 
     assert "Matched 2 tablets to 2 CDLI catalogue entries." in result.output
-    stored = select(CdliArtifact.p_number).order_by(CdliArtifact.p_number)
-    assert db.session.scalars(stored).all() == ["P000007", "P012345"]
+    stored = select(CdliArtifact.p_number, CdliArtifact.period).order_by(
+        CdliArtifact.p_number
+    )
+    assert db.session.execute(stored).tuples().all() == [
+        ("P000007", "Old Babylonian (ca. 1900-1600 BC)"),
+        ("P012345", None),
+    ]
     html = client.get(f"/tablets/{sample.tablet.id}").get_data(as_text=True)
     assert '<a href="https://cdli.earth/P000007">P000007</a>' in html
 

@@ -1,4 +1,7 @@
 import csv
+import json
+import zipfile
+from collections.abc import Iterable
 from pathlib import Path
 
 import pytest
@@ -6,9 +9,16 @@ from flask import Flask
 from flask.testing import FlaskClient
 from sqlalchemy import select
 
-from cdpp.catalogues import CDLI_FIELDS, catalogue_keys, match_cdli, tablet_key
+from cdpp.catalogues import (
+    CDLI_FIELDS,
+    catalogue_keys,
+    match_cdli,
+    match_oracc,
+    read_oracc_archive,
+    tablet_key,
+)
 from cdpp.db import db
-from cdpp.models import CdliArtifact
+from cdpp.models import CdliArtifact, OraccText
 from tests.conftest import Sample
 
 
@@ -105,3 +115,70 @@ def test_import_cdli_replaces_the_snapshot_and_links_tablet_pages(
     assert db.session.scalars(stored).all() == ["P000007", "P012345"]
     html = client.get(f"/tablets/{sample.tablet.id}").get_data(as_text=True)
     assert '<a href="https://cdli.earth/P000007">P000007</a>' in html
+
+
+def oracc_archive(
+    path: Path, name: str, members: dict[str, dict[str, str]], edited: Iterable[str]
+) -> Path:
+    with zipfile.ZipFile(path, "w") as archive:
+        archive.writestr(f"{name}/catalogue.json", json.dumps({"members": members}))
+        for text_id in edited:
+            archive.writestr(f"{name}/corpusjson/{text_id}.json", "{}")
+    return path
+
+
+def test_oracc_match_uses_numbers_and_exemplars_of_texts_with_pages(
+    tmp_path: Path,
+) -> None:
+    path = oracc_archive(
+        tmp_path / "saao.zip",
+        "saao",
+        {
+            "P000001": {"project": "saao", "museum_no": "BM 012345"},
+            "P000002": {"project": "saao", "museum_no": "BM 012345"},
+            "P000003": {"project": "saa08", "accession_no": "K 00039 + K 00153"},
+            "P000004": {"project": "saa08", "accession_no": "K 05422B"},
+            "Q000005": {
+                "project": "saao/saa02",
+                "exemplars": "VAT 01000; Rm 2, 427 (+) K 00001",
+            },
+        },
+        edited=["P000001"],
+    )
+    with path.open("rb") as file:
+        archive = read_oracc_archive(file)
+    tablets = {1: "BM_12345", 2: "K_39", 3: "Rm2_427", 4: "K_5422_a"}
+
+    matches = match_oracc(archive, tablets)
+
+    assert matches == {
+        1: {("saao", "P000001")},
+        2: {("saao/saa08", "P000003")},
+        3: {("saao/saa02", "Q000005")},
+    }
+
+
+def test_import_oracc_texts_replaces_the_snapshot_and_links_tablet_pages(
+    app: Flask, client: FlaskClient, sample: Sample, tmp_path: Path
+) -> None:
+    path = oracc_archive(
+        tmp_path / "dcclt.zip",
+        "dcclt",
+        {
+            "Q000001": {"project": "dcclt/nineveh", "exemplars": "A 1"},
+            "P000002": {"project": "dcclt", "museum_no": "A 1"},
+        },
+        edited=[],
+    )
+    runner = app.test_cli_runner()
+
+    for _ in range(2):
+        result = runner.invoke(args=["import-oracc-texts", str(path)])
+        assert result.exit_code == 0, result.output
+
+    assert "Matched 1 tablets to 1 Oracc texts." in result.output
+    assert db.session.scalars(select(OraccText.project)).all() == ["dcclt/nineveh"]
+    html = client.get(f"/tablets/{sample.tablet.id}").get_data(as_text=True)
+    assert '<dt class="text-muted">DCCLT</dt>' in html
+    link = "https://oracc.museum.upenn.edu/dcclt/nineveh/Q000001"
+    assert f'<a href="{link}">Q000001</a>' in html

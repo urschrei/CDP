@@ -556,6 +556,17 @@ class CdliArtifact(Entity):
     publication_history: Mapped[str | None] = mapped_column(String(2000))
 
 
+class OraccText(Entity):
+    """An Oracc text whose catalogue entry has the museum number of a tablet."""
+
+    __tablename__ = "oracc_text"
+    __table_args__ = (UniqueConstraint("tablet_id", "project", "text_id"),)
+
+    tablet_id: Mapped[int] = reference("tablet.id", ondelete="CASCADE")
+    project: Mapped[str] = mapped_column(String(50))
+    text_id: Mapped[str] = mapped_column(String(12))
+
+
 # Edits
 
 

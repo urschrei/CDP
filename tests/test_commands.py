@@ -340,3 +340,17 @@ def test_cdli_artifact_table_comes_and_goes_with_its_migration(
 
         upgrade()
         assert inspect(db.engine).has_table("cdli_artifact")
+
+
+def test_oracc_text_table_comes_and_goes_with_its_migration(
+    project_app: Flask,
+) -> None:
+    with project_app.app_context():
+        assert inspect(db.engine).has_table("oracc_text")
+
+        downgrade(revision="c4d8e2f1a376")
+        assert not inspect(db.engine).has_table("oracc_text")
+        assert inspect(db.engine).has_table("cdli_artifact")
+
+        upgrade()
+        assert inspect(db.engine).has_table("oracc_text")

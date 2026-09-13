@@ -8,23 +8,32 @@ numbers, is the same for these forms.
 
 CDLI lets users copy and re-use the text of its catalogue, with a reference to
 CDLI: https://cdli.earth/terms-of-use
+
+The catalogues in the Oracc JSON archives are released under CC0. The snapshot
+keeps only the project and the ID of each Oracc text.
 """
 
 import csv
 import io
+import json
 import re
+import shutil
+import tempfile
 import urllib.request
+import zipfile
 from collections import defaultdict
 from collections.abc import Iterable, Iterator, Mapping
 from contextlib import contextmanager
+from dataclasses import dataclass
 from pathlib import Path
+from typing import IO, Any
 
 import click
 from flask.cli import with_appcontext
 from sqlalchemy import delete, select
 
 from cdpp.db import db
-from cdpp.models import CdliArtifact, Tablet
+from cdpp.models import CdliArtifact, OraccText, Tablet
 
 CDLI_CATALOGUE_URL = (
     "https://media.githubusercontent.com/media/cdli-gh/data/master/cdli_cat.csv"
@@ -44,6 +53,25 @@ CDLI_FIELDS = (
 COLLECTION_PREFIXES = frozenset({"ASHM", "OIM", "UM"})
 # Fields of the CDLI catalogue can be longer than the default limit of csv.
 FIELD_SIZE_LIMIT = 2**31 - 1
+
+ORACC_LABELS = {
+    "saao": "SAAo",
+    "riao": "RIAo",
+    "rinap": "RINAP",
+    "ribo": "RIBo",
+    "dcclt": "DCCLT",
+}
+ORACC_ARCHIVE_URL = "https://oracc.museum.upenn.edu/json/{archive}.zip"
+ORACC_PAGE_URL = "https://oracc.museum.upenn.edu/{project}/{text_id}"
+# The fields of an Oracc catalogue entry that can contain the museum number of
+# a tablet. "exemplars" lists the objects of a composite text.
+ORACC_NUMBER_FIELDS = (
+    "museum_no",
+    "cdli_museum_no",
+    "accession_no",
+    "cdli_accession_no",
+    "exemplars",
+)
 
 type CatalogueRow = Mapping[str, str]
 
@@ -71,6 +99,18 @@ def tablet_key(museum_number: str) -> str | None:
     A seal impression, as in BM_14030_seal, has the number of its tablet.
     """
     return museum_number_key(re.sub(r"_seal$", "", museum_number))
+
+
+def tablets_by_key(tablets: Mapping[int, str]) -> dict[str, list[int]]:
+    """Return the IDs of the tablets with each key.
+
+    ``tablets`` maps tablet IDs to museum numbers.
+    """
+    by_key: dict[str, list[int]] = defaultdict(list)
+    for tablet_id, museum_number in tablets.items():
+        if key := tablet_key(museum_number):
+            by_key[key].append(tablet_id)
+    return by_key
 
 
 def catalogue_keys(text: str | None) -> set[str]:
@@ -115,11 +155,7 @@ def match_cdli(
 
     Only the rows of the best rank of each tablet are returned.
     """
-    by_key: dict[str, list[int]] = defaultdict(list)
-    for tablet_id, museum_number in tablets.items():
-        if key := tablet_key(museum_number):
-            by_key[key].append(tablet_id)
-
+    by_key = tablets_by_key(tablets)
     found: dict[int, dict[int, list[CatalogueRow]]] = defaultdict(
         lambda: defaultdict(list)
     )
@@ -144,14 +180,17 @@ def p_number(id_text: str) -> str:
     return f"P{int(id_text):06d}"
 
 
+def tablet_museum_numbers() -> dict[int, str]:
+    query = select(Tablet.id, Tablet.museum_number)
+    return {tablet_id: number for tablet_id, number in db.session.execute(query)}
+
+
 def replace_cdli_snapshot(rows: Iterable[CatalogueRow]) -> tuple[int, int]:
     """Replace the CDLI snapshot with the rows that match tablets.
 
     Return the number of matched tablets and the number of catalogue entries.
     """
-    query = select(Tablet.id, Tablet.museum_number)
-    tablets = {tablet_id: number for tablet_id, number in db.session.execute(query)}
-    matches = match_cdli(rows, tablets)
+    matches = match_cdli(rows, tablet_museum_numbers())
     db.session.execute(delete(CdliArtifact))
     entries = 0
     for tablet_id, matched in sorted(matches.items()):
@@ -172,20 +211,113 @@ def replace_cdli_snapshot(rows: Iterable[CatalogueRow]) -> tuple[int, int]:
     return len(matches), entries
 
 
+@dataclass(frozen=True)
+class OraccArchive:
+    """The catalogue of an Oracc JSON archive, and the texts it has editions of."""
+
+    name: str
+    members: Mapping[str, Mapping[str, Any]]
+    edited: frozenset[str]
+
+
+def read_oracc_archive(file: IO[bytes]) -> OraccArchive:
+    """Read the catalogue and the names of the editions of an Oracc JSON archive."""
+    with zipfile.ZipFile(file) as archive:
+        names = archive.namelist()
+        catalogue = next(n for n in names if re.fullmatch(r"[^/]+/catalogue\.json", n))
+        name = catalogue.split("/")[0]
+        members = json.loads(archive.read(catalogue))["members"]
+    pattern = re.compile(rf"{re.escape(name)}/corpusjson/(\w+)\.json")
+    edited = frozenset(match.group(1) for n in names if (match := pattern.fullmatch(n)))
+    return OraccArchive(name, members, edited)
+
+
+def oracc_project(archive: str, project: str) -> str:
+    """Return the project path of a catalogue entry, as in saao/saa08.
+
+    The SAAo catalogue gives a subproject without its project, as in saa08.
+    """
+    if project == archive or project.startswith(f"{archive}/"):
+        return project
+    return f"{archive}/{project}"
+
+
+def match_oracc(
+    archive: OraccArchive, tablets: Mapping[int, str]
+) -> dict[int, set[tuple[str, str]]]:
+    """Return the Oracc texts of each tablet, as pairs of project and text ID.
+
+    ``tablets`` maps tablet IDs to museum numbers. A text matches a tablet if a
+    number field of the text has the key of the tablet. The match does not use
+    the P-number of the CDLI entry of the tablet: for K_5422_a, CDLI and Oracc
+    give P345979 to different fragments, and the Oracc page is empty.
+
+    The archive of a project contains the editions of the project, but not the
+    editions of its subprojects. The page of a text of the project is empty if
+    the project has no edition of it. Thus such a text does not match.
+    """
+    by_key = tablets_by_key(tablets)
+    found: dict[int, set[tuple[str, str]]] = defaultdict(set)
+    for text_id, entry in archive.members.items():
+        project = oracc_project(archive.name, entry.get("project") or archive.name)
+        if project == archive.name and text_id not in archive.edited:
+            continue
+        keys: set[str] = set()
+        for field in ORACC_NUMBER_FIELDS:
+            if isinstance(value := entry.get(field), str):
+                keys |= catalogue_keys(value)
+        for key in keys & by_key.keys():
+            for tablet_id in by_key[key]:
+                found[tablet_id].add((project, text_id))
+    return dict(found)
+
+
+def replace_oracc_snapshot(archives: Iterable[OraccArchive]) -> tuple[int, int]:
+    """Replace the Oracc snapshot with the texts that match tablets.
+
+    Return the number of matched tablets and the number of texts.
+    """
+    tablets = tablet_museum_numbers()
+    found: dict[int, set[tuple[str, str]]] = defaultdict(set)
+    for archive in archives:
+        for tablet_id, texts in match_oracc(archive, tablets).items():
+            found[tablet_id] |= texts
+    db.session.execute(delete(OraccText))
+    for tablet_id, texts in sorted(found.items()):
+        for project, text_id in sorted(texts):
+            db.session.add(
+                OraccText(tablet_id=tablet_id, project=project, text_id=text_id)
+            )
+    db.session.commit()
+    return len(found), sum(len(texts) for texts in found.values())
+
+
 def catalogue_links(tablet_id: int) -> list[tuple[str, list[tuple[str, str]]]]:
     """Return the links of a tablet page to catalogue entries, by catalogue."""
+    links: list[tuple[str, list[tuple[str, str]]]] = []
     artifacts = db.session.scalars(
         select(CdliArtifact)
         .where(CdliArtifact.tablet_id == tablet_id)
         .order_by(CdliArtifact.p_number)
     ).all()
-    links: list[tuple[str, list[tuple[str, str]]]] = []
     if artifacts:
         cdli = [
             (artifact.p_number, CDLI_PAGE_URL.format(p_number=artifact.p_number))
             for artifact in artifacts
         ]
         links.append(("CDLI", cdli))
+    texts = db.session.scalars(
+        select(OraccText)
+        .where(OraccText.tablet_id == tablet_id)
+        .order_by(OraccText.project, OraccText.text_id)
+    ).all()
+    by_archive: dict[str, list[tuple[str, str]]] = defaultdict(list)
+    for text in texts:
+        url = ORACC_PAGE_URL.format(project=text.project, text_id=text.text_id)
+        by_archive[text.project.split("/")[0]].append((text.text_id, url))
+    for archive, label in ORACC_LABELS.items():
+        if archive in by_archive:
+            links.append((label, by_archive[archive]))
     return links
 
 
@@ -197,6 +329,26 @@ def open_text(source: str) -> Iterator[io.TextIOBase]:
             yield io.TextIOWrapper(response, encoding="utf-8", newline="")
     else:
         with Path(source).open(encoding="utf-8", newline="") as file:
+            yield file
+
+
+@contextmanager
+def open_binary(source: str) -> Iterator[IO[bytes]]:
+    """Open a file from a path, or a copy of a file from an HTTP or HTTPS URL.
+
+    A zip file needs random access, so the copy of a download is a temporary
+    file.
+    """
+    if source.startswith(("https://", "http://")):
+        with (
+            urllib.request.urlopen(source, timeout=600) as response,
+            tempfile.TemporaryFile() as file,
+        ):
+            shutil.copyfileobj(response, file)
+            file.seek(0)
+            yield file
+    else:
+        with Path(source).open("rb") as file:
             yield file
 
 
@@ -213,3 +365,22 @@ def import_cdli(source: str) -> None:
     with open_text(source) as lines:
         tablets, entries = replace_cdli_snapshot(csv.DictReader(lines))
     click.echo(f"Matched {tablets} tablets to {entries} CDLI catalogue entries.")
+
+
+@click.command("import-oracc-texts")
+@click.argument("sources", nargs=-1)
+@with_appcontext
+def import_oracc_texts(sources: tuple[str, ...]) -> None:
+    """Replace the snapshot of the Oracc texts of the tablets.
+
+    Each SOURCE is a path or a URL of an Oracc JSON archive. The default
+    sources are the archives of SAAo, RIAo, RINAP, RIBo and DCCLT. Run
+    'cdpp dump-data' afterwards.
+    """
+    urls = [ORACC_ARCHIVE_URL.format(archive=archive) for archive in ORACC_LABELS]
+    archives = []
+    for source in sources or urls:
+        with open_binary(source) as file:
+            archives.append(read_oracc_archive(file))
+    tablets, texts = replace_oracc_snapshot(archives)
+    click.echo(f"Matched {tablets} tablets to {texts} Oracc texts.")

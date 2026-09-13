@@ -456,6 +456,9 @@ class OraccSign(Entity):
     oid: Mapped[str] = mapped_column(String(12), unique=True)
     name: Mapped[str] = mapped_column(String(200), index=True)
     ebl_url: Mapped[str | None] = mapped_column(String(500))
+    # The sign in Unicode cuneiform, as OSL gives it. Some values contain
+    # characters of the private use area, or X for a part that Unicode lacks.
+    cuneiform: Mapped[str | None] = mapped_column(String(30))
 
     list_numbers: Mapped[list[OraccListNumber]] = relationship(
         lazy="raise_on_sql",

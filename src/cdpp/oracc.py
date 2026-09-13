@@ -34,6 +34,7 @@ class OslEntry:
     name: str
     oid: str | None = None
     ebl_url: str | None = None
+    cuneiform: str | None = None
     numbers: list[tuple[str, str]] = field(default_factory=list)
 
 
@@ -69,6 +70,8 @@ def parse_osl(lines: Iterable[str]) -> list[OslEntry]:
                 current.oid = value
             elif directive == "@list" and (number := LIST_NUMBER_RE.fullmatch(value)):
                 current.numbers.append((number[1], number[2]))
+            elif directive == "@ucun":
+                current.cuneiform = value
             elif directive == "@link" and value.startswith("eBL "):
                 current.ebl_url = quote(value.rsplit(maxsplit=1)[-1], safe=":/")
     return [entry for entry in entries if entry.oid]
@@ -107,6 +110,7 @@ def replace_snapshot(entries: Iterable[OslEntry]) -> tuple[int, int]:
                 oid=entry.oid,
                 name=entry.name,
                 ebl_url=entry.ebl_url,
+                cuneiform=entry.cuneiform,
                 list_numbers=list_numbers,
             )
         )

@@ -16,6 +16,7 @@ ASL = """\
 @oid\to0000087
 @list\tMZL839
 @list\tU+12000
+@ucun\t𒀀
 @link\teBL A https://www.ebl.lmu.de/signs/A
 @v\ta
 @form |A.A|
@@ -64,6 +65,12 @@ def test_parse_osl_encodes_ebl_links() -> None:
     )
 
 
+def test_parse_osl_reads_the_unicode_cuneiform() -> None:
+    entries = parse_osl(ASL.splitlines())
+
+    assert [entry.cuneiform for entry in entries] == ["𒀀", None, None]
+
+
 @pytest.mark.parametrize(
     ("number", "forms"),
     [
@@ -90,3 +97,5 @@ def test_import_oracc_signs_replaces_the_snapshot(app: Flask, tmp_path: Path) ->
 
     assert db.session.scalar(select(func.count()).select_from(OraccSign)) == 3
     assert db.session.scalar(select(func.count()).select_from(OraccListNumber)) == 3
+    stored = select(OraccSign.cuneiform).where(OraccSign.oid == "o0000087")
+    assert db.session.scalar(stored) == "𒀀"

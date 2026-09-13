@@ -59,6 +59,9 @@ CDP_FIELDS = (
 )
 # Headings of the columns that contain sign names.
 SIGN_NAME_HEADINGS = frozenset({"Description", "ORACC", "CDLI archaic"})
+# The working notes of the editor of the instance data. A tablet page can hide
+# them.
+JJT_NOTES_HEADING = "JJT notes (2012)"
 INSTANCE_HEADINGS = [
     "Sign",
     "Surface",
@@ -67,7 +70,7 @@ INSTANCE_HEADINGS = [
     "Function",
     "Iteration",
     "Language",
-    "JJT notes (2012)",
+    JJT_NOTES_HEADING,
     "Notes",
 ]
 
@@ -330,11 +333,20 @@ def tablet(tablet_id: int) -> ResponseReturnValue:
         ],
     )
     instances = tablet_instances(tablet_id)
-    headings, rows = omit_empty_columns(
-        INSTANCE_HEADINGS, [instance_row(instance) for instance in instances]
-    )
-    return render_template(
+    show_notes = request.args.get("notes") != "hide"
+    headings = INSTANCE_HEADINGS
+    rows = [instance_row(instance) for instance in instances]
+    if not show_notes:
+        notes_column = INSTANCE_HEADINGS.index(JJT_NOTES_HEADING)
+        headings = [h for i, h in enumerate(headings) if i != notes_column]
+        rows = [[v for i, v in enumerate(row) if i != notes_column] for row in rows]
+    headings, rows = omit_empty_columns(headings, rows)
+    return render_page(
         "tablet.html",
+        partial="_tablet_instances.html",
+        target="tablet-instances",
+        show_notes=show_notes,
+        note_count=sum(1 for instance in instances if instance.jjt_notes),
         tablet=tablet,
         details=tablet_details(tablet),
         headings=headings,

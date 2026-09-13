@@ -219,7 +219,7 @@ Set these environment variables to change the defaults.
 | `/signs/SIGN_ID` | A sign, its sign-list entries, and the tablets with photographs of it. |
 | `/signs/SIGN_ID/images` | All photographs of a sign, grouped by tablet. |
 | `/tablets` | All tablets, with filters. |
-| `/tablets/TABLET_ID` | A tablet, its details, and the sign instances on it. |
+| `/tablets/TABLET_ID` | A tablet, its details, and the sign instances on it. Add `notes=hide` to hide the JJT notes. |
 | `/tablets/TABLET_ID/images` | All photographs from a tablet, grouped by sign. |
 | `/search?q=QUERY` | Signs and tablets that match the query. |
 | `/media/instance/FILENAME` | A sign photograph. |

@@ -286,6 +286,40 @@ def test_instance_location_shows_the_line_as_pages_show_it() -> None:
     assert instance_location(instance) == "Rev, line 3′"
 
 
+def test_tablet_page_can_hide_the_jjt_notes(
+    client: FlaskClient, sample: Sample
+) -> None:
+    db.session.execute(
+        update(Instance)
+        .where(Instance.filename == "I_1")
+        .values(jjt_notes="lang autoset to akk")
+    )
+    db.session.commit()
+    url = f"/tablets/{sample.tablet.id}"
+
+    shown = page(client, url)
+    hidden = page(client, f"{url}?notes=hide")
+    partial = page(client, f"{url}?notes=hide", **htmx("tablet-instances"))
+
+    assert ">JJT notes (2012)</th>" in shown
+    assert "lang autoset to akk" in shown
+    assert f'href="{url}?notes=hide"' in shown
+    assert ">JJT notes (2012)</th>" not in hidden
+    assert "lang autoset to akk" not in hidden
+    assert "Show JJT notes (1)" in hidden
+    assert "<html" not in partial
+    assert 'id="tablet-instances"' in partial
+    assert "Show JJT notes (1)" in partial
+
+
+def test_tablet_page_without_jjt_notes_has_no_notes_link(
+    client: FlaskClient, sample: Sample
+) -> None:
+    html = page(client, f"/tablets/{sample.tablet.id}")
+
+    assert "JJT notes" not in html
+
+
 def test_search_status_omits_record_types_without_matches() -> None:
     results = SearchResults(
         sign_ids=[], tablet_ids=[7], estimated_signs=0, estimated_tablets=1

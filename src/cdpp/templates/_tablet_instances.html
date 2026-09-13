@@ -1,0 +1,51 @@
+<section id="tablet-instances" aria-labelledby="instances-heading" class="min-w-0">
+  <h2 id="instances-heading" class="font-sign text-2xl">Signs on this tablet</h2>
+  {% if note_count %}
+    {% if show_notes %}
+      {% set notes_url = url_for("cdpp.tablet", tablet_id=tablet.id, notes="hide") %}
+    {% else %}
+      {% set notes_url = url_for("cdpp.tablet", tablet_id=tablet.id) %}
+    {% endif %}
+    <p class="mt-2">
+      <a id="notes-toggle" href="{{ notes_url }}"
+         hx-get="{{ notes_url }}" hx-target="#tablet-instances" hx-swap="outerHTML" hx-push-url="true">
+        {%- if show_notes %}Hide JJT notes{% else %}Show JJT notes ({{ note_count|thousands }}){% endif -%}
+      </a>
+    </p>
+  {% endif %}
+  {% if has_defaults %}
+    <p class="mt-2 max-w-prose text-muted">Values in italics are defaults. The data record no surface, column or iteration for these signs.</p>
+  {% endif %}
+  <div class="mt-4 overflow-x-auto border-y border-line" tabindex="0" role="region" aria-labelledby="instances-heading">
+    <table class="min-w-full text-left text-sm">
+      <thead>
+        <tr>
+          {% for heading in headings %}
+            <th scope="col" class="px-3 py-2 font-semibold whitespace-nowrap">{{ heading }}</th>
+          {% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in rows %}
+          <tr class="border-t border-line align-baseline">
+            {% for value in row %}
+              {% if loop.first %}
+                <th scope="row" class="px-3 py-2 text-left font-normal">
+                  <a href="{{ url_for('cdpp.sign', sign_id=value.id) }}" class="font-sign text-lg">{{ value.sign_ref }}</a>
+                </th>
+              {% else %}
+                <td class="px-3 py-2">
+                  {%- if value.default is defined and value.default -%}
+                    <span class="text-muted italic">{{ value.text }}<span class="sr-only"> (default)</span></span>
+                  {%- else -%}
+                    {{ value }}
+                  {%- endif -%}
+                </td>
+              {% endif %}
+            {% endfor %}
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>

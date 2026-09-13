@@ -2,7 +2,7 @@
 
 import random
 from collections.abc import Mapping, Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from itertools import groupby
 from pathlib import Path
 from typing import Any
@@ -607,7 +607,27 @@ def record_cells(
             cells.append(Cell(""))
         else:
             cells.append(linked_cell(entry.number, number_signs.get(entry.id)))
-    return cells
+    return without_repeated_ebl_links(cells)
+
+
+def without_repeated_ebl_links(cells: Sequence[Cell]) -> list[Cell]:
+    """Keep only the first link of a row to each eBL page.
+
+    The ORACC name and the sign-list numbers of a record often lead to the same
+    OSL sign, and thus to the same eBL page. A cell that leads to a different
+    eBL page keeps its link.
+    """
+    seen: set[str] = set()
+    kept = []
+    for cell in cells:
+        if cell.ebl_url is None:
+            kept.append(cell)
+        elif cell.ebl_url in seen:
+            kept.append(replace(cell, ebl_url=None))
+        else:
+            seen.add(cell.ebl_url)
+            kept.append(cell)
+    return kept
 
 
 def linked_cell(text: str, oracc_sign: OraccSign | None) -> Cell:

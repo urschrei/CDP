@@ -8,7 +8,13 @@ from sqlalchemy import update
 from cdpp.db import db
 from cdpp.models import Instance, Line, OraccListNumber, OraccSign, SignList, Surface
 from cdpp.search import SearchResults
-from cdpp.views import instance_location, position_text, search_status
+from cdpp.views import (
+    Cell,
+    instance_location,
+    position_text,
+    search_status,
+    without_repeated_ebl_links,
+)
 from tests.conftest import Sample
 
 
@@ -214,13 +220,35 @@ def test_sign_page_links_numbers_and_names_to_the_oracc_sign_list(
     # MesZL 1 is MZL001 of exactly one OSL sign, which is also named AŠ.
     assert '<a href="http://oracc.org/osl/signlist/o0000001">1<span' in html
     assert '<a href="http://oracc.org/osl/signlist/o0000001">AŠ<span' in html
-    # The name and the number both lead to the eBL page that OSL gives.
-    assert html.count('href="https://www.ebl.lmu.de/signs/A%C5%A0"') == 2
+    # The name and the number lead to the same eBL page, so only the name links
+    # to it.
+    assert html.count('href="https://www.ebl.lmu.de/signs/A%C5%A0"') == 1
     assert 'eBL<span class="sr-only"> page for AŠ</span>' in html
-    assert 'eBL<span class="sr-only"> page for MesZL 1</span>' in html
+    assert "page for MesZL 1" not in html
     # LAK 2 is a number of two OSL signs, so it has no link.
     assert "o0000002" not in html
     assert "o0000003" not in html
+
+
+def test_a_row_links_to_each_ebl_page_once() -> None:
+    cells = [
+        Cell("LIŠ", "osl/1", "ebl/LIŠ"),
+        Cell("591", "osl/1", "ebl/LIŠ"),
+        Cell("2", "osl/2", "ebl/DILIM₂"),
+        Cell(""),
+        Cell("377", "osl/1", "ebl/LIŠ"),
+    ]
+
+    kept = without_repeated_ebl_links(cells)
+
+    assert [cell.ebl_url for cell in kept] == [
+        "ebl/LIŠ",
+        None,
+        "ebl/DILIM₂",
+        None,
+        None,
+    ]
+    assert [cell.url for cell in kept] == [cell.url for cell in cells]
 
 
 def test_tablet_page_marks_default_positions(

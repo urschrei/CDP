@@ -8,7 +8,7 @@ from typing import Any
 from flask import Flask
 
 import cdpp.models  # noqa: F401 (registers the tables on the metadata)
-from cdpp import assets, editor, history, instances, views
+from cdpp import access, assets, editor, history, instances, views
 from cdpp.catalogues import import_cdli, import_oracc_texts
 from cdpp.commands import backup, dump_data, import_oracc_signs, load_data, reindex
 from cdpp.db import db, migrate
@@ -38,6 +38,7 @@ def create_app(config: Mapping[str, Any] | None = None) -> Flask:
 
     db.init_app(app)
     migrate.init_app(app, db)
+    access.init_app(app)
     assets.init_app(app)
     for blueprint in (views.bp, editor.bp, history.bp, instances.bp):
         app.register_blueprint(blueprint)

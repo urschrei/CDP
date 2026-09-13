@@ -185,7 +185,7 @@ npm run lint
 `compose.yaml` runs the application with gunicorn on port 8000. The database, with its search tables, is on the `data` volume. The images in `media/` and the dump in `db_dumps/` are mounted read-only.
 
 > [!IMPORTANT]
-> The site has no sign-in. Anyone who can reach it can edit. Run it only on a private network.
+> If `CDPP_PASSWORD` is not set, anyone who can reach the site can edit. Set it, or run the site only on a private network.
 
 1. Build the application image:
 
@@ -233,6 +233,7 @@ Set these environment variables to change the defaults.
 | --- | --- | --- |
 | `CDPP_SQLALCHEMY_DATABASE_URI` | `sqlite:///instance/cdpp.sqlite3`, in the project directory | Database URL. The application works only with SQLite. |
 | `CDPP_MEDIA_ROOT` | `media`, in the project directory | Directory that contains the `instance` directory of sign photographs. |
+| `CDPP_PASSWORD` | Not set | Password that each request must give, with HTTP basic authentication. The user name can be any text. If the variable is not set, the site does not ask for a password. |
 
 ### Pages
 
@@ -294,7 +295,7 @@ Each save of an edit form is one transaction. It changes the record, and writes 
 
 An edit form contains a digest of the values that it shows. If the digest of the saved values is different when the form is saved, someone saved a change after the form was loaded, and the save stops. Undo writes a new change set that sets each value back to its old value, and refers to the change set that it undoes. Undo stops if a later change set changed one of the values. New lookup records stay after an undo, because other records can refer to them.
 
-The site has no sign-in. A cookie keeps the editor's name, and the site refuses a form that a page on another site sends. Run the site only on a private network.
+The site has no user accounts. If `CDPP_PASSWORD` is set, each request must give that password. A cookie keeps the editor's name, and the site refuses a form that a page on another site sends.
 
 ### Search
 

@@ -327,6 +327,10 @@ An edit form contains a digest of the values that it shows. If the digest of the
 
 The site has no user accounts. If `CDPP_PASSWORD` is set, each request must give that password. A cookie keeps the editor's name, and the site refuses a form that a page on another site sends.
 
+### Consistency rules
+
+The schema stores some values twice: a tablet has a period and a sub-period, a locality and a city, and an eponym and a year. SQLite triggers refuse a change to a tablet or a reign that contradicts its sub-period, its city or its year, and a change to a sub-period, a city or a year that contradicts its tablets or reigns. `CONSISTENCY_RULES` in `src/cdpp/models.py` defines the rules, and a migration creates the same triggers. The triggers do not check the rows that existed before them. A migration that makes one of these tables again in batch mode removes its triggers, so it must create them again: a test compares the triggers of a migrated database with the triggers of the models.
+
 ### Search
 
 Search uses two SQLite FTS5 tables with the trigram tokenizer: `search_sign` holds the name of each sign and its names in other sign lists, and `search_tablet` holds the details of each tablet. The tables hold the text in a normalised form, Unicode NFKC and then case folding, so `gir3` finds GIR₃, and `S` and `Š` stay distinct. A search finds the records with a field that contains the query. An exact value ranks first, then a value that starts with the query, then a value that contains it. The trigram index cannot find a query shorter than three characters, so a shorter query reads all the rows. The search tables are derived from the other tables, so they are not in the models, the migrations or the dump. `cdpp load-data` and `cdpp reindex` make them, and a search makes them if they do not exist. The edit forms change only sign instances, which the search tables do not contain.

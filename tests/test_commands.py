@@ -286,7 +286,8 @@ def test_change_tables_and_their_triggers_come_and_go_with_the_migration(
     project_app: Flask,
 ) -> None:
     triggers = text(
-        "SELECT name FROM sqlite_schema WHERE type = 'trigger' ORDER BY name"
+        "SELECT name FROM sqlite_schema"
+        " WHERE type = 'trigger' AND name LIKE 'change%' ORDER BY name"
     )
     expected = [
         "change_no_delete",
@@ -343,6 +344,32 @@ def test_empty_tablet_columns_go_and_come_back(project_app: Flask) -> None:
 
         upgrade()
         assert not removed & columns()
+
+
+def test_migrations_create_the_triggers_of_the_models(
+    project_app: Flask, tmp_path: Path
+) -> None:
+    triggers = text(
+        "SELECT name, sql FROM sqlite_schema WHERE type = 'trigger' ORDER BY name"
+    )
+    rules = text(
+        "SELECT count(*) FROM sqlite_schema"
+        " WHERE type = 'trigger' AND name NOT LIKE 'change%'"
+    )
+    # A migration that makes a table again in batch mode removes its triggers,
+    # and this test fails.
+    with file_app(tmp_path / "models.sqlite3").app_context():
+        db.create_all()
+        modelled = db.session.execute(triggers).all()
+
+    with project_app.app_context():
+        assert db.session.execute(triggers).all() == modelled
+
+        downgrade(revision="73708b382e0f")
+        assert db.session.scalar(rules) == 0
+
+        upgrade()
+        assert db.session.execute(triggers).all() == modelled
 
 
 def test_cdli_artifact_table_comes_and_goes_with_its_migration(

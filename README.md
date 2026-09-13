@@ -182,7 +182,7 @@ npm run lint
 
 ### Deploying with Docker Compose
 
-`compose.yaml` runs the application with gunicorn on port 8000. The database, with its search tables, is on the `data` volume. The images in `media/` and the dump in `db_dumps/` are mounted read-only.
+`compose.yaml` runs the application with gunicorn on port 8000. The database, with its search tables, is on the `data` volume. The image contains the photographs and the dump. At the first start, `deploy/start.sh` creates the database from the dump. At each later start, it applies newer migrations.
 
 > [!IMPORTANT]
 > If `CDPP_PASSWORD` is not set, anyone who can reach the site can edit. Set it, or run the site only on a private network.
@@ -193,17 +193,37 @@ npm run lint
    docker compose build
    ```
 
-2. Create the database from the dump:
-
-   ```sh
-   docker compose run --rm app cdpp load-data
-   ```
-
-3. Start the application:
+2. Start the application:
 
    ```sh
    docker compose up -d
    ```
+
+### Deploying to Fly.io
+
+`fly.toml` runs the application on one machine in London, with the database on the volume `cdpp_data`. The machine suspends when it has no requests, and starts again at the next request. The file server of the machine sends the photographs from the image, so a request for a photograph does not need the password. Fly takes a snapshot of the volume each day, and keeps each snapshot for 60 days.
+
+1. Create the application:
+
+   ```sh
+   fly apps create cdpp --org personal
+   ```
+
+2. Set the password:
+
+   ```sh
+   fly secrets set --stage -a cdpp CDPP_PASSWORD=PASSWORD
+   ```
+
+3. Deploy:
+
+   ```sh
+   fly deploy --ha=false
+   ```
+
+   The first deployment creates the volume, and `deploy/start.sh` creates the database from `db_dumps/cdpp.sql`. Each later deployment applies newer migrations to the database on the volume, and does not load the dump.
+
+To change the password, run `fly secrets set -a cdpp CDPP_PASSWORD=PASSWORD`. The machine restarts with the new password.
 
 ## Reference
 
@@ -278,6 +298,9 @@ Each filter selects the tablets with a related record of the given name, for exa
 | `docs/questions-for-the-editors.md` | Questions for the editors of the data, with the tablets, signs and photographs that each question is about. |
 | `db_dumps/cdpp.sql` | A snapshot of the data: an SQLite dump of the schema, the records, the change sets and the migration revision. |
 | `media/instance/` | Sign photographs. |
+| `Dockerfile`, `compose.yaml` | The application image, and a Docker Compose service that runs it. |
+| `deploy/start.sh` | Start script of the image: prepares the database on `/data`, then starts gunicorn. |
+| `fly.toml` | Fly.io configuration. |
 | `utils/`, `csvs/` | Notebooks and spreadsheets from the original preparation of the data. They are not used by the application. |
 | `utils/restore_2013_values.py` | Writes the CSV files of the migration that restores the values that the import of 2014 did not copy. |
 
@@ -315,7 +338,7 @@ A sign page, the list of signs and the search results show a sign in Unicode cun
 
 ### Photographs, instance pages and comparisons
 
-The photographs have the extension `.jpg`, but most of them are GIF images. The server reads the first bytes of each file, and sends the photograph with the type of its content. An instance page and a comparison read the width and the height from the header of the file, and set the size of the enlarged image from them.
+The photographs have the extension `.jpg`, but most of them are GIF images. The application reads the first bytes of each file, and sends the photograph with the type of its content. On Fly.io, the file server of the machine sends the photographs with the type `image/jpeg` and without cache headers. Browsers identify an image by its content, so they show the GIF images. An instance page and a comparison read the width and the height from the header of the file, and set the size of the enlarged image from them.
 
 On an instance page, the instances of the same sign are in the order of the period, from the first year of the period, then of the museum number, then of the position. The order of positions is the surface (obverse, reverse, then the other surfaces), the column as a Roman numeral, and the line. An instance without a surface or a column sorts with the default, obverse and column i.
 

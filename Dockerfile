@@ -10,28 +10,38 @@ COPY src/cdpp/templates src/cdpp/templates
 RUN npm run build
 
 # Install the application.
-FROM astral/uv:0.12-python3.14-trixie-slim
+FROM ghcr.io/astral-sh/uv:0.12.13-python3.14-trixie-slim
 ENV UV_COMPILE_BYTECODE=1 \
     UV_LINK_MODE=copy \
     UV_NO_DEV=1 \
     UV_PYTHON_DOWNLOADS=0
 WORKDIR /app
 
+# The photographs change less often than the code, so their layer comes first.
+COPY media/instance media/instance
+
+RUN --mount=type=cache,target=/root/.cache/uv \
+    --mount=type=bind,source=uv.lock,target=uv.lock \
+    --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
+    --mount=type=bind,source=.python-version,target=.python-version \
+    uv sync --locked --no-install-project
+
 COPY pyproject.toml uv.lock .python-version README.md ./
-RUN --mount=type=cache,target=/root/.cache/uv uv sync --locked --no-install-project
 COPY src src
 COPY migrations migrations
 COPY --from=assets /app/src/cdpp/static/dist src/cdpp/static/dist
 RUN --mount=type=cache,target=/root/.cache/uv uv sync --locked
 
-RUN useradd --system --home-dir /app cdpp \
+COPY db_dumps/cdpp.sql db_dumps/cdpp.sql
+COPY --chmod=755 deploy/start.sh deploy/start.sh
+RUN useradd --system --user-group --home-dir /app cdpp \
     && mkdir -p /data /app/instance \
-    && chown cdpp /data /app/instance
-USER cdpp
+    && chown cdpp:cdpp /data /app/instance
 
-# Mount the database volume on /data and the images on /app/media.
+# Mount the database volume on /data. deploy/start.sh starts as root, and
+# starts the application as the user cdpp.
 ENV PATH="/app/.venv/bin:$PATH" \
     CDPP_SQLALCHEMY_DATABASE_URI=sqlite:////data/cdpp.sqlite3 \
     CDPP_MEDIA_ROOT=/app/media
 EXPOSE 8000
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "--workers", "3", "cdpp:create_app()"]
+CMD ["deploy/start.sh"]

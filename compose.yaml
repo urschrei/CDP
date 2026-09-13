@@ -5,8 +5,6 @@ services:
       - "8000:8000"
     volumes:
       - data:/data
-      - ./media:/app/media:ro
-      - ./db_dumps:/app/db_dumps:ro
 
 volumes:
   data:

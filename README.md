@@ -93,7 +93,7 @@ uv run cdpp dump-data
 
 ### Rebuilding the search tables
 
-The search tables do not change when you change records with SQL, a migration or `cdpp import-oracc-signs`. Make them again:
+The search tables do not change when you change records with SQL, a migration or `cdpp import-oracc-signs`. `cdpp import-cdli`, `cdpp import-oracc-texts` and the start script of the image make them again. To make them again after other changes:
 
 ```sh
 uv run cdpp reindex
@@ -188,7 +188,7 @@ npm run lint
 
 ### Deploying with Docker Compose
 
-`compose.yaml` runs the application with gunicorn on port 8000. The database, with its search tables, is on the `data` volume. The image contains the photographs and the dump. At the first start, `deploy/start.sh` creates the database from the dump. At each later start, it applies newer migrations.
+`compose.yaml` runs the application with gunicorn on port 8000. The database, with its search tables, is on the `data` volume. The image contains the photographs and the dump. At the first start, `deploy/start.sh` creates the database from the dump. At each later start, it applies newer migrations and makes the search tables again.
 
 > [!IMPORTANT]
 > If `CDPP_PASSWORD` is not set, anyone who can reach the site can edit. Set it, or run the site only on a private network.
@@ -337,7 +337,7 @@ Years are integers in astronomical numbering: 1 BC is 0, and 1244 BC is -1243. `
 
 ### Search
 
-Search uses two SQLite FTS5 tables with the trigram tokenizer: `search_sign` holds the name of each sign and its names in other sign lists, and `search_tablet` holds the details of each tablet. The tables hold the text in a normalised form, Unicode NFKC and then case folding, so `gir3` finds GIR₃, and `S` and `Š` stay distinct. A search finds the records with a field that contains the query. An exact value ranks first, then a value that starts with the query, then a value that contains it. The trigram index cannot find a query shorter than three characters, so a shorter query reads all the rows. The search tables are derived from the other tables, so they are not in the models, the migrations or the dump. `cdpp load-data` and `cdpp reindex` make them, and a search makes them if they do not exist. The edit forms change only sign instances, which the search tables do not contain.
+Search uses two SQLite FTS5 tables with the trigram tokenizer: `search_sign` holds the name of each sign and its names in other sign lists, and `search_tablet` holds the details of each tablet: its museum number, and its CDLI and Oracc numbers; its rulers, eponym and year; its city, the other names of the city in CDLI, its origin city and its locality; its period and sub-period, and the CDLI names of the period; its senders, recipients and languages; and its genre, text vehicle, script type, medium, method, publication and notes. The tables hold the text in a normalised form, Unicode NFKC and then case folding, so `gir3` finds GIR₃, and `S` and `Š` stay distinct. A search finds the records with a field that contains the query. An exact value ranks first, then a value that starts with the query, then a value that contains it. The trigram index cannot find a query shorter than three characters, so a shorter query reads all the rows. The search tables are derived from the other tables, so they are not in the models, the migrations or the dump. `cdpp load-data` and `cdpp reindex` make them, and a search makes them if they do not exist. The edit forms change only sign instances, which the search tables do not contain.
 
 ### Links to sign lists
 

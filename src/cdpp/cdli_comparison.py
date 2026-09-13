@@ -135,10 +135,25 @@ def period_agrees(period: str, sub_period: str | None, text: str | None) -> bool
     )
 
 
-def cdli_place_names(text: str | None) -> frozenset[str] | None:
-    """Return the ancient and the modern name of a CDLI place, folded.
+def cdli_periods(period: str, sub_period: str | None) -> list[str]:
+    """Return the CDLI periods that name a period and a sub-period of the data.
 
-    "Kanesh (mod. Kültepe)" gives kanesh and kultepe. Return None if CDLI does
+    A CDLI period that requires a sub-period does not name a tablet without
+    that sub-period: Early Old Babylonian does not name an Old Babylonian
+    tablet without a sub-period.
+    """
+    return [
+        label
+        for label, term in PERIODS.items()
+        if term.period == period
+        and (not term.sub_periods or sub_period in term.sub_periods)
+    ]
+
+
+def cdli_place(text: str | None) -> tuple[str, ...] | None:
+    """Return the ancient name of a CDLI place, and its modern name if CDLI gives one.
+
+    "Kanesh (mod. Kültepe) ?" gives Kanesh and Kültepe. Return None if CDLI does
     not know the place, as in "uncertain (mod. Babylonia)".
     """
     value = known(text)
@@ -146,10 +161,16 @@ def cdli_place_names(text: str | None) -> frozenset[str] | None:
         return None
     match = PLACE.fullmatch(value)
     if match is None:
-        return frozenset({fold(value)})
+        return (value,)
     if fold(match["ancient"]) in UNKNOWN:
         return None
-    return frozenset({fold(match["ancient"]), fold(match["modern"])})
+    return (match["ancient"], match["modern"])
+
+
+def cdli_place_names(text: str | None) -> frozenset[str] | None:
+    """Return the names of a CDLI place, folded, or None if CDLI does not know it."""
+    place = cdli_place(text)
+    return None if place is None else frozenset(fold(name) for name in place)
 
 
 def city_agrees(city: str, text: str | None) -> bool | None:

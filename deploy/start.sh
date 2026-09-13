@@ -10,6 +10,8 @@ as_cdpp() {
 chown -R cdpp:cdpp /data
 if [ -s /data/cdpp.sqlite3 ]; then
     as_cdpp cdpp db upgrade
+    # A new version of the application can index other values.
+    as_cdpp cdpp reindex
 else
     as_cdpp cdpp load-data
 fi

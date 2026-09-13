@@ -5,6 +5,8 @@ from flask import Flask
 
 from cdpp.cdli_comparison import (
     SECTIONS,
+    cdli_periods,
+    cdli_place,
     city_agrees,
     languages_agree,
     material_agrees,
@@ -207,3 +209,33 @@ def test_check_cdli_needs_the_sections(app: Flask, tmp_path: Path) -> None:
 
     assert result.exit_code != 0
     assert "No section starts with <!-- cdpp check-cdli: period -->" in result.output
+
+
+@pytest.mark.parametrize(
+    ("period", "sub_period", "names"),
+    [
+        ("Late Babylonian", "Greek", ["Hellenistic"]),
+        ("Archaic", None, ["Uruk IV", "Uruk III"]),
+        ("Old Babylonian", "Late Old Babylonian", ["Old Babylonian"]),
+        ("Old Babylonian", None, []),
+    ],
+)
+def test_cdli_periods_name_a_period_and_its_sub_period(
+    period: str, sub_period: str | None, names: list[str]
+) -> None:
+    assert cdli_periods(period, sub_period) == names
+
+
+@pytest.mark.parametrize(
+    ("provenience", "place"),
+    [
+        ("Kanesh (mod. Kültepe) ?", ("Kanesh", "Kültepe")),
+        ("Nineveh", ("Nineveh",)),
+        ("uncertain (mod. Babylonia)", None),
+        ("", None),
+    ],
+)
+def test_cdli_place_gives_the_ancient_and_the_modern_name(
+    provenience: str, place: tuple[str, ...] | None
+) -> None:
+    assert cdli_place(provenience) == place

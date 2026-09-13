@@ -34,6 +34,7 @@ from sqlalchemy import delete, select
 
 from cdpp.db import db
 from cdpp.models import CdliArtifact, OraccText, Tablet
+from cdpp.search import rebuild
 
 CDLI_CATALOGUE_URL = (
     "https://media.githubusercontent.com/media/cdli-gh/data/master/cdli_cat.csv"
@@ -375,6 +376,8 @@ def import_cdli(source: str) -> None:
     with open_text(source) as lines:
         tablets, entries = replace_cdli_snapshot(csv.DictReader(lines))
     click.echo(f"Matched {tablets} tablets to {entries} CDLI catalogue entries.")
+    # The search tables contain the CDLI numbers and place names.
+    rebuild()
 
 
 @click.command("import-oracc-texts")
@@ -394,3 +397,5 @@ def import_oracc_texts(sources: tuple[str, ...]) -> None:
             archives.append(read_oracc_archive(file))
     tablets, texts = replace_oracc_snapshot(archives)
     click.echo(f"Matched {tablets} tablets to {texts} Oracc texts.")
+    # The search tables contain the IDs of the Oracc texts.
+    rebuild()

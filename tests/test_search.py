@@ -1,11 +1,12 @@
 import pytest
 from flask import Flask
-from sqlalchemy import text
+from sqlalchemy import text, update
 
 from cdpp.db import db
-from cdpp.models import Sign
+from cdpp.models import CdliArtifact, Eponym, EponymYear, OraccText, Sign, Tablet
 from cdpp.search import (
     SIGN_TABLE,
+    TABLET_TABLE,
     normalise,
     rebuild,
     search_records,
@@ -22,6 +23,31 @@ def sign_refs(query: str, limit: int = 50) -> list[str]:
 
 def add_signs(*sign_refs: str) -> None:
     db.session.add_all(Sign(sign_ref=sign_ref) for sign_ref in sign_refs)
+    db.session.commit()
+
+
+def add_catalogue_values(sample: Sample) -> None:
+    """Give the sample tablet CDLI and Oracc entries, and a year with an eponym."""
+    tablet_id = sample.tablet.id
+    eponym = Eponym(name="Ashur-dan")
+    db.session.add_all(
+        [
+            CdliArtifact(
+                tablet_id=tablet_id,
+                p_number="P000001",
+                designation="A 1",
+                museum_no="BM 000001",
+                provenience="Mari (mod. Tell Hariri)",
+            ),
+            OraccText(tablet_id=tablet_id, project="saao", text_id="P000001"),
+            OraccText(tablet_id=tablet_id, project="dcclt", text_id="Q000002"),
+            eponym,
+        ]
+    )
+    db.session.flush()
+    # 1761 BC.
+    db.session.add(EponymYear(year=-1760, eponym_id=eponym.id))
+    db.session.execute(update(Tablet).where(Tablet.id == tablet_id).values(year=-1760))
     db.session.commit()
 
 
@@ -46,11 +72,37 @@ def test_tablet_documents_name_the_related_records(sample: Sample) -> None:
     document = documents[sample.tablet.id]
     assert document["museum_number"] == "A.1"
     assert document["rulers"] == ["Zimri-Lim"]
+    assert document["correspondents"] == ["Zimri-Lim"]
     assert document["city"] == "Mari"
     assert document["locality"] == "Syria"
     assert document["period"] == "Old Babylonian"
     assert document["sub_period"] is None
-    assert documents[sample.tablet_without_instances.id]["rulers"] == []
+    assert document["languages"] == ["Akkadian"]
+    other = documents[sample.tablet_without_instances.id]
+    assert other["rulers"] == []
+    assert other["identifiers"] == ["BM 12345"]
+
+
+def test_tablet_documents_include_catalogue_numbers_and_other_names(
+    sample: Sample,
+) -> None:
+    add_catalogue_values(sample)
+
+    document = {doc["id"]: doc for doc in tablet_documents()}[sample.tablet.id]
+
+    assert document["identifiers"] == ["P000001", "BM 000001", "Q000002"]
+    assert document["city_names"] == ["Tell Hariri"]
+    assert document["year"] == "1761 BC"
+    assert document["eponym"] == "Ashur-dan"
+
+
+@pytest.mark.parametrize("query", ["P000001", "Q000002", "Tell Hariri", "ashur-dan"])
+def test_search_finds_tablets_by_catalogue_numbers_and_other_names(
+    sample: Sample, query: str
+) -> None:
+    add_catalogue_values(sample)
+
+    assert search_records(query, limit=50).tablet_ids == [sample.tablet.id]
 
 
 def test_search_makes_the_search_tables_if_they_do_not_exist(sample: Sample) -> None:
@@ -58,6 +110,22 @@ def test_search_makes_the_search_tables_if_they_do_not_exist(sample: Sample) -> 
 
     assert results.sign_ids == [sample.sign.id]
     assert db.session.scalar(text(f"SELECT count(*) FROM {SIGN_TABLE}")) == 2
+
+
+def test_search_makes_the_search_tables_again_if_their_fields_changed(
+    sample: Sample,
+) -> None:
+    rebuild()
+    db.session.execute(text(f"DROP TABLE {TABLET_TABLE}"))
+    db.session.execute(
+        text(
+            f"CREATE VIRTUAL TABLE {TABLET_TABLE}"
+            " USING fts5(museum_number, tokenize='trigram')"
+        )
+    )
+    db.session.commit()
+
+    assert search_records("mari", limit=50).tablet_ids == [sample.tablet.id]
 
 
 @pytest.mark.parametrize(
@@ -68,6 +136,8 @@ def test_search_makes_the_search_tables_if_they_do_not_exist(sample: Sample) -> 
         ("Mari", ["A.1"]),
         ("barley", ["A.1"]),
         ("old babylonian", ["A.1", "BM_12345"]),
+        ("akkadian", ["A.1"]),
+        ("BM 12345", ["BM_12345"]),
     ],
 )
 def test_search_finds_tablets_by_their_details(

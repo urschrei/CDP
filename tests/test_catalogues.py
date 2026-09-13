@@ -19,6 +19,7 @@ from cdpp.catalogues import (
 )
 from cdpp.db import db
 from cdpp.models import CdliArtifact, OraccText
+from cdpp.search import search_records
 from tests.conftest import Sample
 
 
@@ -127,6 +128,7 @@ def test_import_cdli_replaces_the_snapshot_and_links_tablet_pages(
     ]
     html = client.get(f"/tablets/{sample.tablet.id}").get_data(as_text=True)
     assert '<a href="https://cdli.earth/P000007">P000007</a>' in html
+    assert search_records("P000007", limit=50).tablet_ids == [sample.tablet.id]
 
 
 def oracc_archive(
@@ -194,3 +196,4 @@ def test_import_oracc_texts_replaces_the_snapshot_and_links_tablet_pages(
     assert '<dt class="text-muted">DCCLT</dt>' in html
     link = "https://oracc.museum.upenn.edu/dcclt/nineveh/Q000001"
     assert f'<a href="{link}">Q000001</a>' in html
+    assert search_records("Q000001", limit=50).tablet_ids == [sample.tablet.id]

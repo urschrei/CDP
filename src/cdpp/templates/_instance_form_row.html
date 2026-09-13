@@ -1,11 +1,11 @@
 <tr id="instance-{{ instance.id }}" class="border-t border-line">
   <td colspan="{{ columns }}" class="bg-well px-4 py-6">
     <div class="grid gap-6 sm:grid-cols-[8rem_minmax(0,1fr)]">
-      <div class="flex aspect-square w-32 max-w-full items-center justify-center bg-ground p-2">
+      <a href="{{ url_for('instances.instance', instance_id=instance.id) }}" class="flex aspect-square w-32 max-w-full items-center justify-center bg-ground p-2">
         <img src="{{ image_url(instance) }}"
              alt="Photograph of this instance of {{ instance.sign.sign_ref }} on {{ instance.tablet.museum_number }}"
              class="max-h-full max-w-full object-contain">
-      </div>
+      </a>
       {% include "_instance_form.html" %}
     </div>
   </td>

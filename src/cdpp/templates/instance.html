@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+{% from "macros.html" import breadcrumbs, cuneiform, specimen %}
+{% set sign = instance.sign %}
+{% set tablet = instance.tablet %}
+{% set section = "tablets" %}
+{% block title %}Instance of {{ sign.sign_ref }} on {{ tablet.museum_number }}{% endblock %}
+{% block content %}
+  {{ breadcrumbs([
+    (url_for("cdpp.tablets"), "Tablets", ""),
+    (url_for("cdpp.tablet", tablet_id=tablet.id), tablet.museum_number, ""),
+  ]) }}
+  <h1 class="mt-3 text-4xl font-semibold wrap-anywhere">Instance of <span class="font-sign">{{ sign.sign_ref }}</span> on {{ tablet.museum_number }}</h1>
+
+  <div class="mt-8 grid gap-10 lg:grid-cols-[minmax(0,1fr)_22rem]">
+    <figure class="min-w-0">
+      <div class="overflow-auto bg-well p-4" tabindex="0" role="region" aria-label="Photograph">
+        <img src="{{ image_url(instance) }}"
+             alt="Photograph of this instance of {{ sign.sign_ref }} on {{ tablet.museum_number }}"
+             {% if size %}width="{{ size[0] * scale }}" height="{{ size[1] * scale }}"{% endif %}
+             class="mx-auto block max-w-none">
+      </div>
+      <figcaption class="mt-3 flex flex-wrap items-center justify-between gap-x-6 gap-y-2 text-sm">
+        <span class="text-muted">{{ instance.filename }}{% if size %}, {{ size[0] }} × {{ size[1] }} px{% endif %}</span>
+        <nav aria-label="Scale">
+          <ul class="flex gap-1">
+            {% for option in scales %}
+              <li>
+                <a href="{{ url_for('instances.instance', instance_id=instance.id, scale=option) }}"
+                   class="inline-flex min-h-11 min-w-11 items-center justify-center px-2 {{ 'bg-ink text-ground no-underline' if option == scale }}"
+                   {% if option == scale %}aria-current="true"{% endif %}>{{ "Actual size" if option == 1 else option ~ "×" }}</a>
+              </li>
+            {% endfor %}
+          </ul>
+        </nav>
+      </figcaption>
+    </figure>
+
+    <div class="grid content-start gap-10">
+      <section aria-labelledby="instance-heading">
+        <h2 id="instance-heading" class="font-sign text-2xl">Instance</h2>
+        <dl class="mt-4 border-t border-line">
+          <div class="grid grid-cols-[8rem_minmax(0,1fr)] gap-4 border-b border-line py-2">
+            <dt class="text-muted">Sign</dt>
+            <dd>
+              <a href="{{ url_for('cdpp.sign', sign_id=sign.id) }}" class="font-sign text-lg">{{ sign.sign_ref }}</a>
+              {%- if glyph %} {{ cuneiform(glyph, sign.sign_ref, "ml-1 text-xl") }}{% endif %}
+            </dd>
+          </div>
+          {% for label, value in fields %}
+            <div class="grid grid-cols-[8rem_minmax(0,1fr)] gap-4 border-b border-line py-2">
+              <dt class="text-muted">{{ label }}</dt>
+              <dd>
+                {%- if value.default is defined and value.default -%}
+                  <span class="text-muted italic">{{ value.text }}<span class="sr-only"> (default)</span></span>
+                {%- else -%}
+                  {{ value }}
+                {%- endif -%}
+              </dd>
+            </div>
+          {% endfor %}
+        </dl>
+        <p class="mt-4 flex flex-wrap gap-x-6 gap-y-2">
+          <a href="{{ url_for('editor.edit_instance', instance_id=instance.id) }}" class="inline-flex min-h-11 items-center">Edit</a>
+          <a href="{{ url_for('history.instance_history', instance_id=instance.id) }}" class="inline-flex min-h-11 items-center">History</a>
+        </p>
+        {% if change_set %}
+          <p class="mt-1 text-sm text-muted">Last changed by {{ change_set.author }}, <a href="{{ url_for('history.change_set', change_set_id=change_set.id) }}"><time datetime="{{ change_set.created_at.isoformat() }}Z">{{ change_set.created_at|utc_time }}</time></a></p>
+        {% endif %}
+      </section>
+
+      <section aria-labelledby="tablet-heading">
+        <h2 id="tablet-heading" class="font-sign text-2xl">Tablet</h2>
+        <dl class="mt-4 border-t border-line">
+          <div class="grid grid-cols-[8rem_minmax(0,1fr)] gap-4 border-b border-line py-2">
+            <dt class="text-muted">Museum number</dt>
+            <dd><a href="{{ url_for('cdpp.tablet', tablet_id=tablet.id) }}">{{ tablet.museum_number }}</a></dd>
+          </div>
+          {% for detail in details %}
+            <div class="grid grid-cols-[8rem_minmax(0,1fr)] gap-4 border-b border-line py-2">
+              <dt class="text-muted">{{ detail.label }}</dt>
+              <dd>
+                {%- for text, key in detail.values -%}
+                  {%- if key -%}
+                    <a href="{{ url_for('cdpp.tablets', **{key: text}) }}">{{ text }}</a>
+                  {%- else -%}
+                    {{ text }}
+                  {%- endif -%}
+                  {%- if not loop.last %}, {% endif -%}
+                {%- endfor -%}
+              </dd>
+            </div>
+          {% endfor %}
+        </dl>
+      </section>
+    </div>
+  </div>
+
+  <nav aria-label="Other instances" class="mt-12 grid gap-6 border-t border-line pt-6 sm:grid-cols-2">
+    {% for heading, (previous, following), label in [
+      ("Instances of " ~ sign.sign_ref, sign_neighbours, "museum"),
+      ("Instances on " ~ tablet.museum_number, tablet_neighbours, "sign"),
+    ] %}
+      <div>
+        <h2 class="font-semibold">{{ heading }}</h2>
+        <ul class="mt-2 flex flex-wrap gap-x-6 gap-y-1">
+          {% for rel, other in [("prev", previous), ("next", following)] if other %}
+            <li>
+              <a href="{{ url_for('instances.instance', instance_id=other.id) }}" rel="{{ rel }}" class="inline-flex min-h-11 items-center">
+                {{- "Previous" if rel == "prev" else "Next" }}: {{ other.tablet.museum_number if label == "museum" else other.sign.sign_ref -}}
+              </a>
+            </li>
+          {% else %}
+            <li class="text-muted">No other instances</li>
+          {% endfor %}
+        </ul>
+      </div>
+    {% endfor %}
+  </nav>
+
+  {% if same_period %}
+    <section aria-labelledby="same-period-heading" class="mt-12">
+      <h2 id="same-period-heading" class="font-sign text-2xl">{{ tablet.period.name }} instances of {{ sign.sign_ref }}</h2>
+      <ul class="mt-4 grid grid-cols-3 gap-4 sm:grid-cols-6">
+        {% for other in same_period %}
+          <li>
+            {% call specimen(other) %}
+              <a href="{{ url_for('cdpp.tablet', tablet_id=other.tablet_id) }}">{{ other.tablet.museum_number }}</a>
+            {% endcall %}
+          </li>
+        {% endfor %}
+      </ul>
+    </section>
+  {% endif %}
+{% endblock %}

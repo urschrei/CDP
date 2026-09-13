@@ -1,6 +1,7 @@
 """Pages of the CDPP site."""
 
 import random
+from collections.abc import Sequence
 from dataclasses import dataclass
 from itertools import groupby
 from pathlib import Path
@@ -24,7 +25,6 @@ from werkzeug.exceptions import HTTPException
 from cdpp.db import db
 from cdpp.filters import FILTERS_BY_KEY, active_filters, filter_options
 from cdpp.models import (
-    SIGN_LIST_COLUMNS,
     Cdli,
     Cdp,
     Correspondent,
@@ -33,6 +33,7 @@ from cdpp.models import (
     Instance,
     Oracc,
     Sign,
+    SignList,
     Tablet,
 )
 from cdpp.search import SearchResults, SearchUnavailable, search_index
@@ -54,7 +55,6 @@ CDP_FIELDS = (
     ("oracc", "ORACC"),
     ("cdli", "CDLI archaic"),
     ("notes", "Notes"),
-    *((name, name.replace("_", " ")) for name in SIGN_LIST_COLUMNS),
 )
 # Headings of the columns that contain sign names.
 SIGN_NAME_HEADINGS = frozenset({"Description", "ORACC", "CDLI archaic"})
@@ -184,6 +184,7 @@ def sign(sign_id: int) -> ResponseReturnValue:
                 joinedload(Cdp.description),
                 joinedload(Cdp.oracc),
                 joinedload(Cdp.cdli),
+                selectinload(Cdp.sign_list_entries),
             )
         ],
     )
@@ -205,10 +206,13 @@ def sign(sign_id: int) -> ResponseReturnValue:
         .order_by(Instance.id)
         .limit(6)
     ).all()
+    sign_lists = db.session.scalars(select(SignList).order_by(SignList.position)).all()
     headings, rows = omit_empty_columns(
-        [heading for _, heading in CDP_FIELDS],
+        [heading for _, heading in CDP_FIELDS]
+        + [sign_list.name for sign_list in sign_lists],
         [
             [cdp_value(record, field) for field, _ in CDP_FIELDS]
+            + sign_list_numbers(record, sign_lists)
             for record in sign.cdp_records
         ],
     )
@@ -505,6 +509,12 @@ def cdp_value(record: Cdp, field: str) -> str:
     if isinstance(value, Description | Oracc | Cdli):
         return value.sign_ref
     return value or ""
+
+
+def sign_list_numbers(record: Cdp, sign_lists: Sequence[SignList]) -> list[str]:
+    """Return the numbers of a record in ``sign_lists``, in the same order."""
+    numbers = {entry.sign_list_id: entry.number for entry in record.sign_list_entries}
+    return [numbers.get(sign_list.id, "") for sign_list in sign_lists]
 
 
 def instance_row(instance: Instance) -> list[Any]:

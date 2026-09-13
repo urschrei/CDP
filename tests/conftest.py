@@ -23,6 +23,8 @@ from cdpp.models import (
     Period,
     Ruler,
     Sign,
+    SignList,
+    SignListEntry,
     Surface,
     Tablet,
 )
@@ -64,17 +66,23 @@ def sample(app: Flask) -> Sample:
     syria = Locality(area="Syria")
     zimri_lim = Ruler(name="Zimri-Lim")
     line_1 = Line(number="1")
+    meszl = SignList(name="MesZL", position=1)
+    zatu = SignList(name="ZATU", position=3)
+    lak = SignList(name="LAK", position=4)
 
     sign = Sign(
         sign_ref="AŠ",
         cdp_records=[
             Cdp(
                 form_name="a",
-                MesZL="1",
                 oracc=Oracc(sign_ref="AŠ"),
                 description=Description(sign_ref="horizontal wedge"),
+                sign_list_entries=[SignListEntry(sign_list=meszl, number="1")],
             ),
-            Cdp(form_name="b", LAK="2"),
+            Cdp(
+                form_name="b",
+                sign_list_entries=[SignListEntry(sign_list=lak, number="2")],
+            ),
         ],
     )
     tablet = Tablet(
@@ -103,7 +111,7 @@ def sample(app: Flask) -> Sample:
     )
     sign_without_records = Sign(sign_ref="ZA")
 
-    db.session.add_all([tablet, tablet_without_instances, sign_without_records])
+    db.session.add_all([tablet, tablet_without_instances, sign_without_records, zatu])
     db.session.commit()
     sample = Sample(tablet, tablet_without_instances, sign, sign_without_records)
     # The test client shares this session. Detach the records, so that each

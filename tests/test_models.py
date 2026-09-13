@@ -6,6 +6,7 @@ from sqlalchemy.exc import IntegrityError, InvalidRequestError
 import cdpp.models  # noqa: F401 (registers the tables on the metadata)
 from cdpp.db import db
 from cdpp.models import (
+    Cdp,
     Correspondent,
     Entity,
     Instance,
@@ -73,6 +74,7 @@ def test_correspondent_name_is_the_same_in_python_and_in_sql(app: Flask) -> None
         (Tablet, "recipients"),
         (Sign, "instances"),
         (Sign, "cdp_records"),
+        (Cdp, "sign_list_entries"),
         (Instance, "languages"),
     ],
     ids=lambda value: value if isinstance(value, str) else value.__name__,

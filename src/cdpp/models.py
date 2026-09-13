@@ -1,6 +1,6 @@
 """ORM models for tablets, signs and sign instances.
 
-Table and column names are the same as in the original MySQL schema.
+Most table and column names are those of the original MySQL schema.
 """
 
 from typing import Any
@@ -12,6 +12,7 @@ from sqlalchemy import (
     ForeignKey,
     String,
     Table,
+    UniqueConstraint,
     func,
     select,
 )
@@ -328,7 +329,8 @@ class Tablet(Entity):
     sent_from: Mapped[Correspondent | None] = relationship(foreign_keys=[from_id])
     sent_to: Mapped[Correspondent | None] = relationship(foreign_keys=[to_id])
     recipients: Mapped[list[Correspondent]] = relationship(
-        lazy="raise_on_sql", secondary=tablet_correspondent
+        lazy="raise_on_sql",
+        secondary=tablet_correspondent,
     )
     language: Mapped[Language | None] = relationship()
     eponym: Mapped[Eponym | None] = relationship()
@@ -343,7 +345,9 @@ class Tablet(Entity):
     reign: Mapped[Reign | None] = relationship()
     author: Mapped[Author | None] = relationship()
     rulers: Mapped[list[Ruler]] = relationship(
-        lazy="raise_on_sql", secondary=ruler_tablet, order_by=Ruler.name
+        lazy="raise_on_sql",
+        secondary=ruler_tablet,
+        order_by=Ruler.name,
     )
     instances: Mapped[list[Instance]] = relationship(
         back_populates="tablet", lazy="raise_on_sql"
@@ -387,35 +391,18 @@ class Cdli(Entity):
     sign_ref: Mapped[str] = mapped_column(String(150), unique=True, index=True)
 
 
-# Attribute names of the Cdp sign-list columns, in display order.
-SIGN_LIST_COLUMNS = (
-    "MesZL",
-    "ELLes",
-    "ZATU",
-    "LAK",
-    "UET_2",
-    "ARM_XV",
-    "Hinke",
-    "Clay_BE_A_14",
-    "Koenig_AfO_Bei_16",
-    "Ranke_BE_A_61",
-    "Schroeder_VS_12",
-    "Clay_BE_A_10",
-    "RSP",
-    "Emar",
-    "Schroder_VS_15",
-    "HZL",
-    "HA",
-    "aBZL",
-    "REC",
-    "Labat",
-    "KWU",
-    "Fossey_pp",
-)
+class SignList(Entity):
+    """A printed sign list, such as Borger's Mesopotamisches Zeichenlexikon."""
+
+    __tablename__ = "sign_list"
+
+    name: Mapped[str] = mapped_column(String(50), unique=True)
+    # The order of the sign lists in tables.
+    position: Mapped[int] = mapped_column(unique=True)
 
 
 class Cdp(Entity):
-    """A CDP sign form, with its references in other sign lists."""
+    """A CDP sign form, with its names and numbers in other sign lists."""
 
     __tablename__ = "cdp"
 
@@ -433,33 +420,32 @@ class Cdp(Entity):
     variant_name: Mapped[str | None] = mapped_column(String(5))
     form_description: Mapped[str | None] = mapped_column(String(50))
     notes: Mapped[str | None] = mapped_column(String(50))
-    MesZL: Mapped[str | None] = mapped_column(String(50))
-    ELLes: Mapped[str | None] = mapped_column(String(50))
-    ZATU: Mapped[str | None] = mapped_column(String(50))
-    LAK: Mapped[str | None] = mapped_column(String(50))
-    UET_2: Mapped[str | None] = mapped_column(String(50))
-    ARM_XV: Mapped[str | None] = mapped_column(String(50))
-    Hinke: Mapped[str | None] = mapped_column(String(50))
-    Clay_BE_A_14: Mapped[str | None] = mapped_column(String(50))
-    Koenig_AfO_Bei_16: Mapped[str | None] = mapped_column(String(50))
-    Ranke_BE_A_61: Mapped[str | None] = mapped_column(String(50))
-    Schroeder_VS_12: Mapped[str | None] = mapped_column(String(50))
-    Clay_BE_A_10: Mapped[str | None] = mapped_column(String(50))
-    RSP: Mapped[str | None] = mapped_column(String(50))
-    Emar: Mapped[str | None] = mapped_column(String(50))
-    Schroder_VS_15: Mapped[str | None] = mapped_column(String(50))
-    HZL: Mapped[str | None] = mapped_column(String(50))
-    HA: Mapped[str | None] = mapped_column(String(50))
-    aBZL: Mapped[str | None] = mapped_column(String(50))
-    REC: Mapped[str | None] = mapped_column(String(50))
-    Labat: Mapped[str | None] = mapped_column(String(50))
-    KWU: Mapped[str | None] = mapped_column(String(50))
-    Fossey_pp: Mapped[str | None] = mapped_column(String(50))
 
     sign: Mapped[Sign] = relationship(back_populates="cdp_records")
     description: Mapped[Description | None] = relationship()
     oracc: Mapped[Oracc | None] = relationship()
     cdli: Mapped[Cdli | None] = relationship()
+    sign_list_entries: Mapped[list[SignListEntry]] = relationship(
+        lazy="raise_on_sql",
+        back_populates="cdp",
+        cascade="all, delete-orphan",
+        order_by="SignListEntry.sign_list_id",
+    )
+
+
+class SignListEntry(Entity):
+    """The number of a CDP record in a sign list."""
+
+    __tablename__ = "sign_list_entry"
+    __table_args__ = (UniqueConstraint("cdp_id", "sign_list_id"),)
+
+    cdp_id: Mapped[int] = reference("cdp.id", ondelete="CASCADE")
+    sign_list_id: Mapped[int] = reference("sign_list.id")
+    # Text, because some numbers have suffixes, as in 556b.
+    number: Mapped[str] = mapped_column(String(50))
+
+    cdp: Mapped[Cdp] = relationship(back_populates="sign_list_entries")
+    sign_list: Mapped[SignList] = relationship()
 
 
 class Surface(Entity):
@@ -514,5 +500,7 @@ class Instance(Entity):
     function: Mapped[Function | None] = relationship()
     iteration: Mapped[Iteration | None] = relationship()
     languages: Mapped[list[Language]] = relationship(
-        lazy="raise_on_sql", secondary=instance_language, order_by=Language.name
+        lazy="raise_on_sql",
+        secondary=instance_language,
+        order_by=Language.name,
     )

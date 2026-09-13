@@ -46,6 +46,7 @@ from cdpp.oracc import (
     sign_glyphs,
     signs_named,
 )
+from cdpp.publications import parse_publication
 from cdpp.search import SearchResults, search_records
 
 bp = Blueprint("cdpp", __name__)
@@ -670,6 +671,7 @@ def tablet_details(tablet: Tablet) -> list[Detail]:
     eponym = tablet.eponym or (tablet.year.eponym if tablet.year else None)
     recipients = [*tablet.recipients, *([tablet.sent_to] if tablet.sent_to else [])]
     sender = tablet.sent_from.name if tablet.sent_from else None
+    publication = parse_publication(tablet.publication or "")
     entries: list[tuple[str, DetailValues]] = [
         (
             "Ruler" if len(tablet.rulers) == 1 else "Rulers",
@@ -712,7 +714,8 @@ def tablet_details(tablet: Tablet) -> list[Detail]:
         ("Medium", [(tablet.medium.name, "medium")]),
         ("Method", _linked(tablet.method and tablet.method.name, "method")),
         ("Scribe", _plain(tablet.author and tablet.author.name)),
-        ("Publication", _plain(tablet.publication)),
+        ("Series", _linked(publication.series, "series")),
+        ("Publication", _plain(publication.citation)),
         ("Notes", _plain(tablet.notes)),
     ]
     return [Detail(label, values) for label, values in entries if values]

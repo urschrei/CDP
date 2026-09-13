@@ -1,6 +1,7 @@
 """Filters for the tablet list.
 
-Each filter selects the tablets that have a related record with a given name.
+Most filters select the tablets that have a related record with a given name.
+The series filter selects the tablets whose publication is in a given series.
 Tablet pages link to filtered lists, and the tablet list has a filter form.
 """
 
@@ -30,6 +31,7 @@ from cdpp.models import (
     TextVehicle,
     Year,
 )
+from cdpp.publications import parse_publication
 
 
 @dataclass(frozen=True)
@@ -37,8 +39,9 @@ class TabletFilter:
     key: str
     label: str
     condition: Callable[[str], ColumnElement[bool]]
-    # The names that the filter form offers. None if only links use the filter.
-    options: Select[tuple[str]] | None = None
+    # The names that the filter form offers, as a query or as a function that
+    # returns them. None if only links use the filter.
+    options: Select[tuple[str]] | Callable[[], list[str]] | None = None
 
 
 def _related(
@@ -75,6 +78,31 @@ def _sent_to(value: str) -> ColumnElement[bool]:
     )
 
 
+def _publication_series() -> dict[int, str]:
+    """Return the publication series of each tablet that has one.
+
+    The database stores a publication as text, so the series comes from the
+    parser, not from SQL.
+    """
+    query = select(Tablet.id, Tablet.publication).where(Tablet.publication.is_not(None))
+    return {
+        tablet_id: series
+        for tablet_id, text in db.session.execute(query)
+        if (series := parse_publication(text).series)
+    }
+
+
+def _series(value: str) -> ColumnElement[bool]:
+    series = _publication_series()
+    return Tablet.id.in_(
+        [tablet_id for tablet_id, name in series.items() if name == value]
+    )
+
+
+def _series_names() -> list[str]:
+    return sorted(set(_publication_series().values()), key=str.casefold)
+
+
 FILTERS = (
     _related("period", "Period", Tablet.period, Period.name),
     _related("sub_period", "Sub-period", Tablet.sub_period, SubPeriod.name),
@@ -93,6 +121,7 @@ FILTERS = (
     _related("script_type", "Script type", Tablet.script_type, ScriptType.script),
     _related("medium", "Medium", Tablet.medium, Medium.name),
     _related("method", "Method", Tablet.method, Method.name),
+    TabletFilter("series", "Series", _series, _series_names),
 )
 FILTERS_BY_KEY = {tablet_filter.key: tablet_filter for tablet_filter in FILTERS}
 
@@ -107,11 +136,15 @@ def filter_options() -> list[tuple[TabletFilter, list[str]]]:
 
     Omit a filter if tablets use fewer than two of its names.
     """
-    options = []
+    options: list[tuple[TabletFilter, list[str]]] = []
     for tablet_filter in FILTERS:
         if tablet_filter.options is None:
             continue
-        names = list(db.session.scalars(tablet_filter.options))
+        names: list[str]
+        if isinstance(tablet_filter.options, Select):
+            names = list(db.session.scalars(tablet_filter.options))
+        else:
+            names = tablet_filter.options()
         if len(names) > 1:
             options.append((tablet_filter, names))
     return options

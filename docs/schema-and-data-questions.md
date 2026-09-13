@@ -38,6 +38,7 @@ The rank orders the open questions by importance. Questions whose answers change
 - `surface` holds the surfaces of an object and the parts of a text. Default column, iteration and surface values are for display only: the database does not store them. See [question 10](#10-lookup-tables-for-plain-values).
 - The sub-periods Sargonid, ED I, ED IIIa and ED IIIb, and the tablet `Wx17`, have their correct periods. The period ED is removed, because it is the same period as Early Dynastic. Two tablets have the locality of their city. See [question 7](#7-values-that-contradict-each-other).
 - Tables of instances show defaults in italics. Pages show primes as `′`, and line and column numbers without zeros in front. See [question 10](#10-lookup-tables-for-plain-values).
+- The JJT notes stay in the database, and tablet pages show them. A link hides or shows them. See [question 10](#10-lookup-tables-for-plain-values).
 
 ## 6. Empty columns and tables
 
@@ -190,7 +191,6 @@ The notes of the editor of the instance data say:
 - Can a tablet have a function, as the column `tablet.function_id` suggests?
 - What do the surface values `a`, `be` and `aas` mean?
 - What are the lines of the 32 instances that are not on seal impressions?
-- Are the working notes in `instance.jjt_notes` still needed?
 
 ### Options
 
@@ -206,6 +206,7 @@ The notes of the editor of the instance data say:
 - The table of instances on a tablet page shows the default `obv`, `i` or `1` in place of an empty surface, column or iteration. A default is in italics, and screen readers read "(default)" after it. A note above the table explains the italics. The table does not show a column whose values are all defaults.
 - The position under a photograph, for example "Rev, column iii, line 6′", contains only recorded values.
 - Pages show each apostrophe in a line or column number as a prime (`′`, U+2032), and remove the zeros in front of a number, for example `1′` for `01'`. The database keeps the values as they are, so data entry can use the apostrophe.
+- The working notes in `instance.jjt_notes` stay in the database. The editors of the data are the users of the site, so the table of instances on a tablet page shows the notes in the column "JJT notes (2012)". A link above the table hides or shows the column. The address of the page without the column has `notes=hide`.
 
 The other questions are open.
 

@@ -260,6 +260,7 @@ Set these environment variables to change the defaults.
 | --- | --- | --- |
 | `CDPP_SQLALCHEMY_DATABASE_URI` | `sqlite:///instance/cdpp.sqlite3`, in the project directory | Database URL. The application works only with SQLite. |
 | `CDPP_MEDIA_ROOT` | `media`, in the project directory | Directory that contains the `instance` directory of sign photographs. |
+| `CDPP_TRUSTED_PROXIES` | `0` | Number of proxies in front of the application that set the header `X-Forwarded-Proto`. The application takes the scheme of a request, `http` or `https`, from that header only if this number is 1 or more. `fly.toml` sets it to 1 for the proxy of Fly.io. |
 | `CDPP_PASSWORD` | Not set | Password that each request must give, with HTTP basic authentication. The user name can be any text. If the variable is not set, the site does not ask for a password. |
 
 ### Pages
@@ -281,6 +282,7 @@ Set these environment variables to change the defaults.
 | `/changes` | All change sets, newest first. |
 | `/changes/CHANGE_SET_ID` | A change set, with the form that undoes it. |
 | `/search?q=QUERY` | Signs and tablets that match the query. |
+| `/instances/INSTANCE_ID/photograph.png` | The photograph of a sign instance, as a download, with the records of the instance, the sign and the tablet in its metadata. |
 | `/media/instance/FILENAME` | A sign photograph. |
 
 The paginated pages take a `page` parameter.

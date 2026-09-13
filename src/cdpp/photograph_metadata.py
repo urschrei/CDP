@@ -116,7 +116,10 @@ class PhotographRecord:
 
 def load_instance(instance_id: int) -> Instance | None:
     """Return the instance with the records that its metadata contains."""
-    return db.session.get(Instance, instance_id, options=INSTANCE_OPTIONS)
+    # Load the related records again if the session already contains them.
+    return db.session.get(
+        Instance, instance_id, options=INSTANCE_OPTIONS, populate_existing=True
+    )
 
 
 def photograph_record(

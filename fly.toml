@@ -5,6 +5,10 @@ primary_region = "lhr"
 [build]
   dockerfile = "Dockerfile"
 
+# The proxy of Fly.io receives each request and sets X-Forwarded-Proto.
+[env]
+  CDPP_TRUSTED_PROXIES = "1"
+
 # The database. A new volume gets the data in db_dumps/cdpp.sql.
 [mounts]
   source = "cdpp_data"

@@ -6,9 +6,10 @@ from pathlib import Path
 from typing import Any
 
 from flask import Flask
+from werkzeug.middleware.proxy_fix import ProxyFix
 
 import cdpp.models  # noqa: F401 (registers the tables on the metadata)
-from cdpp import access, assets, editor, history, instances, views
+from cdpp import access, assets, downloads, editor, history, instances, views
 from cdpp.catalogues import import_cdli, import_oracc_texts
 from cdpp.cdli_comparison import check_cdli
 from cdpp.commands import backup, dump_data, import_oracc_signs, load_data, reindex
@@ -32,16 +33,23 @@ def create_app(config: Mapping[str, Any] | None = None) -> Flask:
         # The static folder contains only built assets. Their URLs change when
         # their content changes.
         SEND_FILE_MAX_AGE_DEFAULT=timedelta(days=365),
+        TRUSTED_PROXIES=0,
     )
     app.config.from_prefixed_env("CDPP")
     if config is not None:
         app.config.from_mapping(config)
+    # A proxy that receives HTTPS requests sends the scheme in
+    # X-Forwarded-Proto. A client can also send this header, so use it only
+    # behind the number of proxies in TRUSTED_PROXIES.
+    if proxies := app.config["TRUSTED_PROXIES"]:
+        # Flask documents this replacement of the method with middleware.
+        app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=proxies)  # ty: ignore[invalid-assignment]
 
     db.init_app(app)
     migrate.init_app(app, db)
     access.init_app(app)
     assets.init_app(app)
-    for blueprint in (views.bp, editor.bp, history.bp, instances.bp):
+    for blueprint in (views.bp, editor.bp, history.bp, instances.bp, downloads.bp):
         app.register_blueprint(blueprint)
     commands = (
         dump_data,
